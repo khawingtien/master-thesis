@@ -11,7 +11,7 @@ pulley_kin = "no";
 % Ebener Roboter mit 4 Seilen
 % Definiere proximale Ankerpunkte Rahmen [x; y]
 global f_min 
-f_min = 5; 
+f_min = 15; 
 global f_max
 f_max = 36;
 global grid_length
