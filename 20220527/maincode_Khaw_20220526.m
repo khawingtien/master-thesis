@@ -15,7 +15,7 @@ f_min = 5;
 global f_max
 f_max = 36;
 global grid_length
-grid_length = 333; %mm 
+grid_length = 222; %mm 
 global grid_n
 grid_n = 22; 
  %% pulley
