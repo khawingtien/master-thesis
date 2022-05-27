@@ -13,7 +13,7 @@ pulley_kin = "no";
 global f_min 
 f_min = 15; 
 global f_max
-f_max = 36;
+f_max = 46;
 global grid_length
 grid_length = 662; %mm 
 global grid_n
