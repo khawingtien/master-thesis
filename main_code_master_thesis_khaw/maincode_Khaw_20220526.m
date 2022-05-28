@@ -98,15 +98,6 @@ counter_analysis = 1; %tbd counter logik ändern!!!!
 % 0 = Position nicht in const. orientation workspace enthalten
 % 1 = enthalten
 
-%x-, y-Werte befüllen
-%tbd check check KOS
-% global x_row 
-% x_row = zeros( grid_n + 1,1); %spaltenvektor
-% global y_column
-% y_column = zeros(grid_n + 1, 1);
-% global z_diagonal
-% z_diagonal = zeros(grid_n + 1,1); %KHAW
-
 x_row = [-grid_length/2 : grid_delta: grid_length/2]'; %x,y,z dimension should be the same 
 y_column = [grid_length/2 : -grid_delta: -grid_length/2]';
 z_page = [grid_length/2 : -grid_delta: -grid_length/2]'; %KHAW
