@@ -1,29 +1,43 @@
 %% Function Arbeitsraum_Verarbeitung
-function [analysis, workspace_logical] = Arbeitsraum_Verarbeitung_KHAW(a, b, f_min, f_max, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, rot_name, analysis, workspace, workspace_logical, R, grid_deg)
+function [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, rot_name, analysis, workspace, workspace_logical, R, grid_deg)
 %% AUSWERTUNG Arbeitsraum
 workspace_adapt = workspace_logical; %workspace_logical has the final logic of all wrench-frasible working space in 3D
 grid_size = grid_n + 1;
+global f_min f_max %import global variable 
 
-%Workspace anpassen, Ausreißer ausschließen (remove outlier)
-%for each element of the 4th dimension of workspace matrix
-for i = 1 : grid_n + 1
-    for j = 1 : grid_n +1
-        for k = 1 : grid_n +1
-            if workspace_adapt(i, j, k) == 1 %go through all of the workspace adapt to find if element is included in workspace (==1)
-            %check 8 neighbors
-            neighbor = zeros(8,2); %preallocating for speed
-            neighbor(1:8,1:3) = [i+[-1;0;3;-1;1;-1;0;1] j+[-1;-1;-1;0;0;1;1;1] k+[-1;-1;-1;0;0;1;1;1]]; %define its neighbors
+%%calculate relative neighbours (27-1) point for 3D.
+ind = [1:27]'; 
+sz = [3 3 3];
+[x,y,z]= ind2sub(sz,ind);
+
+relative_neighbor = [x y z]-2 ; %minus two because the first coordinate start with (-1,-1,-1), see the cube dimension in draw.io
+relative_neighbor(14,:)=[]; %the absolute coordinate (in position 5, layer 2) must be removed 
+
+%% Workspace anpassen, Ausreißer ausschließen (remove outlier) for each
+%element of the 4th dimension of workspace matrix
+for i = 1 : grid_n + 1 %for coordinate x
+    for j = 1 : grid_n +1 %for coordinate y
+        for k = 1 : grid_n +1 %for coordinate z
+            if workspace_adapt(i, j, k) == 1 %go through all of the workspace adapt to find if element is included in workspace (==1 TRUE)
             
-            %N = neighbors(TR) returns the IDs of the neighbors to all triangles or tetrahedra in TR
-            neighbor = neighbor(all(neighbor,2) & neighbor(:,1) <= grid_size & neighbor(:,2) <= grid_size,:); %get only neighbors within the array 
+%            Alternative methode for introducing z in 3Dimension
+%               neighbor = zeros(27,3); %preallocating for speed
+                %for page=1:3
+%                neighbor((page-1)*9+1:page*9,:) =[i+[-1;0;1;-1;0;1;-1;0;1] j+[-1;-1;-1;0;0;0;1;1;1] k+page*ones(9,1)-2]; %define its neighbors
+%               end
+
+            neighbor = relative_neighbor + [i j k]; %surrounding 26 points + absolute coordinate in 3D space
+            compare = all(neighbor,2) & neighbor(:,1) <= grid_size & neighbor(:,2) <= grid_size; %TOASK! 
+            neighbor = neighbor(compare,:); %get only neighbors within the array 
             
-            for i = 1 : size(neighbor, 1)
-                neighbor(i, 3) = workspace_adapt(neighbor(i, 1), neighbor(i, 2),neighbor(i,3)); %3. Spalte Workspace Zugehörigkeit
-            end
-            %if all neighbors 0 in third column, remove it
-            if any(neighbor(:, 3)) == 0
-                workspace_adapt(i, j, k) = 0; %remove element from workspace, bc not reachable
-            end
+                for i = 1 : size(neighbor, 1)
+                    workspace_neighbor(i) = workspace_adapt(neighbor(i, 1), neighbor(i, 2), neighbor(i,3)); %3. Spalte Workspace Zugehörigkeit
+                end
+            
+            %if all neighbors 0 (all 26 points),then the position in workspace_adapt is Zero. 
+                if all(workspace_neighbor == 0) 
+                    workspace_adapt(i, j, k) = 0; %remove element from workspace, bc not reachable
+                end
             end
         end
     end
@@ -99,9 +113,6 @@ figure(counter_analysis)
 plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g'); %Plot x- and y-coordinate
 grid on
 view(3)
-% [caz,cel] = view
-v = [-5 -5 6];
-[caz,cel] = view(v);
 % hold on
 % plot(workspace_adapt_pointwise(k, 1), workspace_adapt_pointwise(k, 2), 'r');
 

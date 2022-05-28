@@ -1,5 +1,5 @@
 close all
-clear all
+clear all except w_0
 clc
 tic %start Stopwatch timer
 
