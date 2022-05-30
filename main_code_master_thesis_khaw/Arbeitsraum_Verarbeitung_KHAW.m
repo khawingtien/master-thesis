@@ -83,29 +83,33 @@ frac_area_of_1 = sum(workspace_further_adapt(:)); %define the 'workspace_further
 %% Schwerpunkt berechnen, speichern 
 % Method 1, using mean
 % 
-% sp_row = 1 : size(workspace_further_adapt, 1);  %Schwerpunkt row
-% sp_column = 1 : size(workspace_further_adapt, 2); %Schwerpunkt column 
-% [SP_column, SP_row] =meshgrid(sp_column, sp_row); %generate SP_column (67x67) in x-coordinate & SP_row (67x67) in y-coordinate
-% meanA = mean(workspace_further_adapt(:)); 
-% centerOfMasscolumn = mean(workspace_further_adapt(:) .* SP_column(:)) / meanA;
-% centerOfMassrow = mean(workspace_further_adapt(:) .* SP_row(:)) / meanA;
-% %% Speichern in analysis array
-% %Platform Konfig
-% analysis(counter_analysis, 1) = b_name;
-% %Minimale Seilkraft
-% analysis(counter_analysis, 2) = f_min;
-% %Maximale Seilkraft
-% analysis(counter_analysis, 3) = f_max;
-% %Rotation der Plattform
-% analysis(counter_analysis, 4) = rot_name;
-% % %Fläche des Arbeitsraumes
-% % analysis(counter_analysis, 5) = convexhull_area;
-% %Fläche des Arbeitsraumes Anteilsmäßig aus Anteil 1en
-% analysis(counter_analysis, 5) = frac_area_of_1;
-% %Schwerpunkt des Arbeitsraumes Row 
-% analysis(counter_analysis, 6) = centerOfMassrow;
-% %Schwerpunkt des Arbeitsraumes Column 
-% analysis(counter_analysis, 7) = centerOfMasscolumn;
+sp_row = 1 : size(workspace_further_adapt, 1);  %Schwerpunkt row
+sp_column = 1 : size(workspace_further_adapt, 2); %Schwerpunkt column 
+sp_page = 1: size(workspace_further_adapt, 3); %Schwerpunkt page
+[SP_row, SP_column, SP_page] =meshgrid(sp_column, sp_row, sp_page); %generate SP_column (67x67) in x-coordinate & SP_row (67x67) in y-coordinate
+meanA = mean(workspace_further_adapt(:)); 
+centerOfMasscolumn = mean(workspace_further_adapt(:) .* SP_column(:)) / meanA;
+centerOfMassrow = mean(workspace_further_adapt(:) .* SP_row(:)) / meanA;
+centerOfMasspage = mean(workspace_further_adapt(:) .* SP_page(:)) / meanA;
+%% Speichern in analysis array
+%Platform Konfig
+analysis(counter_analysis, 1) = b_name;
+%Minimale Seilkraft
+analysis(counter_analysis, 2) = f_min;
+%Maximale Seilkraft
+analysis(counter_analysis, 3) = f_max;
+%Rotation der Plattform
+analysis(counter_analysis, 4) = rot_name;
+% %Fläche des Arbeitsraumes
+% analysis(counter_analysis, 5) = convexhull_area;
+%Fläche des Arbeitsraumes Anteilsmäßig aus Anteil 1en
+analysis(counter_analysis, 5) = frac_area_of_1;
+%Schwerpunkt des Arbeitsraumes Row 
+analysis(counter_analysis, 6) = centerOfMassrow;
+%Schwerpunkt des Arbeitsraumes Column 
+analysis(counter_analysis, 7) = centerOfMasscolumn;
+%Schwerpunkt des Arbeitsraumes Page
+analysis(counter_analysis, 8) = centerOfMasspage;
 
 
 %% Plots

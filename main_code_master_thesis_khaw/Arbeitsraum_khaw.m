@@ -12,7 +12,7 @@ workspace_logical_temp = ones(grid_n+1, grid_n+1, grid_n+1);
                   
         %berechne die Seilkraftverteilung an dieser Position 
         [stop, R,l] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, pulley_kin, rad_pulley, R_A, rot_angle_A); %hier erstmal nur stop von Interesse tbd
-        counter = counter + 1;
+        counter = counter + 1 %no semicolon, to show the current progression during debugging 
         
         %write the value (True or false) into the workspace logical matrix  
             if stop == 0 %keine Verletzung der f_min, f_max

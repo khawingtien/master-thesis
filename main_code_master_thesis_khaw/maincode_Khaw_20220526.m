@@ -125,7 +125,7 @@ for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line f
         end
         %finalen Arbeitsraum bestimmen und darstellen
         [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, rot_name, analysis, workspace, workspace_logical, R, grid_deg);
-        counter_analysis = counter_analysis + 1 %no semicolon, to show in command window the progression
+        counter_analysis = counter_analysis + 1; 
     end
 end
 %Sheet : analysis
