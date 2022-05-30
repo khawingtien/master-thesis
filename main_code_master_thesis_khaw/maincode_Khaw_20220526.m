@@ -17,7 +17,7 @@ f_max = 36;
 global grid_length
 grid_length = 662; %mm 
 global grid_n
-grid_n = 66; 
+grid_n = 220; 
  %% pulley
 global loc_winch
 loc_winch = [-415, -415, 415,  415; -25,  25, 25, -25];
