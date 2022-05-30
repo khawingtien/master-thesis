@@ -3,7 +3,7 @@ function [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_
 %% AUSWERTUNG Arbeitsraum
 workspace_adapt = workspace_logical; %workspace_logical has the final logic of all wrench-frasible working space in 3D
 grid_size = grid_n + 1;
-global f_min f_max %import global variable 
+global f_min f_max noC %import global variable 
 
 %%calculate relative neighbours (27-1) point for 3D.
 ind = [1:27]'; 
@@ -45,6 +45,7 @@ end
 
 workspace_further_adapt_struct = bwconncomp(workspace_adapt); %Find and count connected components in binary image, default connectivity is 8.
 workspace_further_adapt_cell = struct2cell(workspace_further_adapt_struct);
+% pixel = workspace_further_adapt_struct.PixelIdxList{1, 1};
 
 [nrows,ncols] = cellfun(@size, workspace_further_adapt_cell{4,1}); %find the number of row & column of the connected components in binary image (Pixel Index List)
 max_object = max(nrows); %max nrow =3113 
@@ -82,29 +83,30 @@ frac_area_of_1 = sum(workspace_further_adapt(:)); %define the 'workspace_further
 %% Schwerpunkt berechnen, speichern 
 % Method 1, using mean
 % 
-% sp_row = 1 : size(workspace_further_adapt, 1);  %Schwerpunkt row
-% sp_column = 1 : size(workspace_further_adapt, 2); %Schwerpunkt column 
-% [SP_column, SP_row] =meshgrid(sp_column, sp_row); %generate SP_column (67x67) in x-coordinate & SP_row (67x67) in y-coordinate
-% meanA = mean(workspace_further_adapt(:)); 
-% centerOfMasscolumn = mean(workspace_further_adapt(:) .* SP_column(:)) / meanA;
-% centerOfMassrow = mean(workspace_further_adapt(:) .* SP_row(:)) / meanA;
-% %% Speichern in analysis array
-% %Platform Konfig
-% analysis(counter_analysis, 1) = b_name;
-% %Minimale Seilkraft
-% analysis(counter_analysis, 2) = f_min;
-% %Maximale Seilkraft
-% analysis(counter_analysis, 3) = f_max;
-% %Rotation der Plattform
-% analysis(counter_analysis, 4) = rot_name;
-% % %Fläche des Arbeitsraumes
-% % analysis(counter_analysis, 5) = convexhull_area;
-% %Fläche des Arbeitsraumes Anteilsmäßig aus Anteil 1en
-% analysis(counter_analysis, 5) = frac_area_of_1;
-% %Schwerpunkt des Arbeitsraumes Row 
-% analysis(counter_analysis, 6) = centerOfMassrow;
-% %Schwerpunkt des Arbeitsraumes Column 
-% analysis(counter_analysis, 7) = centerOfMasscolumn;
+sp_row = 1 : size(workspace_further_adapt, 1);  %Schwerpunkt row
+sp_column = 1 : size(workspace_further_adapt, 2); %Schwerpunkt column 
+sp_page = 1: size(workspace_further_adapt, 3); %Schwerpunkt page
+[SP_row, SP_column, SP_page] =meshgrid(sp_column, sp_row, sp_page); %generate SP_column (67x67) in x-coordinate & SP_row (67x67) in y-coordinate
+meanA = mean(workspace_further_adapt(:)); 
+centerOfMasscolumn = mean(workspace_further_adapt(:) .* SP_column(:)) / meanA;
+centerOfMassrow = mean(workspace_further_adapt(:) .* SP_row(:)) / meanA;
+%% Speichern in analysis array
+%Platform Konfig
+analysis(counter_analysis, 1) = b_name;
+%Minimale Seilkraft
+analysis(counter_analysis, 2) = f_min;
+%Maximale Seilkraft
+analysis(counter_analysis, 3) = f_max;
+%Rotation der Plattform
+analysis(counter_analysis, 4) = rot_name;
+% %Fläche des Arbeitsraumes
+% analysis(counter_analysis, 5) = convexhull_area;
+%Fläche des Arbeitsraumes Anteilsmäßig aus Anteil 1en
+analysis(counter_analysis, 5) = frac_area_of_1;
+%Schwerpunkt des Arbeitsraumes Row 
+analysis(counter_analysis, 6) = centerOfMassrow;
+%Schwerpunkt des Arbeitsraumes Column 
+analysis(counter_analysis, 7) = centerOfMasscolumn;
 
 
 %% Plots
@@ -134,18 +136,12 @@ b_figure(3,5) = b_figure(3,1);
 plot3(b_figure(1, :), b_figure(2, :),b_figure(3, :), 'x--k');
 
 %plot Seile
-str = ["w1" "w2" "w3" "w4" "w5" "w6"];
-for i = 1 : 4
+str = ["w1" "w2" "w3" "w4" "w5" "w6"]; 
+for i = 1 : noC
     hold on
     plot3([a_adapt(1, i) b_figure(1, i)], [a_adapt(2, i) b_figure(2, i)], [a_adapt(3, i) b_figure(3, i)],'--r');
     text(a_adapt(1, i), a_adapt(2,i), a_adapt(3,i), str(i)); %add the label on each cable 
 end
-
-
-% xt = a_adapt (1,i);
-% yt = b_figure(1,i);
-% str = 'w1';
-% text(xt,yt,str)
 
 % axis([-400 400 -400 400]) %axis in x_min, x_max and y_min, y_max 
 % xticks([-350 0 350]) %label of x-coordinate
