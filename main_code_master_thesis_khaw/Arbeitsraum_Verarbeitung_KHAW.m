@@ -145,6 +145,7 @@ end
 % xticks([-350 0 350]) %label of x-coordinate
 % yticks([-350 0 350]) %label of y-coordinate
 axis square  %Use axis lines with equal lengths. Adjust the increments between data units accordingly.
+title('Wrench-feasible working space in cable-driven Robotics')
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
