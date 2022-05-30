@@ -3,7 +3,7 @@ function [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_
 %% AUSWERTUNG Arbeitsraum
 workspace_adapt = workspace_logical; %workspace_logical has the final logic of all wrench-frasible working space in 3D
 grid_size = grid_n + 1;
-global f_min f_max %import global variable 
+global f_min f_max noC %import global variable 
 
 %%calculate relative neighbours (27-1) point for 3D.
 ind = [1:27]'; 
@@ -29,7 +29,7 @@ for i = 1 : grid_n + 1 %for coordinate x
             neighbor = relative_neighbor + [i j k]; %surrounding 26 points + absolute coordinate in 3D space
             compare = all(neighbor,2) & neighbor(:,1) <= grid_size & neighbor(:,2) <= grid_size; %TOASK! 
             neighbor = neighbor(compare,:); %get only neighbors within the array 
-            
+            workspace_neighbor = zeros(1,26);
                 for i = 1 : size(neighbor, 1)
                     workspace_neighbor(i) = workspace_adapt(neighbor(i, 1), neighbor(i, 2), neighbor(i,3)); %3. Spalte Workspace Zugehörigkeit
                 end
@@ -45,6 +45,7 @@ end
 
 workspace_further_adapt_struct = bwconncomp(workspace_adapt); %Find and count connected components in binary image, default connectivity is 8.
 workspace_further_adapt_cell = struct2cell(workspace_further_adapt_struct);
+% pixel = workspace_further_adapt_struct.PixelIdxList{1, 1};
 
 [nrows,ncols] = cellfun(@size, workspace_further_adapt_cell{4,1}); %find the number of row & column of the connected components in binary image (Pixel Index List)
 max_object = max(nrows); %max nrow =3113 
@@ -134,18 +135,12 @@ b_figure(3,5) = b_figure(3,1);
 plot3(b_figure(1, :), b_figure(2, :),b_figure(3, :), 'x--k');
 
 %plot Seile
-str = ["w1" "w2" "w3" "w4"];
-for i = 1 : 4
+str = ["w1" "w2" "w3" "w4" "w5" "w6"]; 
+for i = 1 : noC
     hold on
     plot3([a_adapt(1, i) b_figure(1, i)], [a_adapt(2, i) b_figure(2, i)], [a_adapt(3, i) b_figure(3, i)],'--r');
-    text(a_adapt(1, i), a_adapt(2,i), a_adapt(3,i), str(i)); 
+    text(a_adapt(1, i), a_adapt(2,i), a_adapt(3,i), str(i)); %add the label on each cable 
 end
-
-
-% xt = a_adapt (1,i);
-% yt = b_figure(1,i);
-% str = 'w1';
-% text(xt,yt,str)
 
 % axis([-400 400 -400 400]) %axis in x_min, x_max and y_min, y_max 
 % xticks([-350 0 350]) %label of x-coordinate

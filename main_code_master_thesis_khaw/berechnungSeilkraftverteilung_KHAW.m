@@ -77,10 +77,10 @@ A_T(~any(A_T,2),:) = []; %when all values in Dimension 2 (row) == 0, then delete
 rank_A_T = size(orth(A_T.').', 1); %Orthonormal basis for range of matrix (Pott page 93)
     %nonsingular posn
 if rank_A_T == size(A_T, 1)
-    disp('non singular posn')
+    %disp('non singular posn')
 else
     %sigular posn
-    disp('singular posn')
+    %disp('singular posn')
     stop = 1;
     return
 end
@@ -105,9 +105,9 @@ end
 
 f_V = -A_inv * (wrench_p + A_T * f_M); %Gleichung 3.59 Pott Buch
 if norm(f_V, 2) >= (1/2 * (f_max - f_min)) && norm(f_V, 2) <= (1/2 * sqrt(noC) * (f_max - f_min)) %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector
-    disp("fail to provide a feasible solution although such a solution exists")
+    %disp("fail to provide a feasible solution although such a solution exists")
 elseif norm(f_V, 2) > (1/2 * sqrt(noC) * (f_max - f_min))
-    disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
+    %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
     stop = 1;
     if r == zeros(3, 4)
         disp('A')  %%What s this??
@@ -213,10 +213,10 @@ end
 %% display info 
 %stop = 0; %why we need this again? Khaw auskommentiert
 if find(f > f_max)
-       disp("Achtung! Seilkraft ueberschreitet den Maximalwert");
+%        disp("Achtung! Seilkraft ueberschreitet den Maximalwert");
     stop = 1;
 elseif find(f < f_min)
-       disp("Achtung! Seilkraft unterschreitet den Minimalwert")
+%        disp("Achtung! Seilkraft unterschreitet den Minimalwert")
     stop = 1;
 end
 end
