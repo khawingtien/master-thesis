@@ -15,9 +15,9 @@ f_min = 5;
 global f_max
 f_max = 36;
 global grid_length
-grid_length = 662; %mm 
+grid_length = 662; %mm %Abstand zwischen Ankerpunkten am Rahmen
 global grid_n
-grid_n = 220; 
+grid_n = 33;  %Anzahl der Unterteilungen
  %% pulley
 global loc_winch
 loc_winch = [-415, -415, 415,  415; -25,  25, 25, -25];
@@ -73,12 +73,11 @@ f_g = 0; % tbd Gewichtskraft implementieren wenn Gewicht bekannt
 size_a = size(a);
 
 % Anzahl der Seile = number of cable 
+global noC
 noC = size_a(2);
 
 %% Parameter zur Arbeitsraum Berechnung
-% Definiere Grid
-% grid_length = 662;  %mm %Abstand zwischen Ankerpunkten am Rahmen
-% grid_n = 66;                             %Anzahl der Unterteilungen
+% Definiere Grid                      
 grid_delta = grid_length / grid_n;       %Gitterabstand
 
 t = linspace(0,10,100); % 0 bis 10 Sekunden in 100 Schritten
@@ -98,14 +97,14 @@ counter_analysis = 1; %tbd counter logik ändern!!!!
 % 0 = Position nicht in const. orientation workspace enthalten
 % 1 = enthalten
 
-x_row = [-grid_length/2 : grid_delta: grid_length/2]'; %x,y,z dimension should be the same 
+x_row = [grid_length/2 : -grid_delta: -grid_length/2]'; %x,y,z dimension should be the same 
 y_column = [grid_length/2 : -grid_delta: -grid_length/2]';
 z_page = [grid_length/2 : -grid_delta: -grid_length/2]'; %KHAW
 
 %Define Workspace in a matrix with column1=x, column2=y and column3=z
 workspace = [x_row y_column z_page] ;
-
-analysis = zeros(1, 7); %analysis for different parameter, will be saved in a Zeilenvektor. preallocating the variable for speed
+%analysis for different parameter, will be saved in a Zeilenvektor. preallocating the variable for speed
+analysis = zeros(1, 7);
 
 %% Calculation for workspace logical
 for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line form, square form...)
@@ -133,7 +132,7 @@ end
 % excel_save = "1R2T_Rahmen1_%d_%d_%d_%d_%d_%d_%d.xlsx";
 % excel_name = sprintf(excel_save, f_min, f_max, w_p, f_g, grid_n, grid_deg, w_p_t);
 % writematrix(analysis, excel_name);
-% toc
+toc
 
 
 
