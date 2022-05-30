@@ -97,12 +97,12 @@ counter_analysis = 1; %tbd counter logik ändern!!!!
 % 0 = Position nicht in const. orientation workspace enthalten
 % 1 = enthalten
 
-x_row = [grid_length/2 : -grid_delta: -grid_length/2]'; %x,y,z dimension should be the same 
-y_column = [grid_length/2 : -grid_delta: -grid_length/2]';
-z_page = [grid_length/2 : -grid_delta: -grid_length/2]'; %KHAW
+coordinate.x = [grid_length/2 : -grid_delta: -grid_length/2]'; %x,y,z dimension should be the same 
+coordinate.y = [grid_length/2 : -grid_delta: -grid_length/2]';
+coordinate.z = [grid_length/2 : -grid_delta: -grid_length/2]'; %KHAW
 
 %Define Workspace in a matrix with column1=x, column2=y and column3=z
-workspace = [x_row y_column z_page] ;
+workspace = [coordinate.x coordinate.y coordinate.z] ;
 %analysis for different parameter, will be saved in a Zeilenvektor. preallocating the variable for speed
 analysis = zeros(1, 7);
 
@@ -121,7 +121,7 @@ for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line f
         workspace_logical_temp = ones(grid_n + 1, grid_n + 1, grid_n + 1); %preallocating the variable for speed
         for counter_w = 1 : size(rotation_w_array, 1)
             rotation_w_p = rotation_w_array(counter_w, :);
-            [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, grid_n, rotation, w_p, w_p_t, rotation_w_p, workspace, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A,x_row,y_column,z_page);
+            [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, grid_n, rotation, w_p, w_p_t, rotation_w_p, workspace, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A,coordinate);
         end
         %finalen Arbeitsraum bestimmen und darstellen
         [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, rot_name, analysis, workspace, workspace_logical, R, grid_deg);

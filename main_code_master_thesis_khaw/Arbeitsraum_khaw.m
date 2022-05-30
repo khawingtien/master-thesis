@@ -1,5 +1,5 @@
 %% Function Arbeitsraum
-function [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, grid_n, rotation, w_p, w_p_t, rotation_w_p, workspace, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, x_row,y_column,z_page)
+function [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, grid_n, rotation, w_p, w_p_t, rotation_w_p, workspace, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate)
 counter = 1; %predefine counter = 1
 stop = 0; %predefine stop = 0
 workspace_logical_temp = ones(grid_n+1, grid_n+1, grid_n+1);
@@ -8,7 +8,7 @@ workspace_logical_temp = ones(grid_n+1, grid_n+1, grid_n+1);
        for i = 1: grid_n+1
          for j = 1:grid_n+1
            for k = 1:grid_n+1
-             workspace_position = [x_row(i) y_column(j) z_page(k)]'; %workspace_position in a column vector 
+             workspace_position = [coordinate.x(i) coordinate.y(j) coordinate.z(k)]'; %workspace_position in a column vector 
                   
         %berechne die Seilkraftverteilung an dieser Position 
         [stop, R,l] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, pulley_kin, rad_pulley, R_A, rot_angle_A); %hier erstmal nur stop von Interesse tbd
