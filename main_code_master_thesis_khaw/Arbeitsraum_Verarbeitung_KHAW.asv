@@ -112,12 +112,6 @@ frac_area_of_1 = sum(workspace_further_adapt(:)); %define the 'workspace_further
 figure(counter_analysis)
 plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g'); %Plot x- and y-coordinate
 grid on
-view(3)
-% [caz,cel] = view
-v = [-5 -5 6];
-[caz,cel] = view(v);
-% hold on
-% plot(workspace_adapt_pointwise(k, 1), workspace_adapt_pointwise(k, 2), 'r');
 
 %plot Rahmen
 % hold on
@@ -144,10 +138,18 @@ for i = 1 : 4
     hold on
     plot3([a_adapt(1, i) b_figure(1, i)], [a_adapt(2, i) b_figure(2, i)], [a_adapt(3, i) b_figure(3, i)],'--r');
 end
+
+
+xt = a_adapt (1,i);
+yt = b_figure(1,i);
+str = 'w1';
+text(xt,yt,str)
+
 % axis([-400 400 -400 400]) %axis in x_min, x_max and y_min, y_max 
 % xticks([-350 0 350]) %label of x-coordinate
 % yticks([-350 0 350]) %label of y-coordinate
 axis square  %Use axis lines with equal lengths. Adjust the increments between data units accordingly.
+title('Wrench-feasible working space in cable-driven Robotics')
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
