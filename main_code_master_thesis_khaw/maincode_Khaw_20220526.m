@@ -34,9 +34,9 @@ if pulley_kin == 'yes'
     a = tang_pulley_outer;
 
 elseif pulley_kin == 'no'
-    a = [0   350  -250 -350 350 350  -350;  %x in mm 
+    a = [0   350  -350  -350 350 350  -350;  %x in mm 
          450 0   -450  450  450 -450 -450 ;  %y in mm 
-         250 300  250  250  300 300  250 ]; %z in mm
+         250 250  250  250  300 300   250 ]; %z in mm
     R_A = 1; %just for input, is not in use 
     rot_angle_A = 1; %just for input, is not in use     
 end
@@ -69,12 +69,9 @@ end
 
 f_g = 0; % tbd Gewichtskraft implementieren wenn Gewicht bekannt
 %% Standardparameter
-% Basispunkte Roboter
-size_a = size(a);
-
 % Anzahl der Seile = number of cable 
 global noC
-noC = size_a(2);
+noC = length(a);
 
 %% Parameter zur Arbeitsraum Berechnung
 % Definiere Grid                      
