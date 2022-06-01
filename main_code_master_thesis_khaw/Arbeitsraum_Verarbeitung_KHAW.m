@@ -116,19 +116,16 @@ analysis(counter_analysis, 8) = centerOfMasspage;
 %% Plots
 %plot Konvexe Hülle und speichern
 figure(counter_analysis)
-plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g'); %Plot x- and y-coordinate
+plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g','LineWidth',5); %Plot x- and y-coordinate
 grid on
 
 %plot Rahmen
-% hold on
-% plot3(a(1, :), a(2, :),a(3,:), 'xk'); %plot the frame with marker 'x' and black colour 'k'
-% hold on
 a_adapt = a;
 a_adapt(1:3, 8) = a(1:3,1); %extend to next column (so that the rectangle close up)
 
 
 %Plot Rahmen (KHAW) 
-box =  [-350   450   250
+box =  [-350   450   250 %define the coordinate of the box
        350    450   250
        350   -450   250
       -350   -450   250
@@ -137,21 +134,21 @@ box =  [-350   450   250
        350   -450   300
       -350   -450   300];
   
-idx = [4 8 5 1 4; 1 5 6 2 1; 2 6 7 3 2; 3 7 8 4 3; 5 8 7 6 5; 1 4 3 2 1]';
+idx = [4 8 5 1 4; 1 5 6 2 1; 2 6 7 3 2; 3 7 8 4 3; 5 8 7 6 5; 1 4 3 2 1]'; %the ascending index of the box that will be plotted one after another 
 
 xc = box(:,1);
 yc = box(:,2);
 zc = box(:,3);
 
-patch(xc(idx), yc(idx), zc(idx), 'r', 'facealpha', 0.1);
+%Plot one or more filled polygonal regions with facealpha = semitransparent polygons 
+patch(xc(idx), yc(idx), zc(idx), 'r', 'facealpha', 0.1); 
 view(3); %3D view
-
 
 %plot Endeffektor
 hold on
 b_figure = R * b; %Rotation * base(end-effector)
 b_figure (:,8) = b_figure(1:3,1); %extend to next column (so the shape can close up)
-plot3(b_figure(1, :), b_figure(2, :),b_figure(3, :), 'x--k');
+plot3(b_figure(1, :), b_figure(2, :),b_figure(3, :), 'x-k','LineWidth',2);
 
 %plot Seile
 str = ["w1" "w2" "w3" "w4" "w5" "w6" "w7" "w8"]; 
