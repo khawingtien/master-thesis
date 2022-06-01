@@ -34,9 +34,9 @@ if pulley_kin == 'yes'
     a = tang_pulley_outer;
 
 elseif pulley_kin == 'no'
-    a = [-30  0  30 -30   0  30;  %x in mm 
-          30 30 -30 -30  30 -30;  %y in mm 
-          30 30  30 -30 -30 -30]; %z in mm
+    a = [0   350  -250 -350 350 350  -350;  %x in mm 
+         450 0   -450  450  450 -450 -450 ;  %y in mm 
+         250 300  250  250  300 300  250 ]; %z in mm
     R_A = 1; %just for input, is not in use 
     rot_angle_A = 1; %just for input, is not in use     
 end
