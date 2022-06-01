@@ -140,7 +140,7 @@ b_figure(3,5) = b_figure(3,1);
 plot3(b_figure(1, :), b_figure(2, :),b_figure(3, :), 'x--k');
 
 %plot Seile
-str = ["w1" "w2" "w3" "w4" "w5" "w6" "w7" "w8"]; 
+str = ["w1" "w2" "w3" "w4" "w5" "w6" "w7" "]; 
 for i = 1 : noC
     hold on
     plot3([a_adapt(1, i) b_figure(1, i)], [a_adapt(2, i) b_figure(2, i)], [a_adapt(3, i) b_figure(3, i)],'--r');
