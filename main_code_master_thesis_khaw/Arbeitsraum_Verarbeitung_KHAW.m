@@ -43,6 +43,7 @@ for i = 1 : grid_n + 1 %for coordinate x
     end
 end
 
+%Choose the bigger area 
 workspace_further_adapt_struct = bwconncomp(workspace_adapt); %Find and count connected components in binary image, default connectivity is 8.
 workspace_further_adapt_cell = struct2cell(workspace_further_adapt_struct);
 % pixel = workspace_further_adapt_struct.PixelIdxList{1, 1};
@@ -53,7 +54,7 @@ max_object = find(nrows == max_object); %find the nrows exactly as 3113, which i
 
 if isempty(max_object) %Determine whether array is empty, returns logical 1 (true) if A is empty, and logical 0 (false) otherwise
     workspace_further_adapt = zeros(grid_n + 1, grid_n + 1); %assign all to zeros
-    workspace_adapt_pointwise = [-500 500]; %for total of 1000 points
+    workspace_adapt_pointwise = [-500 500 1000]; %for total of 1000 points????
 else
     workspace_further_adapt_temp = workspace_further_adapt_cell{4,1}{1,max_object}; %D= 3113x1 double, all the position (Position 69, 70, 132, 133...) of connected components has been listed in 3113x1 matrix. 
     %  = cell2mat(workspace_further_adapt_cell{4,1}{1,max_object});
