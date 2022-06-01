@@ -124,19 +124,33 @@ grid on
 % plot3(a(1, :), a(2, :),a(3,:), 'xk'); %plot the frame with marker 'x' and black colour 'k'
 % hold on
 a_adapt = a;
-a_adapt(1,5) = a(1,1); %extend to fifth column (so that the rectangle close up)
-a_adapt(2,5) = a(2,1); %extend to fifth column (so that the rectangle close up)
-a_adapt(3,5) = a(3,1);
-% plot(a_adapt(1, :), a_adapt(2, :), 'k--'); %plot the rechtangle (with black colour 'k' & marker '--')
-% hold on
-% plot(b(1, :), b(2, :), 'xk');
+a_adapt(1:3, 8) = a(1:3,1); %extend to next column (so that the rectangle close up)
+
+
+%Plot Rahmen (KHAW) 
+box =  [-350   450   250
+       350    450   250
+       350   -450   250
+      -350   -450   250
+       -350   450   300
+       350    450   300
+       350   -450   300
+      -350   -450   300];
+  
+idx = [4 8 5 1 4; 1 5 6 2 1; 2 6 7 3 2; 3 7 8 4 3; 5 8 7 6 5; 1 4 3 2 1]';
+
+xc = box(:,1);
+yc = box(:,2);
+zc = box(:,3);
+
+patch(xc(idx), yc(idx), zc(idx), 'r', 'facealpha', 0.1);
+view(3); %3D view
+
 
 %plot Endeffektor
 hold on
 b_figure = R * b; %Rotation * base(end-effector)
-b_figure(1,5) = b_figure(1,1); %extend to fifth column (so that the rectangle close up)
-b_figure(2,5) = b_figure(2,1); %extend to fifth column (so that the rectangle close up)
-b_figure(3,5) = b_figure(3,1);
+b_figure (:,8) = b_figure(1:3,1); %extend to next column (so the shape can close up)
 plot3(b_figure(1, :), b_figure(2, :),b_figure(3, :), 'x--k');
 
 %plot Seile
