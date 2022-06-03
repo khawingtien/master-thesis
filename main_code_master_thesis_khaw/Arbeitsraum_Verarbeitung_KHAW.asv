@@ -54,7 +54,7 @@ max_object = find(nrows == max_object); %find the nrows exactly as 3113, which i
 
 if isempty(max_object) %Determine whether array is empty, returns logical 1 (true) if A is empty, and logical 0 (false) otherwise
     workspace_further_adapt = zeros(grid_n + 1, grid_n + 1); %assign all to zeros
-    workspace_adapt_pointwise = [-500 500 1000]; %for total of 1000 points????
+    workspace_adapt_pointwise = [0 0 0]; %random point, to plot outside of the area 
 else
     workspace_further_adapt_temp = workspace_further_adapt_cell{4,1}{1,max_object}; %D= 3113x1 double, all the position (Position 69, 70, 132, 133...) of connected components has been listed in 3113x1 matrix. 
     %  = cell2mat(workspace_further_adapt_cell{4,1}{1,max_object});
@@ -75,9 +75,16 @@ for j = 1 : length(index_convexhull_point)
     workspace_adapt_pointwise(j, 3) = workspace(id_z, 3); %select z-coordinate from workspace 
 end
 
-%get convex hull of current MU
-% [k, convexhull_area] = convhull(workspace_adapt_pointwise);
-
+%% get convex hull of current working space in extra figure
+[k, convexhull_area] = convhull(workspace_adapt_pointwise);
+figure
+trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3),'FaceColor','green')
+axis equal
+title('Convex Hull of current working space', 'Volume = xx mm3')
+% num2str(convexhull_area,8)
+xlabel('x in mm') %text in x-coordinate
+ylabel('y in mm') %text in y-coordinate
+zlabel('z in mm') %text in z-coordinate
 
 frac_area_of_1 = sum(workspace_further_adapt(:)); %define the 'workspace_further_adapt' into a spaltenvektor (Dimension: 4489x1) %./numel(workspace_adapt_pointwise);
 
@@ -101,62 +108,55 @@ analysis(counter_analysis, 2) = f_min;
 analysis(counter_analysis, 3) = f_max;
 %Rotation der Plattform
 analysis(counter_analysis, 4) = rot_name;
-% %Fläche des Arbeitsraumes
-% analysis(counter_analysis, 5) = convexhull_area;
 %Fläche des Arbeitsraumes Anteilsmäßig aus Anteil 1en
 analysis(counter_analysis, 5) = frac_area_of_1;
-%Schwerpunkt des Arbeitsraumes Row 
+%Schwerpunkt des Arbeitsraumes Row  (x)
 analysis(counter_analysis, 6) = centerOfMassrow;
-%Schwerpunkt des Arbeitsraumes Column 
+%Schwerpunkt des Arbeitsraumes Column (y)
 analysis(counter_analysis, 7) = centerOfMasscolumn;
-%Schwerpunkt des Arbeitsraumes Page
+%Schwerpunkt des Arbeitsraumes Page (z)
 analysis(counter_analysis, 8) = centerOfMasspage;
+%Fläche des Arbeitsraumes
+analysis(counter_analysis, 9) = convexhull_area;
 
 
-%% Plots
+%% Plots Working space
 %plot Konvexe Hülle und speichern
 figure(counter_analysis)
-plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g'); %Plot x- and y-coordinate
+plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g','LineWidth',5); %Plot x- and y-coordinate
 grid on
-% set(workspace_adapt_pointwise,'Visible','off'); %'off' or 'on'
+
 
 %plot Rahmen
-% hold on
-% plot3(a(1, :), a(2, :),a(3,:), 'xk'); %plot the frame with marker 'x' and black colour 'k'
-% hold on
 a_adapt = a;
-a_adapt(1,8) = a(1,1); %extend to fifth column (so that the rectangle close up)
-a_adapt(2,8) = a(2,1); %extend to fifth column (so that the rectangle close up)
-a_adapt(3,8) = a(3,1);
-% plot(a_adapt(1, :), a_adapt(2, :), 'k--'); %plot the rechtangle (with black colour 'k' & marker '--')
-% hold on
-% plot(b(1, :), b(2, :), 'xk');
+a_adapt(1:3, 8) = a(1:3,1); %extend to next column (so that the rectangle close up)
+
 
 %Plot Rahmen (KHAW) 
-box =  [-350   450   250
-       350    450   250
-       350   -450   250
-      -350   -450   250
+box =  [-350   450  -100 %define the coordinate of the box
+       350    450   -100
+       350   -450   -100
+      -350   -450   -100
        -350   450   300
        350    450   300
        350   -450   300
-      -350   -450   300]
+      -350   -450   300];
   
-idx = [4 8 5 1 4; 1 5 6 2 1; 2 6 7 3 2; 3 7 8 4 3; 5 8 7 6 5; 1 4 3 2 1]';
+idx = [4 8 5 1 4; 1 5 6 2 1; 2 6 7 3 2; 3 7 8 4 3; 5 8 7 6 5; 1 4 3 2 1]'; %the ascending index of the box that will be plotted one after another 
 
 xc = box(:,1);
 yc = box(:,2);
 zc = box(:,3);
 
-patch(xc(idx), yc(idx), zc(idx), 'r', 'facealpha', 0.1);
+%Plot one or more filled polygonal regions with facealpha = semitransparent polygons 
+patch(xc(idx), yc(idx), zc(idx), 'r', 'facealpha', 0.1); 
 view(3); %3D view
-
 
 %plot Endeffektor
 hold on
 b_figure = R * b; %Rotation * base(end-effector)
-b_figure (:,8) = b_figure(1:3,1) %extend to the 
-plot3(b_figure(1, :), b_figure(2, :),b_figure(3, :), 'x--k');
+b_figure (:,8) = b_figure(1:3,1); %extend to next column (so the shape can close up)
+plot3(b_figure(1, :), b_figure(2, :),b_figure(3, :), 'x-k','LineWidth',2);
 
 %plot Seile
 str = ["w1" "w2" "w3" "w4" "w5" "w6" "w7" "w8"]; 

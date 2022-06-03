@@ -54,7 +54,7 @@ max_object = find(nrows == max_object); %find the nrows exactly as 3113, which i
 
 if isempty(max_object) %Determine whether array is empty, returns logical 1 (true) if A is empty, and logical 0 (false) otherwise
     workspace_further_adapt = zeros(grid_n + 1, grid_n + 1); %assign all to zeros
-    workspace_adapt_pointwise = [-500 500 1000]; %for total of 1000 points????
+    workspace_adapt_pointwise = [0 0 0]; %random point, to plot outside of the area 
 else
     workspace_further_adapt_temp = workspace_further_adapt_cell{4,1}{1,max_object}; %D= 3113x1 double, all the position (Position 69, 70, 132, 133...) of connected components has been listed in 3113x1 matrix. 
     %  = cell2mat(workspace_further_adapt_cell{4,1}{1,max_object});
@@ -75,10 +75,25 @@ for j = 1 : length(index_convexhull_point)
     workspace_adapt_pointwise(j, 3) = workspace(id_z, 3); %select z-coordinate from workspace 
 end
 
-%get convex hull of current MU
-% [k, convexhull_area] = convhull(workspace_adapt_pointwise);
+%% get convex hull of current working space in extra figure
+[k, convexhull_area] = convhull(workspace_adapt_pointwise,'Simplify',true);
+figure
+trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3),'FaceColor','green')
+axis equal
 
+%add Title workaround methode
+formatSpec = "The current workspace is: %e %s";
+A1 = convexhull_area;
+A2 = 'mm3';
+str = sprintf(formatSpec,A1,A2)
+title(str)
+% title({'Convex Hull of current working space'; 'Volume ='})
 
+xlabel('x in mm') %text in x-coordinate
+ylabel('y in mm') %text in y-coordinate
+zlabel('z in mm') %text in z-coordinate
+
+%% 
 frac_area_of_1 = sum(workspace_further_adapt(:)); %define the 'workspace_further_adapt' into a spaltenvektor (Dimension: 4489x1) %./numel(workspace_adapt_pointwise);
 
 %% Schwerpunkt berechnen, speichern 
@@ -101,19 +116,19 @@ analysis(counter_analysis, 2) = f_min;
 analysis(counter_analysis, 3) = f_max;
 %Rotation der Plattform
 analysis(counter_analysis, 4) = rot_name;
-% %Fläche des Arbeitsraumes
-% analysis(counter_analysis, 5) = convexhull_area;
 %Fläche des Arbeitsraumes Anteilsmäßig aus Anteil 1en
 analysis(counter_analysis, 5) = frac_area_of_1;
-%Schwerpunkt des Arbeitsraumes Row 
+%Schwerpunkt des Arbeitsraumes Row  (x)
 analysis(counter_analysis, 6) = centerOfMassrow;
-%Schwerpunkt des Arbeitsraumes Column 
+%Schwerpunkt des Arbeitsraumes Column (y)
 analysis(counter_analysis, 7) = centerOfMasscolumn;
-%Schwerpunkt des Arbeitsraumes Page
+%Schwerpunkt des Arbeitsraumes Page (z)
 analysis(counter_analysis, 8) = centerOfMasspage;
+%Fläche des Arbeitsraumes
+analysis(counter_analysis, 9) = convexhull_area;
 
 
-%% Plots
+%% Plots Working space
 %plot Konvexe Hülle und speichern
 figure(counter_analysis)
 plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g','LineWidth',5); %Plot x- and y-coordinate
@@ -125,10 +140,10 @@ a_adapt(1:3, 8) = a(1:3,1); %extend to next column (so that the rectangle close 
 
 
 %Plot Rahmen (KHAW) 
-box =  [-350   450   250 %define the coordinate of the box
-       350    450   250
-       350   -450   250
-      -350   -450   250
+box =  [-350   450  -100 %define the coordinate of the box
+       350    450   -100
+       350   -450   -100
+      -350   -450   -100
        -350   450   300
        350    450   300
        350   -450   300
