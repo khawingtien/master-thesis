@@ -92,7 +92,9 @@ title(str)
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
-
+% 
+% hold on 
+% patch(DAT(1:3,:),DAT(4:6,:),DAT(7:9,:),1,'LineWidth',1)
 %% 
 frac_area_of_1 = sum(workspace_further_adapt(:)); %define the 'workspace_further_adapt' into a spaltenvektor (Dimension: 4489x1) %./numel(workspace_adapt_pointwise);
 
@@ -130,10 +132,17 @@ analysis(counter_analysis, 9) = convexhull_area;
 
 %% Plots Working space
 %plot Konvexe Hülle und speichern
-figure(counter_analysis)
+% figure(counter_analysis)
+figure
 plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g','LineWidth',5); %Plot x- and y-coordinate
 grid on
 
+%View on three different plane
+% view(0,90)  % XY
+% pause
+% view(0,0)   % XZ
+% % pause
+% view(90,0)  % YZ
 %plot Rahmen
 a_adapt = a;
 a_adapt(1:3, 8) = a(1:3,1); %extend to next column (so that the rectangle close up)
