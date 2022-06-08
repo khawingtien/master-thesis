@@ -47,9 +47,7 @@ for check_l = 1 : noC
         stop = 1;
         %     f_closedform = 0; %tbd
         %     f = 0; %tbd weil hier noch nicht definiert, daher kein output möglich
-        return %Return control to invoking script or function
-    else
-            
+        return %Return control to invoking script or function            
     end
 end
 
@@ -67,7 +65,6 @@ end
 
 b_cross_u = zeros(3,noC);
 for i=1:noC(1)
-%     b_cross_u(:,i) = b_rot(1,i) * u(2,i) - b_rot(2,i) * u(1,i); %tbd test (KHAW: CROSS TODO) [a b;c d] cross product = ad-bc 
     b_cross_u(:,i) = cross(b(:,i),u(:,i)); %from Artur 3D vector
 end
 
@@ -211,7 +208,6 @@ if any(sum_torque, 'all') %Determine if any array elements are nonzero, test ove
     return
 end
 %% display info 
-%stop = 0; %why we need this again? Khaw auskommentiert
 if find(f > f_max)
 %        disp("Achtung! Seilkraft ueberschreitet den Maximalwert");
     stop = 1;

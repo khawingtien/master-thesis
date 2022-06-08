@@ -14,10 +14,7 @@ global f_min
 f_min = 5; 
 global f_max
 f_max = 36;
-global grid_length
-grid_length = 662; %mm %Abstand zwischen Ankerpunkten am Rahmen
-global grid_n
-grid_n = 33;  %Anzahl der Unterteilungen
+
  %% pulley
 global loc_winch
 loc_winch = [-415, -415, 415,  415; -25,  25, 25, -25];
@@ -34,12 +31,34 @@ if pulley_kin == 'yes'
     a = tang_pulley_outer;
 
 elseif pulley_kin == 'no'
-    a = [-350 350  350  -350 350 350  0;  %x in mm 
-         450 450   -450  450  450 -450 0 ;  %y in mm 
-         250 250  250  300  300 300  0 ]; %z in mm
+% %for 6 Cable triangular winch position 
+%     a = [-350 350  350  -350 350 350  0;  %x in mm 
+%          450 450   -450  450  450 -450 0 ;  %y in mm 
+%          250 250  250  300  300 300  0 ]; %z in mm
+
+%% for 8 cable square winch position  
+a = [-20   20   20  -20  -20  20  20 -20;  %x in mm 
+     15    15  -15  -15  15   15  -15 -15;  %y in mm 
+     20    20   20   20  0     0   0   0];  %z in mm
+a = a.*100;
+
     R_A = 1; %just for input, is not in use 
     rot_angle_A = 1; %just for input, is not in use     
 end
+
+%Define max and min of grid in all direction
+grid.x_max = max(a(1,:)); %mm %largest length in x direction
+grid.y_max = max(a(2,:));
+grid.z_max = max(a(3,:));
+
+grid.x_min = min(a(1,:)); %mm %smallest length in x direction
+grid.y_min = min(a(2,:));
+grid.z_min = min(a(3,:));
+
+grid_n = 20;  %Anzahl der Unterteilungen in X-Richtung
+
+%Definiere Grid                      
+grid_delta = (grid.x_max - grid.x_min)  / grid_n;  %step size in x-direction in mm %Gitterabstand von X-Richtung (Y- & Z-Richtung auch in diesem Abstand)
 
 %% Definiere distale Ankerpunkte Plattform [x; y]
 % hier werden verschiedene Konfigurationen b1, b2... betrachtet und in
@@ -74,9 +93,6 @@ global noC
 noC = length(a);
 
 %% Parameter zur Arbeitsraum Berechnung
-% Definiere Grid                      
-grid_delta = grid_length / grid_n;       %Gitterabstand
-
 t = linspace(0,10,100); % 0 bis 10 Sekunden in 100 Schritten
 steps = length(t);
 loesung_closed_form = zeros(noC,steps); %tbd check check if needed
@@ -94,12 +110,10 @@ counter_analysis = 1; %tbd counter logik ändern!!!!
 % 0 = Position nicht in const. orientation workspace enthalten
 % 1 = enthalten
 
-coordinate.x = [grid_length/2 : -grid_delta: -grid_length/2]'; %x,y,z dimension should be the same 
-coordinate.y = [grid_length/2 : -grid_delta: -grid_length/2]';
-coordinate.z = [grid_length/2 : -grid_delta: -grid_length/2]'; %KHAW
+coordinate.x = [grid.x_min : grid_delta: grid.x_max]'; %step size in x-direction
+coordinate.y = [grid.y_min : grid_delta: grid.y_max]';
+coordinate.z = [grid.z_min : grid_delta: grid.z_max]'; 
 
-%Define Workspace in a matrix with column1=x, column2=y and column3=z
-workspace = [coordinate.x coordinate.y coordinate.z] ;
 %analysis for different parameter, will be saved in a Zeilenvektor. preallocating the variable for speed
 analysis = zeros(1, 7);
 
@@ -114,16 +128,16 @@ for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line f
         %workspace_logical: in der 2. Dimension wird der Arbeitsraum für
         %jedes w_p gespeichert, anschließend mit 1. Dimension abgeglichen
         %und die Übereinstimmung in 1. Dimension gespeichert. Loop
-        workspace_logical = ones(grid_n + 1, grid_n + 1, grid_n + 1); %preallocating the variable for speed
-        workspace_logical_temp = ones(grid_n + 1, grid_n + 1, grid_n + 1); %preallocating the variable for speed
+        workspace_logical = ones(length(coordinate.x), length(coordinate.y), length(coordinate.z)); %preallocating the variable for speed
+        workspace_logical_temp = ones(length(coordinate.x), length(coordinate.y), length(coordinate.z)); %preallocating the variable for speed
         for counter_w = 1 : size(rotation_w_array, 1)
             rotation_w_p = rotation_w_array(counter_w, :);
-            [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, grid_n, rotation, w_p, w_p_t, rotation_w_p, workspace, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A,coordinate);
+            [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, grid_n, rotation, w_p, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate);
         end
         %finalen Arbeitsraum bestimmen und darstellen
-        [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, rot_name, analysis, workspace, workspace_logical, R, grid_deg);
-        counter_analysis = counter_analysis + 1; 
-    end
+        counter_analysis = counter_analysis +   1;
+        [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, rot_name, analysis, coordinate, workspace_logical, R, grid_deg);
+   end
 end
 %Sheet : analysis
 % excel_save = "1R2T_Rahmen1_%d_%d_%d_%d_%d_%d_%d.xlsx";
