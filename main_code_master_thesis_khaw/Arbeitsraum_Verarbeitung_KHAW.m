@@ -20,18 +20,19 @@ for i = 1 : length(coordinate.x) %for coordinate x
         for k = 1 : length(coordinate.z) %for coordinate z
             if workspace_adapt(i, j, k) == 1 %go through all of the workspace adapt to find if element is included in workspace (==1 TRUE)
             
-%            Alternative methode for introducing z in 3Dimension
-%               neighbor = zeros(27,3); %preallocating for speed
-                %for page=1:3
-%                neighbor((page-1)*9+1:page*9,:) =[i+[-1;0;1;-1;0;1;-1;0;1] j+[-1;-1;-1;0;0;0;1;1;1] k+page*ones(9,1)-2]; %define its neighbors
-%               end
-% 
+            %DO NOT DELETE these comments 
+            %            Alternative methode for introducing z in 3Dimension
+            %               neighbor = zeros(27,3); %preallocating for speed
+                            %for page=1:3
+            %                neighbor((page-1)*9+1:page*9,:) =[i+[-1;0;1;-1;0;1;-1;0;1] j+[-1;-1;-1;0;0;0;1;1;1] k+page*ones(9,1)-2]; %define its neighbors
+            %               end
+             
             neighbor = relative_neighbor + [i j k]; %surrounding 26 points + absolute coordinate in 3D space
             
             %To check if the coordinate of all 26 absolute neighbours are on the
             %border (26x26x26). If any abs. neighbour are on the border, then the whole row will be logical false and ignored.  
             compare = (all(neighbor~=0,2)) & (neighbor(:,1) <= length(coordinate.x))...
-                  & (neighbor(:,2) <= length(coordinate.y)) & (neighbor(:,3) <= length(coordinate.z)); %
+                  & (neighbor(:,2) <= length(coordinate.y)) & (neighbor(:,3) <= length(coordinate.z)); 
             neighbor = neighbor(compare,:); %get only neighbors within the array 
             workspace_neighbor = zeros(1,26);
             
@@ -48,7 +49,9 @@ for i = 1 : length(coordinate.x) %for coordinate x
     end
 end
 
-%Choose the bigger area 
+
+%To choose the bigger area if there are two point cloud area exist at the
+%same time
 workspace_further_adapt_struct = bwconncomp(workspace_adapt); %Find and count connected components in binary image, default connectivity is 8.
 workspace_further_adapt_cell = struct2cell(workspace_further_adapt_struct);
 % pixel = workspace_further_adapt_struct.PixelIdxList{1, 1};
@@ -58,14 +61,15 @@ max_object = max(nrows); %max nrow =3113
 max_object = find(nrows == max_object); %find the nrows exactly as 3113, which is one. 
 
 if isempty(max_object) %Determine whether array is empty, returns logical 1 (true) if A is empty, and logical 0 (false) otherwise
-    workspace_further_adapt = zeros(grid_n + 1, grid_n + 1); %assign all to zeros
+    workspace_further_adapt = zeros(grid_n, grid_n); %assign all to zeros
     workspace_adapt_pointwise = [0 0 0]; %random point, to plot outside of the area 
 else
     workspace_further_adapt_temp = workspace_further_adapt_cell{4,1}{1,max_object}; %D= 3113x1 double, all the position (Position 69, 70, 132, 133...) of connected components has been listed in 3113x1 matrix. 
     %  = cell2mat(workspace_further_adapt_cell{4,1}{1,max_object});
-    workspace_further_adapt = zeros(grid_n + 1, grid_n + 1,grid_n + 1);  %preallocation for speed
+    workspace_further_adapt = zeros(grid_n, grid_n, grid_n);  %preallocation for speed
     workspace_further_adapt(workspace_further_adapt_temp) = 1; %go thorugh the matrix with position of connected components, then change them to one
 end
+
 
 %% Fläche berechnen, speichern
 %transform adapted workspace array to pointwise indices
@@ -81,24 +85,26 @@ for j = 1 : length(index_convexhull_point)
 end
 
 %% get convex hull of current working space in extra figure
-% [k, convexhull_volume] = convhull(workspace_adapt_pointwise,'Simplify',true);
-% figure
-% trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3),'FaceColor','green')
-% axis equal
-% 
-% %add Title workaround methode
-% formatSpec = "The current workspace is: %e %s";
-% A1 = convexhull_volume*1e-9;
-% A2 = 'm3';
-% str = sprintf(formatSpec,A1,A2)
-% title(str)
-% 
-% xlabel('x in mm') %text in x-coordinate
-% ylabel('y in mm') %text in y-coordinate
-% zlabel('z in mm') %text in z-coordinate
+[k, convexhull_volume] = convhull(workspace_adapt_pointwise,'Simplify',true);
+figure
+trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3),'FaceColor','green')
+axis equal
 
-% hold on 
-% patch(DAT(1:3,:),DAT(4:6,:),DAT(7:9,:),1,'LineWidth',1)
+%add Title workaround methode
+formatSpec = "The current workspace is: %e %s";
+A1 = convexhull_volume*1e-9; %1e-9 for changing from mm3 to m3 
+A2 = 'm3';
+str = sprintf(formatSpec,A1,A2)
+title(str)
+
+xlabel('x in mm') %text in x-coordinate
+ylabel('y in mm') %text in y-coordinate
+zlabel('z in mm') %text in z-coordinate
+
+    %To plot the Data from WireX
+    % hold on 
+    % patch(DAT(1:3,:),DAT(4:6,:),DAT(7:9,:),1,'LineWidth',1)
+
 %% 
 frac_area_of_1 = sum(workspace_further_adapt(:)); %define the 'workspace_further_adapt' into a spaltenvektor (Dimension: 4489x1) %./numel(workspace_adapt_pointwise);
 
@@ -131,7 +137,7 @@ analysis(counter_analysis, 7) = centerOfMasscolumn;
 %Schwerpunkt des Arbeitsraumes Page (z)
 analysis(counter_analysis, 8) = centerOfMasspage;
 %Fläche des Arbeitsraumes
-% analysis(counter_analysis, 9) = convexhull_volume;
+analysis(counter_analysis, 9) = convexhull_volume;
 
 
 %% Plots Working space
