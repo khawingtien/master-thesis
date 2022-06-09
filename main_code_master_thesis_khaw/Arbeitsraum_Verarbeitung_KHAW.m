@@ -161,14 +161,15 @@ a_adapt = a;
 
 
 %Plot Rahmen (KHAW) 
-box =  [-350  450  0 %define the coordinate of the box
-       350    450   0
-       350   -450   0
-      -350   -450   0
-       -350   450   250
-       350    450   250
-       350   -450   250
-      -350   -450   250];
+box =  [-20  15  0 %define the coordinate of the box
+       20    15   0
+       20   -15   0
+      -20   -15   0
+       -20   15   20
+       20    15   20
+       20   -15   20
+      -20   -15   20];
+box = box.*100;
   
 idx = [4 8 5 1 4; 1 5 6 2 1; 2 6 7 3 2; 3 7 8 4 3; 5 8 7 6 5; 1 4 3 2 1]'; %the ascending index of the box that will be plotted one after another 
 
