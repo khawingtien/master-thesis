@@ -36,11 +36,24 @@ elseif pulley_kin == 'no'
 %          450 450   -450  450  450 -450 0 ;  %y in mm 
 %          250 250  250  300  300 300  0 ]; %z in mm
 
-%% for 8 cable square winch position  
-a = [-20   20   20  -20  -20  20  20 -20;  %x in mm 
-     15    15  -15  -15  15   15  -15 -15;  %y in mm 
-     20    20   20   20  0     0   0   0];  %z in mm
-a = a.*100;
+%% for 8 cable standard configuration  
+% a = [-20   20   20  -20  -20  20  20 -20;  %x in mm 
+%      15    15  -15  -15  15   15  -15 -15;  %y in mm 
+%      20    20   20   20  0     0   0   0];  %z in mm
+% a = a.*100; %in mm 
+
+%% for 8 cable falcon configuration  
+a = [-0.25   0.25  0.25   -0.25  -0.25  0.25  0.25 -0.25;  %x in m 
+     0.1875    0.1875  -0.1875  -0.1875  0.1875   0.1875  -0.1875 -0.1875;  %y in m 
+     0.125    0.125   0.125   0.125  0.0625     0.0625   0.0625   0.0625];  %z in m
+a= a.*1000; %in mm 
+
+
+%% for 6 cable Hexagon confuguration
+% a = [-0.20   0.2   0     0     0.2   -0.2  0  0;  %x in m 
+%      0.15    0.15  -0.15 0.15  -0.15 -0.15  0 0;  %y in m 
+%      0.20    0.2   0.2   0     0     0    0  0];  %z in m
+% a= a.*1000; %in mm 
 
     R_A = 1; %just for input, is not in use 
     rot_angle_A = 1; %just for input, is not in use     

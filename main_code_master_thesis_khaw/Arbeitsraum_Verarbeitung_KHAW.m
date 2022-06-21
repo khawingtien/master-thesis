@@ -85,6 +85,7 @@ for j = 1 : length(index_convexhull_point)
 end
 
 %% get convex hull of current working space in extra figure
+%{
 [k, convexhull_volume] = convhull(workspace_adapt_pointwise,'Simplify',true);
 figure
 trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3),'FaceColor','green')
@@ -100,6 +101,7 @@ title(str)
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
+%}
 
     %To plot the Data from WireX
     % hold on 
@@ -137,7 +139,7 @@ analysis(counter_analysis, 7) = centerOfMasscolumn;
 %Schwerpunkt des Arbeitsraumes Page (z)
 analysis(counter_analysis, 8) = centerOfMasspage;
 %Fläche des Arbeitsraumes
-analysis(counter_analysis, 9) = convexhull_volume;
+% analysis(counter_analysis, 9) = convexhull_volume;
 
 
 %% Plots Working space
@@ -161,15 +163,15 @@ a_adapt = a;
 
 
 %Plot Rahmen (KHAW) 
-box =  [-20  15  0 %define the coordinate of the box
-       20    15   0
-       20   -15   0
-      -20   -15   0
-       -20   15   20
-       20    15   20
-       20   -15   20
-      -20   -15   20];
-box = box.*100;
+box =  [-0.25  0.1875  0.125 %define the coordinate of the box
+       0.25    0.1875   0.125
+       0.25   -0.1875   0.125
+      -0.25   -0.1875   0.125
+       -0.25   0.1875   0.0625
+       0.25    0.1875   0.0625
+       0.25   -0.1875   0.0625
+      -0.25   -0.1875   0.0625];
+box = box.*1000;
   
 idx = [4 8 5 1 4; 1 5 6 2 1; 2 6 7 3 2; 3 7 8 4 3; 5 8 7 6 5; 1 4 3 2 1]'; %the ascending index of the box that will be plotted one after another 
 
