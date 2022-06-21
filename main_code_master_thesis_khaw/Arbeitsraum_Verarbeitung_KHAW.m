@@ -85,7 +85,8 @@ for j = 1 : length(index_convexhull_point)
 end
 
 %% get convex hull of current working space in extra figure
-%{
+
+
 [k, convexhull_volume] = convhull(workspace_adapt_pointwise,'Simplify',true);
 figure
 trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3),'FaceColor','green')
@@ -101,7 +102,7 @@ title(str)
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
-%}
+
 
     %To plot the Data from WireX
     % hold on 
@@ -146,7 +147,7 @@ analysis(counter_analysis, 8) = centerOfMasspage;
 %plot Konvexe Hülle und speichern
 % figure(counter_analysis)
 figure
-plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g','LineWidth',5); %Plot x- and y-coordinate
+plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g','LineWidth',8); %Plot x- and y-coordinate
 grid on
 grid minor
 

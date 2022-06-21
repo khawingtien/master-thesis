@@ -54,11 +54,12 @@ a= a.*1000; %in mm
 %      0.15    0.15  -0.15 0.15  -0.15 -0.15  0 0;  %y in m 
 %      0.20    0.2   0.2   0     0     0    0  0];  %z in m
 % a= a.*1000; %in mm 
-
-    R_A = 1; %just for input, is not in use 
-    rot_angle_A = 1; %just for input, is not in use     
+   
 end
 
+R_A = 1; %just for input, is not in use 
+rot_angle_A = 1; %just for input, is not in use  
+    
 %Define max and min of grid in all direction
 grid.x_max = max(a(1,:)); %mm %largest length in x direction
 grid.y_max = max(a(2,:));
@@ -68,7 +69,8 @@ grid.x_min = min(a(1,:)); %mm %smallest length in x direction
 grid.y_min = min(a(2,:));
 grid.z_min = min(a(3,:));
 
-grid_n = 20;  %Anzahl der Unterteilungen in X-Richtung
+% grid_n = 20;  %Anzahl der Unterteilungen in X-Richtung
+grid_n = 10;  %Anzahl der Unterteilungen in X-Richtung
 
 %Definiere Grid                      
 grid_delta = (grid.x_max - grid.x_min)  / grid_n;  %step size in x-direction in mm %Gitterabstand von X-Richtung (Y- & Z-Richtung auch in diesem Abstand)
@@ -87,7 +89,7 @@ end
 
 %% Definiere zu untersuchende Lasten in bestimmte Raumrichtungen definiert durch rotation_w_p
 w_p = 0; %dieser Wert wird in berechnungSeilkraftverteilung in den wrench Vektor als x-Koordinate eingesetzt, y=0, T=0 (Feedback Kraft in alle Richtung) 
-w_p_t = 0; %Torque (Feedback Kraft in Rotation)
+w_p_t = 0; %Torque (Feedback Kraft in Rotation)%wrench in torque
 grid_deg = 9; % rotatorische Auflösung
 discrete_rot_angle_w_p = transpose(linspace(0, 2*pi, grid_deg)); %(x1, x2, n) n Punkte zwischen x1 und x2
 rotation_w_array = zeros(size(discrete_rot_angle_w_p, 1), 4);
@@ -125,7 +127,8 @@ counter_analysis = 1; %tbd counter logik ändern!!!!
 
 coordinate.x = [grid.x_min : grid_delta: grid.x_max]'; %step size in x-direction
 coordinate.y = [grid.y_min : grid_delta: grid.y_max]';
-coordinate.z = [grid.z_min : grid_delta: grid.z_max]'; 
+% coordinate.z = [grid.z_min : grid_delta: grid.z_max]'; 
+coordinate.z = linspace(62.5,125,3);
 
 %analysis for different parameter, will be saved in a Zeilenvektor. preallocating the variable for speed
 analysis = zeros(1, 7);

@@ -16,7 +16,7 @@ else
     motion_pattern = 2; %2T %if element b is zeors, then motion pattern = 2
 end
 
-r = repmat(r, 1, noC); %r for workspace , in order to achieve the dimension (1,4) 
+r = repmat(r, 1, noC); %r for workspace , in order to achieve the dimension (1,noC) 
 R = axang2rotm(rotation); %axis angle to rotation matrix [0 0 1 angle] to Matrix Dimension=(2,2)
 % R(3, :) = []; %use this workaroud to take out the third row
 % R(:, 3) = []; %use this workaroud to take out the third column, to achieve only 2x2 matrix for 2D. 
