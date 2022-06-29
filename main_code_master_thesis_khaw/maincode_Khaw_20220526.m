@@ -36,17 +36,17 @@ elseif pulley_kin == 'no'
 %          450 450   -450  450  450 -450 0 ;  %y in mm 
 %          250 250  250  300  300 300  0 ]; %z in mm
 
-%% for 8 cable standard configuration  
+% %% for 8 cable standard configuration (WireX landing page)  
 % a = [-20   20   20  -20  -20  20  20 -20;  %x in mm 
 %      15    15  -15  -15  15   15  -15 -15;  %y in mm 
 %      20    20   20   20  0     0   0   0];  %z in mm
 % a = a.*100; %in mm 
 
-%% for 8 cable falcon configuration  
-a = [-0.25   0.25  0.25   -0.25  -0.25  0.25  0.25 -0.25;  %x in m 
-     0.1875    0.1875  -0.1875  -0.1875  0.1875   0.1875  -0.1875 -0.1875;  %y in m 
-     0.125    0.125   0.125   0.125  0.0625     0.0625   0.0625   0.0625];  %z in m
-a= a.*1000; %in mm 
+% %% for 8 cable falcon configuration  
+% a = [-0.25   0.25  0.25   -0.25  -0.25  0.25  0.25 -0.25;  %x in m 
+%      0.1875    0.1875  -0.1875  -0.1875  0.1875   0.1875  -0.1875 -0.1875;  %y in m 
+%      0.125    0.125   0.125   0.125  0.0625     0.0625   0.0625   0.0625];  %z in m
+% a= a.*1000; %in mm 
 
 
 %% for 6 cable Hexagon confuguration
@@ -54,7 +54,14 @@ a= a.*1000; %in mm
 %      0.15    0.15  -0.15 0.15  -0.15 -0.15  0 0;  %y in m 
 %      0.20    0.2   0.2   0     0     0    0  0];  %z in m
 % a= a.*1000; %in mm 
-   
+
+
+%% for 8-wires_robot.py cable falcon configuration  (Artur)
+a = [2.7   2.7   -2.7  -2.7  2.7  2.7  -2.7   -2.7;  %x in m 
+     2.7   -2.7  -2.7  2.7   2.7  -2.7  -2.7  2.7;  %y in m 
+     2.7   2.7   2.7   2.7  -2.7  -2.7  -2.7  -2.7];  %z in m
+a= a.*1000; %in mm 
+
 end
 
 R_A = 1; %just for input, is not in use 
@@ -70,7 +77,7 @@ grid.y_min = min(a(2,:));
 grid.z_min = min(a(3,:));
 
 % grid_n = 20;  %Anzahl der Unterteilungen in X-Richtung
-grid_n = 10;  %Anzahl der Unterteilungen in X-Richtung
+grid_n = 27;  %Anzahl der Unterteilungen in X-Richtung
 
 %Definiere Grid                      
 grid_delta = (grid.x_max - grid.x_min)  / grid_n;  %step size in x-direction in mm %Gitterabstand von X-Richtung (Y- & Z-Richtung auch in diesem Abstand)
@@ -127,8 +134,7 @@ counter_analysis = 1; %tbd counter logik ändern!!!!
 
 coordinate.x = [grid.x_min : grid_delta: grid.x_max]'; %step size in x-direction
 coordinate.y = [grid.y_min : grid_delta: grid.y_max]';
-% coordinate.z = [grid.z_min : grid_delta: grid.z_max]'; 
-coordinate.z = linspace(62.5,125,3);
+coordinate.z = [grid.z_min : grid_delta: grid.z_max]'; 
 
 %analysis for different parameter, will be saved in a Zeilenvektor. preallocating the variable for speed
 analysis = zeros(1, 7);

@@ -85,14 +85,15 @@ for j = 1 : length(index_convexhull_point)
 end
 
 %% get convex hull of current working space in extra figure
+
 [k, convexhull_volume] = convhull(workspace_adapt_pointwise,'Simplify',true);
 figure
 trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3),'FaceColor','b','Edgecolor','b')
-% axis equal
+axis equal
 %Define the projection onto the wall 
-y_plane = max(workspace_adapt_pointwise(:,2))+200; %from maximum of y_plane coordinate +200 mm (show on right)
-x_plane = max(workspace_adapt_pointwise(:,1))+200; %from maximum of x_plane coordinate +200 mm (show on left)
-z_plane = max(workspace_adapt_pointwise(:,2))-150; %from maximum of z_plane coordinate -150 mm (show on bottom) 
+y_plane = max(workspace_adapt_pointwise(:,2))+400; %from maximum of y_plane coordinate +200 mm (show on right)
+x_plane = max(workspace_adapt_pointwise(:,1))+400; %from maximum of x_plane coordinate +200 mm (show on left)
+z_plane = max(workspace_adapt_pointwise(:,2))-3800; %from maximum of z_plane coordinate -150 mm (show on bottom) 
 hold on
 grid on 
 grid minor
@@ -160,18 +161,11 @@ plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_a
 grid on
 grid minor
 
-%View on three different plane
-% view(0,90)  % XY
-% pause
-% view(0,0)   % XZ
-% % pause
-% view(90,0)  % YZ
-
 %plot Rahmen
 a_adapt = a;
 % a_adapt(1:3, noC+1) = a(1:3,1); %extend to next column (so that the rectangle close up)
 
-
+%{
 %Plot Rahmen (KHAW) 
 box =  [-0.25  0.1875  0.125 %define the coordinate of the box
        0.25    0.1875   0.125
@@ -189,9 +183,11 @@ xc = box(:,1);
 yc = box(:,2);
 zc = box(:,3);
 
+
 %Plot one or more filled polygonal regions with facealpha = semitransparent polygons 
 patch(xc(idx), yc(idx), zc(idx), 'r', 'facealpha', 0.1); 
 view(3); %3D view
+%}
 
 %plot Endeffektor
 hold on

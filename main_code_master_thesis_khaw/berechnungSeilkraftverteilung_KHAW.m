@@ -9,7 +9,7 @@ size_a = size(a);
 % noC = size_a(2);
 global noC
 
-if any(b)  %if any element of b is nonzero
+if any(b)  %if any element of b is nonzero = logical 1 
    % motion_pattern = 3; %1R2T
     motion_pattern = 5; %2R3T
 else
@@ -64,7 +64,7 @@ elseif pulley_kin == 'yes'
 end 
 
 b_cross_u = zeros(3,noC);
-for i=1:noC(1)
+for i=1:noC
     b_cross_u(:,i) = cross(b(:,i),u(:,i)); %from Artur 3D vector
 end
 
@@ -76,7 +76,7 @@ A_T(~any(A_T,2),:) = []; %when all values in Dimension 2 (row) == 0, then delete
 %check if robot is in a nonsingular posn --> A_T full row rank
 rank_A_T = size(orth(A_T.').', 1); %Orthonormal basis for range of matrix (Pott page 93)
     %nonsingular posn
-if rank_A_T == size(A_T, 1)
+if rank_A_T == size(A_T, 1)-1 %%%%For 8-wires_robot.py (need to MINUS 1) dunno why!
     %disp('non singular posn')
 else
     %sigular posn
