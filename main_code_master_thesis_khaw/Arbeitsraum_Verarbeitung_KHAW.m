@@ -85,12 +85,20 @@ for j = 1 : length(index_convexhull_point)
 end
 
 %% get convex hull of current working space in extra figure
-
-
 [k, convexhull_volume] = convhull(workspace_adapt_pointwise,'Simplify',true);
 figure
-trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3),'FaceColor','green')
-axis equal
+trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3),'FaceColor','b','Edgecolor','b')
+% axis equal
+%Define the projection onto the wall 
+y_plane = max(workspace_adapt_pointwise(:,2))+200; %from maximum of y_plane coordinate +200 mm (show on right)
+x_plane = max(workspace_adapt_pointwise(:,1))+200; %from maximum of x_plane coordinate +200 mm (show on left)
+z_plane = max(workspace_adapt_pointwise(:,2))-150; %from maximum of z_plane coordinate -150 mm (show on bottom) 
+hold on
+grid on 
+grid minor
+trisurf(k,workspace_adapt_pointwise(:,1), y_plane*ones(size(workspace_adapt_pointwise(:,2))), workspace_adapt_pointwise(:,3),'FaceColor','r','Edgecolor','r'); % project in x-z axis at y=100
+trisurf(k,x_plane*ones(size(workspace_adapt_pointwise(:,1))), workspace_adapt_pointwise(:,2), workspace_adapt_pointwise(:,3),'FaceColor','c','Edgecolor','c'); % project in y-z axis at x=2
+trisurf(k,workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2), z_plane*ones(size(workspace_adapt_pointwise(:,3))),'FaceColor','g','Edgecolor','g'); % project in x-y axis at z=-2
 
 %add Title workaround methode
 formatSpec = "The current workspace is: %e %s";
@@ -102,6 +110,7 @@ title(str)
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
+
 
 
     %To plot the Data from WireX
