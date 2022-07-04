@@ -21,7 +21,7 @@ for i = 1 : length(coordinate.x) %for coordinate x
             if workspace_adapt(i, j, k) == 1 %go through all of the workspace adapt to find if element is included in workspace (==1 TRUE)
             
             %DO NOT DELETE these comments 
-            %            Alternative methode for introducing z in 3Dimension
+            % Alternative methode for introducing z in 3Dimension
             %               neighbor = zeros(27,3); %preallocating for speed
                             %for page=1:3
             %                neighbor((page-1)*9+1:page*9,:) =[i+[-1;0;1;-1;0;1;-1;0;1] j+[-1;-1;-1;0;0;0;1;1;1] k+page*ones(9,1)-2]; %define its neighbors
@@ -56,13 +56,14 @@ workspace_further_adapt_struct = bwconncomp(workspace_adapt); %Find and count co
 workspace_further_adapt_cell = struct2cell(workspace_further_adapt_struct);
 % pixel = workspace_further_adapt_struct.PixelIdxList{1, 1};
 
-[nrows,ncols] = cellfun(@size, workspace_further_adapt_cell{4,1}); %find the number of row & column of the connected components in binary image (Pixel Index List)
+[nrows,~] = cellfun(@size, workspace_further_adapt_cell{4,1}); %find the number of row & column of the connected components in binary image (Pixel Index List)
 max_object = max(nrows); %max nrow =3113 
 max_object = find(nrows == max_object); %find the nrows exactly as 3113, which is one. 
 
 if isempty(max_object) %Determine whether array is empty, returns logical 1 (true) if A is empty, and logical 0 (false) otherwise
-    workspace_further_adapt = zeros(grid_n, grid_n); %assign all to zeros
-    workspace_adapt_pointwise = [0 0 0]; %random point, to plot outside of the area 
+disp('Fehler')
+    workspace_further_adapt = zeros(grid_n, grid_n,grid_n); %assign all to zeros
+    workspace_adapt_pointwise = [1000 1000 1000]; %random point, to plot outside of the area 
 else
     workspace_further_adapt_temp = workspace_further_adapt_cell{4,1}{1,max_object}; %D= 3113x1 double, all the position (Position 69, 70, 132, 133...) of connected components has been listed in 3113x1 matrix. 
     %  = cell2mat(workspace_further_adapt_cell{4,1}{1,max_object});
@@ -85,15 +86,15 @@ for j = 1 : length(index_convexhull_point)
 end
 
 %% get convex hull of current working space in extra figure
-
+%{
 [k, convexhull_volume] = convhull(workspace_adapt_pointwise,'Simplify',true);
 figure
 trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3),'FaceColor','b','Edgecolor','b')
-axis equal
+% axis equal
 %Define the projection onto the wall 
-y_plane = max(workspace_adapt_pointwise(:,2))+400; %from maximum of y_plane coordinate +200 mm (show on right)
-x_plane = max(workspace_adapt_pointwise(:,1))+400; %from maximum of x_plane coordinate +200 mm (show on left)
-z_plane = max(workspace_adapt_pointwise(:,2))-3800; %from maximum of z_plane coordinate -150 mm (show on bottom) 
+y_plane = max(workspace_adapt_pointwise(:,2))+150 %from maximum of y_plane coordinate +200 mm (show on right)
+x_plane = max(workspace_adapt_pointwise(:,1))+150; %from maximum of x_plane coordinate +200 mm (show on left)
+z_plane = max(workspace_adapt_pointwise(:,2))-400; %from maximum of z_plane coordinate -150 mm (show on bottom) 
 hold on
 grid on 
 grid minor
@@ -107,16 +108,10 @@ A1 = convexhull_volume*1e-9; %1e-9 for changing from mm3 to m3
 A2 = 'm3';
 str = sprintf(formatSpec,A1,A2)
 title(str)
-
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
-
-
-
-    %To plot the Data from WireX
-    % hold on 
-    % patch(DAT(1:3,:),DAT(4:6,:),DAT(7:9,:),1,'LineWidth',1)
+%}
 
 %% 
 frac_area_of_1 = sum(workspace_further_adapt(:)); %define the 'workspace_further_adapt' into a spaltenvektor (Dimension: 4489x1) %./numel(workspace_adapt_pointwise);
@@ -157,9 +152,20 @@ analysis(counter_analysis, 8) = centerOfMasspage;
 %plot Konvexe Hülle und speichern
 % figure(counter_analysis)
 figure
-plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g','LineWidth',8); %Plot x- and y-coordinate
+plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g','LineWidth',8); %Plot x- and y & z-coordinate
+hold on 
 grid on
 grid minor
+
+%%Plot Region of Interest (ROI)
+r = 150; %radius in mm 
+[X,Y,Z] = cylinder(r);
+X = X+90;
+Y = Y+100;
+h = 200; %height in mm
+Z = (Z*h)-40; %minus 100 so that its from -100 to 100 in Z-axis
+surf(X,Y,Z,'FaceColor','r','FaceAlpha','0.3')
+hold on 
 
 %plot Rahmen
 a_adapt = a;

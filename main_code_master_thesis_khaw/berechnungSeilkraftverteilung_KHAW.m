@@ -2,11 +2,7 @@
 function [stop,R,l] = berechnungSeilkraftverteilung_KHAW(r, a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, pulley_kin, rad_pulley, R_A, rot_angle_A)
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
 
-
 % Basispunkte Roboter
-size_a = size(a);
-% Anzahl der Seile
-% noC = size_a(2);
 global noC
 
 if any(b)  %if any element of b is nonzero = logical 1 
@@ -16,11 +12,8 @@ else
     motion_pattern = 2; %2T %if element b is zeors, then motion pattern = 2
 end
 
-r = repmat(r, 1, noC); %r for workspace , in order to achieve the dimension (1,noC) 
+r = repmat(r, 1, noC); %r for workspace position, in order to achieve the dimension (1,noC) 
 R = axang2rotm(rotation); %axis angle to rotation matrix [0 0 1 angle] to Matrix Dimension=(2,2)
-% R(3, :) = []; %use this workaroud to take out the third row
-% R(:, 3) = []; %use this workaroud to take out the third column, to achieve only 2x2 matrix for 2D. 
-
 b_rot = R * b;
 
 if pulley_kin == 'no'
@@ -41,7 +34,7 @@ elseif pulley_kin == 'yes'
     end
 end 
     
-%für Arbeitsraum Berechnung: check ob l = 0 --> leads to NaN in u(unit vector)
+%für Arbeitsraum Berechnung: check ob length = 0 --> leads to NaN in u(unit vector)
 for check_l = 1 : noC
     if l(:, check_l) == zeros(3,1)
         stop = 1;
@@ -76,7 +69,7 @@ A_T(~any(A_T,2),:) = []; %when all values in Dimension 2 (row) == 0, then delete
 %check if robot is in a nonsingular posn --> A_T full row rank
 rank_A_T = size(orth(A_T.').', 1); %Orthonormal basis for range of matrix (Pott page 93)
     %nonsingular posn
-if rank_A_T == size(A_T, 1)-1 %%%%For 8-wires_robot.py (need to MINUS 1) dunno why!
+if rank_A_T == size(A_T, 1) %%%%For 8-wires_robot.py (need to MINUS 1) dunno why!
     %disp('non singular posn')
 else
     %sigular posn

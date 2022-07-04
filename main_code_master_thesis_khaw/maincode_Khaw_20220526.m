@@ -31,10 +31,10 @@ if pulley_kin == 'yes'
     a = tang_pulley_outer;
 
 elseif pulley_kin == 'no'
-% %for 6 Cable triangular winch position 
-%     a = [-350 350  350  -350 350 350  0;  %x in mm 
-%          450 450   -450  450  450 -450 0 ;  %y in mm 
-%          250 250  250  300  300 300  0 ]; %z in mm
+%for 6 Cable triangular winch position 
+    a = [-350 350  350  -350 350 350  0 0;  %x in mm 
+         450 450   -450  450  450 -450 0 0;  %y in mm 
+         300 300  300  250  250 250  0  0]; %z in mm
 
 % %% for 8 cable standard configuration (WireX landing page)  
 % a = [-20   20   20  -20  -20  20  20 -20;  %x in mm 
@@ -42,11 +42,11 @@ elseif pulley_kin == 'no'
 %      20    20   20   20  0     0   0   0];  %z in mm
 % a = a.*100; %in mm 
 
-% %% for 8 cable falcon configuration  
+%% for 8 cable falcon configuration (1)  
 % a = [-0.25   0.25  0.25   -0.25  -0.25  0.25  0.25 -0.25;  %x in m 
 %      0.1875    0.1875  -0.1875  -0.1875  0.1875   0.1875  -0.1875 -0.1875;  %y in m 
 %      0.125    0.125   0.125   0.125  0.0625     0.0625   0.0625   0.0625];  %z in m
-% a= a.*1000; %in mm 
+% a= a.*10; %in mm 
 
 
 %% for 6 cable Hexagon confuguration
@@ -57,10 +57,28 @@ elseif pulley_kin == 'no'
 
 
 %% for 8-wires_robot.py cable falcon configuration  (Artur)
-a = [2.7   2.7   -2.7  -2.7  2.7  2.7  -2.7   -2.7;  %x in m 
-     2.7   -2.7  -2.7  2.7   2.7  -2.7  -2.7  2.7;  %y in m 
-     2.7   2.7   2.7   2.7  -2.7  -2.7  -2.7  -2.7];  %z in m
-a= a.*1000; %in mm 
+% a = [2.7   2.7   -2.7  -2.7  2.7  2.7  -2.7   -2.7;  %x in m 
+%      2.7   -2.7  -2.7  2.7   2.7  -2.7  -2.7  2.7;  %y in m 
+%      2.7   2.7   2.7   2.7  -2.7  -2.7  -2.7  -2.7];  %z in m
+% a= a.*1000; %in mm 
+
+%% for 8 cable falcon configuration (2)  
+% ax = 0.230; %x in m
+% ay = 0.230; %y in m 
+% az = 0.102; %z in m
+% a = [ax   ax   -ax    -ax   ax   ax    -ax   -ax ;   
+%      ay   -ay  -ay  ay   ay  -ay  -ay  ay;  %y in m 
+%      az    az   az   az   -az  -az   -az    -az ]; 
+% a= a.*1000; %in mm 
+
+%% for 6 cable falcon configuration (20220704)
+% ax = 0.230; %x in m
+% ay = 0.230; %y in m 
+% az = 0.520; %z in m
+% a = [0   ax   -ax    0   0   ax    -ax   0 ;   
+%      ay   -ay  -ay  0   ay  -ay  -ay  0;  %y in m 
+%      az    az   az   0   -az  -az   -az    0 ]; 
+% a= a.*1000; %in mm 
 
 end
 
@@ -77,7 +95,7 @@ grid.y_min = min(a(2,:));
 grid.z_min = min(a(3,:));
 
 % grid_n = 20;  %Anzahl der Unterteilungen in X-Richtung
-grid_n = 27;  %Anzahl der Unterteilungen in X-Richtung
+grid_n = 23;  %Anzahl der Unterteilungen in X-Richtung
 
 %Definiere Grid                      
 grid_delta = (grid.x_max - grid.x_min)  / grid_n;  %step size in x-direction in mm %Gitterabstand von X-Richtung (Y- & Z-Richtung auch in diesem Abstand)
@@ -151,7 +169,7 @@ for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line f
         %jedes w_p gespeichert, anschließend mit 1. Dimension abgeglichen
         %und die Übereinstimmung in 1. Dimension gespeichert. Loop
         workspace_logical = ones(length(coordinate.x), length(coordinate.y), length(coordinate.z)); %preallocating the variable for speed
-        workspace_logical_temp = ones(length(coordinate.x), length(coordinate.y), length(coordinate.z)); %preallocating the variable for speed
+
         for counter_w = 1 : size(rotation_w_array, 1)
             rotation_w_p = rotation_w_array(counter_w, :);
             [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, grid_n, rotation, w_p, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate);
