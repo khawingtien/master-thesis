@@ -68,10 +68,10 @@ b20 = [0   0  0    0   0   0    0;
        0   0  0    10  10  -10  -10;
        500 500 500 0   0    0   0];
 
-%% for 6 Cable triangular winch position (1)too small 
+%% for 6 Cable triangular winch position (1)too small (700mm)02b0
 b20 = [0   0  0    0   0   0    0  0;
-       0   0  0    -1  -1    0    0 0;
-       550 550 550 -2  -2    -2   0 0].*2;
+       0   0  0    -10  -10    0    0 0;
+       550 550 550 -20  -20    -20   0 0];
    
 %% for 6 Cable triangular winch position (2)
 b27 = [0   0  0    0   0   0    0  0;
@@ -113,7 +113,7 @@ b25 = [bx  bx  -bx    -bx  bx   bx    -bx   -bx;
        bz  bz   bz    bz   -0.26    -0.26   -0.26  -0.26];
 b25 = b25.*1000; %in mm
 
-%% for 6 cable falcon configuration (20220704)too big
+%% for 6 Cable triangular winch position (2) too big (length = 800mm)02b1
 bx = 0; %in m
 by = -0.02; %in m
 bz = 1.1  %in m
@@ -122,9 +122,17 @@ b26 = [bx  bx  -bx    0  bx   bx    -bx   0;
        bz  bz   bz    -0.04   -0.04    -0.04   0  0];
 b26 = b26.*1000; %in mm
 
-
+%% for 6 Cable parallel triangle winch position (700mm)02b2
+b28 = [0  0  0      0  0   0   0   0;
+       0  0  0      10 10  -10 -10  0;
+       500 500 500  0   0  0   0   0];
+   
+%% for 6 Cable hexagone 600mm)02c
+b29 = [0  0  0      0  0   0   0   0;
+       0  0  0      0 0  0 0  0;
+       550 550 550 -200   -200   -200  0   0];
 
 %  b_cell = {b1; b2; b3; b4; b5; b6; b7; b8; b9; b10; b11;
 %      b12; b13; b14; b15; b16; b17; b18; b19};
-b_cell = {b26}; %%KHAW
+b_cell = {b29}; %%KHAW
  end 

@@ -93,6 +93,16 @@ trisurf(k,workspace_adapt_pointwise(:,1), y_plane*ones(size(workspace_adapt_poin
 trisurf(k,x_plane*ones(size(workspace_adapt_pointwise(:,1))), workspace_adapt_pointwise(:,2), workspace_adapt_pointwise(:,3),'FaceColor','c','Edgecolor','c'); % project in y-z axis at x=2
 trisurf(k,workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2), z_plane*ones(size(workspace_adapt_pointwise(:,3))),'FaceColor','g','Edgecolor','g'); % project in x-y axis at z=-2
 
+%%Plot Region of Interest (ROI)
+% r = 150; %radius in mm 
+% [X,Y,Z] = cylinder(r);
+% X = X;
+% Y = Y;
+% h = 200; %height in mm
+% Z = (Z*h)-80; %minus 100 so that its from -100 to 100 in Z-axis
+% surf(X,Y,Z,'FaceColor','r','FaceAlpha','0.3')
+% hold on 
+
 %add Title workaround methode
 formatSpec = "The current workspace is: %e %s";
 A1 = convexhull_volume*1e-9; %1e-9 for changing from mm3 to m3 
@@ -102,7 +112,6 @@ title(str)
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
-
 
 
 frac_area_of_1 = sum(workspace_further_adapt(:)); %define the 'workspace_further_adapt' into a spaltenvektor (Dimension: 4489x1) %./numel(workspace_adapt_pointwise);
@@ -150,10 +159,10 @@ hold on
 %%Plot Region of Interest (ROI)
 r = 150; %radius in mm 
 [X,Y,Z] = cylinder(r);
-X = X+140;
-Y = Y+100;
+X = X;
+Y = Y;
 h = 200; %height in mm
-Z = (Z*h); %minus 100 so that its from -100 to 100 in Z-axis
+Z = (Z*h)-80; %minus 100 so that its from -100 to 100 in Z-axis
 surf(X,Y,Z,'FaceColor','r','FaceAlpha','0.3')
 hold on 
 
@@ -162,10 +171,8 @@ hold on
 % hold on
 % plot3(a(1, :), a(2, :),a(3,:), 'xk'); %plot the frame with marker 'x' and black colour 'k'
 % hold on
-a_adapt = a;
-a_adapt(1,5) = a(1,1); %extend to fifth column (so that the rectangle close up)
-a_adapt(2,5) = a(2,1); %extend to fifth column (so that the rectangle close up)
-a_adapt(3,5) = a(3,1);
+ a_adapt = a;
+
 % plot(a_adapt(1, :), a_adapt(2, :), 'k--'); %plot the rechtangle (with black colour 'k' & marker '--')
 % hold on
 % plot(b(1, :), b(2, :), 'xk');
@@ -173,9 +180,6 @@ a_adapt(3,5) = a(3,1);
 %plot Endeffektor
 hold on
 b_figure = R * b; %Rotation * base(end-effector)
-b_figure(1,5) = b_figure(1,1); %extend to fifth column (so that the rectangle close up)
-b_figure(2,5) = b_figure(2,1); %extend to fifth column (so that the rectangle close up)
-b_figure(3,5) = b_figure(3,1);
 plot3(b_figure(1, :), b_figure(2, :),b_figure(3, :), 'x--k');
 
 %plot Seile

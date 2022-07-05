@@ -1,5 +1,5 @@
-close all
-clear all
+% close all
+% clear all
 clc
 tic %start Stopwatch timer
 
@@ -35,29 +35,35 @@ if pulley_kin == 'yes'
 
 elseif pulley_kin == 'no'
 
-    a = [0   350  -250 -350 350 350  -350;  %x in mm 
-         450 0   -450  450  450 -450 -450 ;  %y in mm 
-         250 300  250  250  300 300  250 ]; %z in mm
-    R_A = 1; %just for input, is not in use 
-    rot_angle_A = 1; %just for input, is not in use     
-end
+%     a = [0   350  -250 -350 350 350  -350;  %x in mm 
+%          450 0   -450  450  450 -450 -450 ;  %y in mm 
+%          250 300  250  250  300 300  250 ]; %z in mm
 
-
-%% for 6 Cable triangular winch position (1)too small (700mm)02b0
-%     a = [-350 350  350  -350 350 350  0 0;  %x in mm 
-%          450 450   -450  450  450 -450 0 0;  %y in mm 
+%% for 6 Cable triangular winch position (1)too small (500mm/700mm)02b0
+%     a = [-250 250  250  -250 250 250  0 0;  %x in mm (change to 350mm for l = 700mm)
+%          250 250   -250  250  250 -250 0 0;  %y in mm 
 %          300 300  300  250  250 250  0  0]; %z in mm
 
 %% for 6 Cable triangular winch position (2) too big (length = 800mm)02b1
-ax = 0.4; 
-ay = 0.4;
-az = 0.6;
-    a = [-ax  ax ax -ax ax ax  0 0 ;  %x in m 
-         ay ay   -ay  ay ay -ay 0 0;  %y in m
-         az az  az  0.5  0.5 0.5 0  0]; %z in m
- a = a.*1000; %a in mm   
- 
-% %% for 8 cable standard configuration (WireX landing page)  
+% ax = 0.4; 
+% ay = 0.4;
+% az = 0.6;
+%     a = [-ax  ax ax -ax ax ax  0 0 ;  %x in m 
+%          ay ay   -ay  ay ay -ay 0 0;  %y in m
+%          az az  az  0.5  0.5 0.5 0  0]; %z in m
+%  a = a.*1000; %a in mm   
+
+%% for 6 Cable parallel triangle winch position (700mm)02b2
+%     a = [-120 350  -250  -350 350 350 -350  0 ;  %x in mm 
+%          450  0   -450  450  450  -450 -450 0;  %y in mm 
+%          250 300  250  250  300  300  250  0]; %z in mm
+     
+%% for 6 Cable hexagone 600mm)02c 
+   a = [300 -225  -225  225 225 -300 0  0 ;  %x in mm 
+        0  -300   300  -300  300  0 0 0;  %y in mm 
+        300 300  300  250  250  250   0  0]; %z in mm
+     
+%% for 8 cable standard configuration (WireX landing page)  
 % a = [-20   20   20  -20  -20  20  20 -20;  %x in mm 
 %      15    15  -15  -15  15   15  -15 -15;  %y in mm 
 %      20    20   20   20  0     0   0   0];  %z in mm
@@ -101,7 +107,9 @@ az = 0.6;
 %      az    az   az   0   -az  -az   -az    0 ]; 
 % a= a.*1000; %in mm 
 
-% end
+    R_A = 1; %just for input, is not in use 
+    rot_angle_A = 1; %just for input, is not in use     
+end
 
 R_A = 1; %just for input, is not in use 
 rot_angle_A = 1; %just for input, is not in use  
