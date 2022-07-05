@@ -1,5 +1,5 @@
 close all
-clear all except w_0
+clear all
 clc
 tic %start Stopwatch timer
 
@@ -14,10 +14,7 @@ global f_min
 f_min = 5; 
 global f_max
 f_max = 36;
-global grid_length
-grid_length = 662; %mm 
-global grid_n
-grid_n = 66; 
+
  %% pulley
 global loc_winch
 loc_winch = [-415, -415, 415,  415; -25,  25, 25, -25];
@@ -34,12 +31,74 @@ if pulley_kin == 'yes'
     a = tang_pulley_outer;
 
 elseif pulley_kin == 'no'
-    a = [-52, 0, 52, 0; %x in mm 
-        -25,  60, -25, -12;   %y in mm 
-        30, 0, 30, -60];                      %z in mm
-    R_A = 1; %just for input, is not in use 
-    rot_angle_A = 1; %just for input, is not in use     
+%for 6 Cable triangular winch position 
+    a = [-350 350  350  -350 350 350  0;  %x in mm 
+         450 450   -450  450  450 -450 0 ;  %y in mm 
+         250 250  250  300  300 300  0 ]; %z in mm
+
+% %% for 8 cable standard configuration (WireX landing page)  
+% a = [-20   20   20  -20  -20  20  20 -20;  %x in mm 
+%      15    15  -15  -15  15   15  -15 -15;  %y in mm 
+%      20    20   20   20  0     0   0   0];  %z in mm
+% a = a.*100; %in mm 
+
+%% for 8 cable falcon configuration (1)  
+% a = [-0.25   0.25  0.25   -0.25  -0.25  0.25  0.25 -0.25;  %x in m 
+%      0.1875    0.1875  -0.1875  -0.1875  0.1875   0.1875  -0.1875 -0.1875;  %y in m 
+%      0.125    0.125   0.125   0.125  0.0625     0.0625   0.0625   0.0625];  %z in m
+% a= a.*10; %in mm 
+
+
+%% for 6 cable Hexagon confuguration
+% a = [-0.20   0.2   0     0     0.2   -0.2  0  0;  %x in m 
+%      0.15    0.15  -0.15 0.15  -0.15 -0.15  0 0;  %y in m 
+%      0.20    0.2   0.2   0     0     0    0  0];  %z in m
+% a= a.*1000; %in mm 
+
+
+%% for 8-wires_robot.py cable falcon configuration  (Artur)
+% a = [2.7   2.7   -2.7  -2.7  2.7  2.7  -2.7   -2.7;  %x in m 
+%      2.7   -2.7  -2.7  2.7   2.7  -2.7  -2.7  2.7;  %y in m 
+%      2.7   2.7   2.7   2.7  -2.7  -2.7  -2.7  -2.7];  %z in m
+% a= a.*1000; %in mm 
+
+%% for 8 cable falcon configuration (2)  
+% ax = 0.230; %x in m
+% ay = 0.230; %y in m 
+% az = 0.102; %z in m
+% a = [ax   ax   -ax    -ax   ax   ax    -ax   -ax ;   
+%      ay   -ay  -ay  ay   ay  -ay  -ay  ay;  %y in m 
+%      az    az   az   az   -az  -az   -az    -az ]; 
+% a= a.*1000; %in mm 
+
+%% for 6 cable falcon configuration 
+% ax = 0.230; %x in m
+% ay = 0.230; %y in m 
+% az = 0.520; %z in m
+% a = [0   ax   -ax    0   0   ax    -ax   0 ;   
+%      ay   -ay  -ay  0   ay  -ay  -ay  0;  %y in m 
+%      az    az   az   0   -az  -az   -az    0 ]; 
+% a= a.*1000; %in mm 
+
 end
+
+R_A = 1; %just for input, is not in use 
+rot_angle_A = 1; %just for input, is not in use  
+    
+%Define max and min of grid in all direction
+grid.x_max = max(a(1,:)); %mm %largest length in x direction
+grid.y_max = max(a(2,:));
+grid.z_max = max(a(3,:));
+
+grid.x_min = min(a(1,:)); %mm %smallest length in x direction
+grid.y_min = min(a(2,:));
+grid.z_min = min(a(3,:));
+
+% grid_n = 20;  %Anzahl der Unterteilungen in X-Richtung
+grid_n = 23;  %Anzahl der Unterteilungen in X-Richtung
+
+%Definiere Grid                      
+grid_delta = (grid.x_max - grid.x_min)  / grid_n;  %step size in x-direction in mm %Gitterabstand von X-Richtung (Y- & Z-Richtung auch in diesem Abstand)
 
 %% Definiere distale Ankerpunkte Plattform [x; y]
 % hier werden verschiedene Konfigurationen b1, b2... betrachtet und in
@@ -55,7 +114,7 @@ end
 
 %% Definiere zu untersuchende Lasten in bestimmte Raumrichtungen definiert durch rotation_w_p
 w_p = 0; %dieser Wert wird in berechnungSeilkraftverteilung in den wrench Vektor als x-Koordinate eingesetzt, y=0, T=0 (Feedback Kraft in alle Richtung) 
-w_p_t = 0; %Torque (Feedback Kraft in Rotation)
+w_p_t = 0; %Torque (Feedback Kraft in Rotation)%wrench in torque
 grid_deg = 9; % rotatorische Auflösung
 discrete_rot_angle_w_p = transpose(linspace(0, 2*pi, grid_deg)); %(x1, x2, n) n Punkte zwischen x1 und x2
 rotation_w_array = zeros(size(discrete_rot_angle_w_p, 1), 4);
@@ -69,18 +128,11 @@ end
 
 f_g = 0; % tbd Gewichtskraft implementieren wenn Gewicht bekannt
 %% Standardparameter
-% Basispunkte Roboter
-size_a = size(a);
-
 % Anzahl der Seile = number of cable 
-noC = size_a(2);
+global noC
+noC = length(a);
 
 %% Parameter zur Arbeitsraum Berechnung
-% Definiere Grid
-% grid_length = 662;  %mm %Abstand zwischen Ankerpunkten am Rahmen
-% grid_n = 66;                             %Anzahl der Unterteilungen
-grid_delta = grid_length / grid_n;       %Gitterabstand
-
 t = linspace(0,10,100); % 0 bis 10 Sekunden in 100 Schritten
 steps = length(t);
 loesung_closed_form = zeros(noC,steps); %tbd check check if needed
@@ -98,23 +150,12 @@ counter_analysis = 1; %tbd counter logik ändern!!!!
 % 0 = Position nicht in const. orientation workspace enthalten
 % 1 = enthalten
 
-%x-, y-Werte befüllen
-%tbd check check KOS
-% global x_row 
-% x_row = zeros( grid_n + 1,1); %spaltenvektor
-% global y_column
-% y_column = zeros(grid_n + 1, 1);
-% global z_diagonal
-% z_diagonal = zeros(grid_n + 1,1); %KHAW
+coordinate.x = [grid.x_min : grid_delta: grid.x_max]'; %step size in x-direction
+coordinate.y = [grid.y_min : grid_delta: grid.y_max]';
+coordinate.z = [grid.z_min : grid_delta: grid.z_max]'; 
 
-x_row = [-grid_length/2 : grid_delta: grid_length/2]'; %x,y,z dimension should be the same 
-y_column = [grid_length/2 : -grid_delta: -grid_length/2]';
-z_page = [grid_length/2 : -grid_delta: -grid_length/2]'; %KHAW
-
-%Define Workspace in a matrix with column1=x, column2=y and column3=z
-workspace = [x_row y_column z_page] ;
-
-analysis = zeros(1, 7); %analysis for different parameter, will be saved in a Zeilenvektor. preallocating the variable for speed
+%analysis for different parameter, will be saved in a Zeilenvektor. preallocating the variable for speed
+analysis = zeros(1, 7);
 
 %% Calculation for workspace logical
 for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line form, square form...)
@@ -127,22 +168,22 @@ for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line f
         %workspace_logical: in der 2. Dimension wird der Arbeitsraum für
         %jedes w_p gespeichert, anschließend mit 1. Dimension abgeglichen
         %und die Übereinstimmung in 1. Dimension gespeichert. Loop
-        workspace_logical = ones(grid_n + 1, grid_n + 1, grid_n + 1); %preallocating the variable for speed
-        workspace_logical_temp = ones(grid_n + 1, grid_n + 1, grid_n + 1); %preallocating the variable for speed
+        workspace_logical = ones(length(coordinate.x), length(coordinate.y), length(coordinate.z)); %preallocating the variable for speed
+
         for counter_w = 1 : size(rotation_w_array, 1)
             rotation_w_p = rotation_w_array(counter_w, :);
-            [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, grid_n, rotation, w_p, w_p_t, rotation_w_p, workspace, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A,x_row,y_column,z_page);
+            [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, grid_n, rotation, w_p, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate);
         end
         %finalen Arbeitsraum bestimmen und darstellen
-        [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, rot_name, analysis, workspace, workspace_logical, R, grid_deg);
-        counter_analysis = counter_analysis + 1 %no semicolon, to show in command window the progression
-    end
+        counter_analysis = counter_analysis +   1;
+        [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, rot_name, analysis, coordinate, workspace_logical, R, grid_deg);
+   end
 end
 %Sheet : analysis
 % excel_save = "1R2T_Rahmen1_%d_%d_%d_%d_%d_%d_%d.xlsx";
 % excel_name = sprintf(excel_save, f_min, f_max, w_p, f_g, grid_n, grid_deg, w_p_t);
 % writematrix(analysis, excel_name);
-% toc
+toc
 
 
 

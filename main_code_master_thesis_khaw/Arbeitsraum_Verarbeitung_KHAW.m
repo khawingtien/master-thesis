@@ -43,6 +43,7 @@ for i = 1 : grid_n + 1 %for coordinate x
     end
 end
 
+%Choose the bigger area 
 workspace_further_adapt_struct = bwconncomp(workspace_adapt); %Find and count connected components in binary image, default connectivity is 8.
 workspace_further_adapt_cell = struct2cell(workspace_further_adapt_struct);
 % pixel = workspace_further_adapt_struct.PixelIdxList{1, 1};
@@ -53,7 +54,7 @@ max_object = find(nrows == max_object); %find the nrows exactly as 3113, which i
 
 if isempty(max_object) %Determine whether array is empty, returns logical 1 (true) if A is empty, and logical 0 (false) otherwise
     workspace_further_adapt = zeros(grid_n + 1, grid_n + 1); %assign all to zeros
-    workspace_adapt_pointwise = [-500 500]; %for total of 1000 points
+    workspace_adapt_pointwise = [-500 500 1000]; %for total of 1000 points????
 else
     workspace_further_adapt_temp = workspace_further_adapt_cell{4,1}{1,max_object}; %D= 3113x1 double, all the position (Position 69, 70, 132, 133...) of connected components has been listed in 3113x1 matrix. 
     %  = cell2mat(workspace_further_adapt_cell{4,1}{1,max_object});
@@ -74,8 +75,37 @@ for j = 1 : length(index_convexhull_point)
     workspace_adapt_pointwise(j, 3) = workspace(id_z, 3); %select z-coordinate from workspace 
 end
 
+<<<<<<< Updated upstream
 %get convex hull of current MU
 % [k, convexhull_area] = convhull(workspace_adapt_pointwise);
+=======
+%% get convex hull of current working space in extra figure
+
+[k, convexhull_volume] = convhull(workspace_adapt_pointwise,'Simplify',true);
+figure
+trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3),'FaceColor','b','Edgecolor','b')
+% axis equal
+%Define the projection onto the wall 
+y_plane = max(workspace_adapt_pointwise(:,2))+150 %from maximum of y_plane coordinate +200 mm (show on right)
+x_plane = max(workspace_adapt_pointwise(:,1))+150; %from maximum of x_plane coordinate +200 mm (show on left)
+z_plane = max(workspace_adapt_pointwise(:,2))-400; %from maximum of z_plane coordinate -150 mm (show on bottom) 
+hold on
+grid on 
+grid minor
+trisurf(k,workspace_adapt_pointwise(:,1), y_plane*ones(size(workspace_adapt_pointwise(:,2))), workspace_adapt_pointwise(:,3),'FaceColor','r','Edgecolor','r'); % project in x-z axis at y=100
+trisurf(k,x_plane*ones(size(workspace_adapt_pointwise(:,1))), workspace_adapt_pointwise(:,2), workspace_adapt_pointwise(:,3),'FaceColor','c','Edgecolor','c'); % project in y-z axis at x=2
+trisurf(k,workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2), z_plane*ones(size(workspace_adapt_pointwise(:,3))),'FaceColor','g','Edgecolor','g'); % project in x-y axis at z=-2
+
+%add Title workaround methode
+formatSpec = "The current workspace is: %e %s";
+A1 = convexhull_volume*1e-9; %1e-9 for changing from mm3 to m3 
+A2 = 'm3';
+str = sprintf(formatSpec,A1,A2)
+title(str)
+xlabel('x in mm') %text in x-coordinate
+ylabel('y in mm') %text in y-coordinate
+zlabel('z in mm') %text in z-coordinate
+>>>>>>> Stashed changes
 
 
 frac_area_of_1 = sum(workspace_further_adapt(:)); %define the 'workspace_further_adapt' into a spaltenvektor (Dimension: 4489x1) %./numel(workspace_adapt_pointwise);
@@ -117,6 +147,20 @@ analysis(counter_analysis, 8) = centerOfMasspage;
 figure(counter_analysis)
 plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g'); %Plot x- and y-coordinate
 grid on
+<<<<<<< Updated upstream
+=======
+grid minor
+
+%%Plot Region of Interest (ROI)
+r = 150; %radius in mm 
+[X,Y,Z] = cylinder(r);
+X = X+120;
+Y = Y+100;
+h = 200; %height in mm
+Z = (Z*h); %minus 100 so that its from -100 to 100 in Z-axis
+surf(X,Y,Z,'FaceColor','r','FaceAlpha','0.3')
+hold on 
+>>>>>>> Stashed changes
 
 %plot Rahmen
 % hold on
@@ -139,7 +183,7 @@ b_figure(3,5) = b_figure(3,1);
 plot3(b_figure(1, :), b_figure(2, :),b_figure(3, :), 'x--k');
 
 %plot Seile
-str = ["w1" "w2" "w3" "w4" "w5" "w6"]; 
+str = ["w1" "w2" "w3" "w4" "w5" "w6" "w7" "w8"]; 
 for i = 1 : noC
     hold on
     plot3([a_adapt(1, i) b_figure(1, i)], [a_adapt(2, i) b_figure(2, i)], [a_adapt(3, i) b_figure(3, i)],'--r');

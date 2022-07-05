@@ -2,16 +2,13 @@
 function [stop,R,l] = berechnungSeilkraftverteilung_KHAW(r, a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, pulley_kin, rad_pulley, R_A, rot_angle_A)
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
 
-
 % Basispunkte Roboter
 size_a = size(a);
 % Anzahl der Seile
-% noC = size_a(2);
-global noC
+noC = size_a(2);
 
 if any(b)  %if any element of b is nonzero
-   % motion_pattern = 3; %1R2T
-    motion_pattern = 5; %2R3T
+    motion_pattern = 3; %1R2T
 else
     motion_pattern = 2; %2T %if element b is zeors, then motion pattern = 2
 end
@@ -112,6 +109,9 @@ if norm(f_V, 2) >= (1/2 * (f_max - f_min)) && norm(f_V, 2) <= (1/2 * sqrt(noC) *
 elseif norm(f_V, 2) > (1/2 * sqrt(noC) * (f_max - f_min))
     %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
     stop = 1;
+    if r == zeros(3, noC)
+        disp('A')  %%What s this??
+    end
     return
 end
 
