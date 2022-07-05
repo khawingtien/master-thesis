@@ -58,7 +58,7 @@ elseif pulley_kin == 'no'
 %          450  0   -450  450  450  -450 -450 0;  %y in mm 
 %          250 300  250  250  300  300  250  0]; %z in mm
      
-%% for 6 Cable hexagone 600mm)02c 
+%% for 6 Cable hexagone (600mm)02c 
    a = [300 -225  -225  225 225 -300 0  0 ;  %x in mm 
         0  -300   300  -300  300  0 0 0;  %y in mm 
         300 300  300  250  250  250   0  0]; %z in mm
@@ -76,7 +76,7 @@ elseif pulley_kin == 'no'
 % a= a.*10; %in mm 
 
 
-%% for 6 cable Hexagon confuguration
+% for 6 cable Hexagon confuguration (old)
 % a = [-0.20   0.2   0     0     0.2   -0.2  0  0;  %x in m 
 %      0.15    0.15  -0.15 0.15  -0.15 -0.15  0 0;  %y in m 
 %      0.20    0.2   0.2   0     0     0    0  0];  %z in m
@@ -89,7 +89,7 @@ elseif pulley_kin == 'no'
 %      2.7   2.7   2.7   2.7  -2.7  -2.7  -2.7  -2.7];  %z in m
 % a= a.*1000; %in mm 
 
-%% for 8 cable falcon configuration (2)  
+%% for 8 cable falcon configuration (2) (02a)  
 % ax = 0.230; %x in m
 % ay = 0.230; %y in m 
 % az = 0.102; %z in m
@@ -124,7 +124,7 @@ grid.y_min = min(a(2,:));
 grid.z_min = min(a(3,:));
 
 % grid_n = 20;  %Anzahl der Unterteilungen in X-Richtung
-grid_n = 35;  %Anzahl der Unterteilungen in X-Richtung
+grid_n = 30;  %Anzahl der Unterteilungen in X-Richtung
 
 %Definiere Grid                      
 grid_delta = (grid.x_max - grid.x_min)  / grid_n;  %step size in x-direction in mm %Gitterabstand von X-Richtung (Y- & Z-Richtung auch in diesem Abstand)

@@ -93,16 +93,6 @@ trisurf(k,workspace_adapt_pointwise(:,1), y_plane*ones(size(workspace_adapt_poin
 trisurf(k,x_plane*ones(size(workspace_adapt_pointwise(:,1))), workspace_adapt_pointwise(:,2), workspace_adapt_pointwise(:,3),'FaceColor','c','Edgecolor','c'); % project in y-z axis at x=2
 trisurf(k,workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2), z_plane*ones(size(workspace_adapt_pointwise(:,3))),'FaceColor','g','Edgecolor','g'); % project in x-y axis at z=-2
 
-%%Plot Region of Interest (ROI)
-% r = 150; %radius in mm 
-% [X,Y,Z] = cylinder(r);
-% X = X;
-% Y = Y;
-% h = 200; %height in mm
-% Z = (Z*h)-80; %minus 100 so that its from -100 to 100 in Z-axis
-% surf(X,Y,Z,'FaceColor','r','FaceAlpha','0.3')
-% hold on 
-
 %add Title workaround methode
 formatSpec = "The current workspace is: %e %s";
 A1 = convexhull_volume*1e-9; %1e-9 for changing from mm3 to m3 
@@ -162,7 +152,7 @@ r = 150; %radius in mm
 X = X;
 Y = Y;
 h = 200; %height in mm
-Z = (Z*h)-80; %minus 100 so that its from -100 to 100 in Z-axis
+Z = (Z*h); %minus 100 so that its from -100 to 100 in Z-axis
 surf(X,Y,Z,'FaceColor','r','FaceAlpha','0.3')
 hold on 
 

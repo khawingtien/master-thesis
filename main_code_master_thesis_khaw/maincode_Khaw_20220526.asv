@@ -58,10 +58,10 @@ elseif pulley_kin == 'no'
 %          450  0   -450  450  450  -450 -450 0;  %y in mm 
 %          250 300  250  250  300  300  250  0]; %z in mm
      
-%% for 6 Cable hexagone 600mm)02c 
-   a = [300 -225  -225  225 225 -300 0  0 ;  %x in mm 
-        0  -300   300  -300  300  0 0 0;  %y in mm 
-        300 300  300  250  250  250   0  0]; %z in mm
+%% for 6 Cable hexagone (600mm)02c 
+%    a = [300 -225  -225  225 225 -300 0  0 ;  %x in mm 
+%         0  -300   300  -300  300  0 0 0;  %y in mm 
+%         300 300  300  250  250  250   0  0]; %z in mm
      
 %% for 8 cable standard configuration (WireX landing page)  
 % a = [-20   20   20  -20  -20  20  20 -20;  %x in mm 
@@ -89,7 +89,7 @@ elseif pulley_kin == 'no'
 %      2.7   2.7   2.7   2.7  -2.7  -2.7  -2.7  -2.7];  %z in m
 % a= a.*1000; %in mm 
 
-%% for 8 cable falcon configuration (2)  
+%% for 8 cable falcon configuration (2) (02a)  
 % ax = 0.230; %x in m
 % ay = 0.230; %y in m 
 % az = 0.102; %z in m
