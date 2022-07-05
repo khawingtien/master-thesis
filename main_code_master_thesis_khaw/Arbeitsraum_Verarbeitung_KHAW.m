@@ -75,10 +75,7 @@ for j = 1 : length(index_convexhull_point)
     workspace_adapt_pointwise(j, 3) = workspace(id_z, 3); %select z-coordinate from workspace 
 end
 
-<<<<<<< Updated upstream
-%get convex hull of current MU
-% [k, convexhull_area] = convhull(workspace_adapt_pointwise);
-=======
+
 %% get convex hull of current working space in extra figure
 
 [k, convexhull_volume] = convhull(workspace_adapt_pointwise,'Simplify',true);
@@ -88,7 +85,7 @@ trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspac
 %Define the projection onto the wall 
 y_plane = max(workspace_adapt_pointwise(:,2))+150 %from maximum of y_plane coordinate +200 mm (show on right)
 x_plane = max(workspace_adapt_pointwise(:,1))+150; %from maximum of x_plane coordinate +200 mm (show on left)
-z_plane = max(workspace_adapt_pointwise(:,2))-400; %from maximum of z_plane coordinate -150 mm (show on bottom) 
+z_plane = max(workspace_adapt_pointwise(:,2))-700; %from maximum of z_plane coordinate -150 mm (show on bottom) 
 hold on
 grid on 
 grid minor
@@ -105,7 +102,7 @@ title(str)
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
->>>>>>> Stashed changes
+
 
 
 frac_area_of_1 = sum(workspace_further_adapt(:)); %define the 'workspace_further_adapt' into a spaltenvektor (Dimension: 4489x1) %./numel(workspace_adapt_pointwise);
@@ -144,23 +141,22 @@ analysis(counter_analysis, 8) = centerOfMasspage;
 
 %% Plots
 %plot Konvexe Hülle und speichern
-figure(counter_analysis)
+figure
 plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g'); %Plot x- and y-coordinate
 grid on
-<<<<<<< Updated upstream
-=======
 grid minor
+hold on 
 
 %%Plot Region of Interest (ROI)
 r = 150; %radius in mm 
 [X,Y,Z] = cylinder(r);
-X = X+120;
+X = X+140;
 Y = Y+100;
 h = 200; %height in mm
 Z = (Z*h); %minus 100 so that its from -100 to 100 in Z-axis
 surf(X,Y,Z,'FaceColor','r','FaceAlpha','0.3')
 hold on 
->>>>>>> Stashed changes
+
 
 %plot Rahmen
 % hold on

@@ -64,12 +64,10 @@ b18 = [0, -75, 75, 0;
 %        0   0  0  0    0   0;
 %        30 30 30 -30 -30 -30];
 
-<<<<<<< Updated upstream
 b20 = [0   0  0    0   0   0    0;
        0   0  0    10  10  -10  -10;
        500 500 500 0   0    0   0];
 
-=======
 %% for 6 Cable triangular winch position (1)too small 
 b20 = [0   0  0    0   0   0    0  0;
        0   0  0    -1  -1    0    0 0;
@@ -123,7 +121,7 @@ b26 = [bx  bx  -bx    0  bx   bx    -bx   0;
        0  0  0  -by   -by    0    0  0;
        bz  bz   bz    -0.04   -0.04    -0.04   0  0];
 b26 = b26.*1000; %in mm
->>>>>>> Stashed changes
+
 
 
 %  b_cell = {b1; b2; b3; b4; b5; b6; b7; b8; b9; b10; b11;

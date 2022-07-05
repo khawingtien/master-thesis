@@ -34,7 +34,7 @@ if pulley_kin == 'yes'
     a = tang_pulley_outer;
 
 elseif pulley_kin == 'no'
-<<<<<<< Updated upstream
+
     a = [0   350  -250 -350 350 350  -350;  %x in mm 
          450 0   -450  450  450 -450 -450 ;  %y in mm 
          250 300  250  250  300 300  250 ]; %z in mm
@@ -42,12 +42,13 @@ elseif pulley_kin == 'no'
     rot_angle_A = 1; %just for input, is not in use     
 end
 
-=======
-%% for 6 Cable triangular winch position (1)too small 
+
+%% for 6 Cable triangular winch position (1)too small (700mm)02b0
 %     a = [-350 350  350  -350 350 350  0 0;  %x in mm 
 %          450 450   -450  450  450 -450 0 0;  %y in mm 
 %          300 300  300  250  250 250  0  0]; %z in mm
-%% for 6 Cable triangular winch position (2) too big (l = 160cm !) 
+
+%% for 6 Cable triangular winch position (2) too big (length = 800mm)02b1
 ax = 0.4; 
 ay = 0.4;
 az = 0.6;
@@ -100,7 +101,7 @@ az = 0.6;
 %      az    az   az   0   -az  -az   -az    0 ]; 
 % a= a.*1000; %in mm 
 
-end
+% end
 
 R_A = 1; %just for input, is not in use 
 rot_angle_A = 1; %just for input, is not in use  
@@ -120,7 +121,7 @@ grid_n = 35;  %Anzahl der Unterteilungen in X-Richtung
 %Definiere Grid                      
 grid_delta = (grid.x_max - grid.x_min)  / grid_n;  %step size in x-direction in mm %Gitterabstand von X-Richtung (Y- & Z-Richtung auch in diesem Abstand)
 
->>>>>>> Stashed changes
+
 %% Definiere distale Ankerpunkte Plattform [x; y]
 % hier werden verschiedene Konfigurationen b1, b2... betrachtet und in
 % b_cell gespeichert
