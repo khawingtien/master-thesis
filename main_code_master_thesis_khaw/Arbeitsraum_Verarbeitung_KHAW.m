@@ -1,8 +1,7 @@
 %% Function Arbeitsraum_Verarbeitung
-function [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, rot_name, analysis, workspace, workspace_logical, R, grid_deg)
+function [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, rot_name, analysis, coordinate, workspace_logical, R, grid_deg)
 %% AUSWERTUNG Arbeitsraum
 workspace_adapt = workspace_logical; %workspace_logical has the final logic of all wrench-frasible working space in 3D
-grid_size = grid_n + 1;
 global f_min f_max noC %import global variable 
 
 %%calculate relative neighbours (27-1) point for 3D.
@@ -15,23 +14,29 @@ relative_neighbor(14,:)=[]; %the absolute coordinate (in position 5, layer 2) mu
 
 %% Workspace anpassen, Ausreißer ausschließen (remove outlier) for each
 %element of the 4th dimension of workspace matrix
-for i = 1 : grid_n + 1 %for coordinate x
-    for j = 1 : grid_n +1 %for coordinate y
-        for k = 1 : grid_n +1 %for coordinate z
+for i = 1 : length(coordinate.x) %for coordinate x
+    for j = 1 : length(coordinate.y)%for coordinate y
+        for k = 1 : length(coordinate.z) %for coordinate z
             if workspace_adapt(i, j, k) == 1 %go through all of the workspace adapt to find if element is included in workspace (==1 TRUE)
             
-%            Alternative methode for introducing z in 3Dimension
-%               neighbor = zeros(27,3); %preallocating for speed
-                %for page=1:3
-%                neighbor((page-1)*9+1:page*9,:) =[i+[-1;0;1;-1;0;1;-1;0;1] j+[-1;-1;-1;0;0;0;1;1;1] k+page*ones(9,1)-2]; %define its neighbors
-%               end
+             %DO NOT DELETE these comments   
+             %Alternative methode for introducing z in 3Dimension
+             %neighbor = zeros(27,3); %preallocating for speed
+             %for page=1:3
+             %  neighbor((page-1)*9+1:page*9,:) =[i+[-1;0;1;-1;0;1;-1;0;1] j+[-1;-1;-1;0;0;0;1;1;1] k+page*ones(9,1)-2]; %define its neighbors
+             %end
 
             neighbor = relative_neighbor + [i j k]; %surrounding 26 points + absolute coordinate in 3D space
-            compare = all(neighbor,2) & neighbor(:,1) <= grid_size & neighbor(:,2) <= grid_size; %TOASK! 
+             
+            %To check if the coordinate of all 26 absolute neighbours are on the
+            %border (26x26x26). If any abs. neighbour are on the border, then the whole row will be logical false and ignored.
+            compare = (all(neighbor~=0,2)) & (neighbor(:,1) <= length(coordinate.x))...
+                  & (neighbor(:,2) <= length(coordinate.y)) & (neighbor(:,3) <= length(coordinate.z)); 
             neighbor = neighbor(compare,:); %get only neighbors within the array 
             workspace_neighbor = zeros(1,26);
-                for i = 1 : size(neighbor, 1)
-                    workspace_neighbor(i) = workspace_adapt(neighbor(i, 1), neighbor(i, 2), neighbor(i,3)); %3. Spalte Workspace Zugehörigkeit
+            
+                for n = 1 : size(neighbor, 1)
+                    workspace_neighbor(n) = workspace_adapt(neighbor(n, 1), neighbor(n, 2), neighbor(n,3)); %3. Spalte Workspace Zugehörigkeit
                 end
             
             %if all neighbors 0 (all 26 points),then the position in workspace_adapt is Zero. 
@@ -54,7 +59,7 @@ max_object = find(nrows == max_object); %find the nrows exactly as 3113, which i
 
 if isempty(max_object) %Determine whether array is empty, returns logical 1 (true) if A is empty, and logical 0 (false) otherwise
     workspace_further_adapt = zeros(grid_n + 1, grid_n + 1); %assign all to zeros
-    workspace_adapt_pointwise = [-500 500 1000]; %for total of 1000 points????
+    workspace_adapt_pointwise = [0 0 0]; %for total of 1000 points????
 else
     workspace_further_adapt_temp = workspace_further_adapt_cell{4,1}{1,max_object}; %D= 3113x1 double, all the position (Position 69, 70, 132, 133...) of connected components has been listed in 3113x1 matrix. 
     %  = cell2mat(workspace_further_adapt_cell{4,1}{1,max_object});
@@ -77,7 +82,7 @@ end
 
 
 %% get convex hull of current working space in extra figure
-
+%{
 [k, convexhull_volume] = convhull(workspace_adapt_pointwise,'Simplify',true);
 figure
 trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3),'FaceColor','b','Edgecolor','b')
@@ -102,7 +107,7 @@ title(str)
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
-
+%}
 
 frac_area_of_1 = sum(workspace_further_adapt(:)); %define the 'workspace_further_adapt' into a spaltenvektor (Dimension: 4489x1) %./numel(workspace_adapt_pointwise);
 
@@ -152,7 +157,7 @@ r = 150; %radius in mm
 X = X;
 Y = Y;
 h = 200; %height in mm
-Z = (Z*h); %minus 100 so that its from -100 to 100 in Z-axis
+Z = (Z*h)-100; %minus 100 so that its from -100 to 100 in Z-axis
 surf(X,Y,Z,'FaceColor','r','FaceAlpha','0.3')
 hold on 
 
