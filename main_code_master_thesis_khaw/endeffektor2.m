@@ -102,10 +102,10 @@ b24 = [0.2  0.2     -0.2    -0.2    0.2   0.2   -0.2   -0.2 ;
 %% for 8 cable falcon endeffector (2) (02a) 
 bx = 0.017; %in m
 by = 0.017; %in m
-bz = 0.16  %in m
+bz = 0.26  %in m
 b25 = [bx  bx  -bx    -bx  bx   bx    -bx   -bx;
        by  -by  -by   by   by    -by    -by  by;
-       bz  bz   bz    bz   -0.16    -0.16   -0.16  -0.16];
+       bz  bz   bz    bz   -bz    -bz   -bz  -bz];
 b25 = b25.*1000; %in mm
 
 %% for 6 Cable triangular winch position (2) too big (length = 800mm)02b1
