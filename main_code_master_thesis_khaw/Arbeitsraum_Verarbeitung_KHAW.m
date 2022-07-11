@@ -63,7 +63,7 @@ max_object = find(nrows == max_object); %find the nrows exactly as 3113, which i
 if isempty(max_object) %Determine whether array is empty, returns logical 1 (true) if A is empty, and logical 0 (false) otherwise
 disp('Fehler')
     workspace_further_adapt = zeros(grid_n, grid_n,grid_n); %assign all to zeros
-    workspace_adapt_pointwise = [1000 1000 1000]; %random point, to plot outside of the area 
+    workspace_adapt_pointwise = [0 0 0]; %random point, to plot in the middle 
 else
     workspace_further_adapt_temp = workspace_further_adapt_cell{4,1}{1,max_object}; %D= 3113x1 double, all the position (Position 69, 70, 132, 133...) of connected components has been listed in 3113x1 matrix. 
     %  = cell2mat(workspace_further_adapt_cell{4,1}{1,max_object});
@@ -86,7 +86,7 @@ for j = 1 : length(index_convexhull_point)
 end
 
 %% get convex hull of current working space in extra figure
-%{
+
 [k, convexhull_volume] = convhull(workspace_adapt_pointwise,'Simplify',true);
 figure
 trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3),'FaceColor','b','Edgecolor','b')
@@ -160,10 +160,10 @@ grid minor
 %%Plot Region of Interest (ROI)
 r = 150; %radius in mm 
 [X,Y,Z] = cylinder(r);
-X = X+90;
-Y = Y+100;
+% X = X+90;
+% Y = Y+100;
 h = 200; %height in mm
-Z = (Z*h)-40; %minus 100 so that its from -100 to 100 in Z-axis
+Z = (Z*h)-100; %minus 100 so that its from -100 to 100 in Z-axis
 surf(X,Y,Z,'FaceColor','r','FaceAlpha','0.3')
 hold on 
 

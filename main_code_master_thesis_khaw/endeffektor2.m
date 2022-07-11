@@ -68,6 +68,11 @@ b20 = [0   0  0    0   0   0    0  0;
        0   0  0    -1  -1    0    0 0;
        550 550 550 -2  -2    -2   0 0];
 
+%% for 6 Cable triangular winch position (2)
+b27 = [0   0  0    0   0   0    0  0;
+       0   0  0    -0.04  -0.04    0    0 0;
+       2.2 2.2 2.2 -0.08  -0.08     -0.08    0 0];
+b27 = b27.*1000; 
 %% for 8 cable square endeffector (WireX Landing Page)
 b21 = [-0.6  0.6  0.6    -0.6   -0.6   0.6    0.6  -0.6;
        0.6   0.6  -0.6   -0.6   0.6    0.6    -0.6  -0.6;
@@ -82,7 +87,7 @@ b22 = [-0.015  0.015  0.015    -0.015   -0.015   0.015    0.015   -0.015;
 b22 = b22.*10;
 
 
-%% for 6 cable hexagone  
+%% for 6 cable hexagone  configuration (old)
 b23 = [-0.06  0.06  0.01    -0.01   0.06   -0.04    0  0;
        0.06   0.06  -0.06   -0.06   -0.04   -0.06    0  0;
        1      1      1      0        0      0       0   0 ];
@@ -94,26 +99,35 @@ b24 = [0.2  0.2     -0.2    -0.2    0.2   0.2   -0.2   -0.2 ;
        3.55  3.55  3.55   3.55   -3.05  -3.05  -3.05  -3.05 ];
  b24 = b24./10;
 
-%% for 8 cable falcon endeffector (2)
+%% for 8 cable falcon endeffector (2) (02a) 
 bx = 0.017; %in m
 by = 0.017; %in m
-bz = 0.302  %in m
+bz = 0.16  %in m
 b25 = [bx  bx  -bx    -bx  bx   bx    -bx   -bx;
        by  -by  -by   by   by    -by    -by  by;
-       bz  bz   bz    bz   -0.26    -0.26   -0.26  -0.26];
+       bz  bz   bz    bz   -0.16    -0.16   -0.16  -0.16];
 b25 = b25.*1000; %in mm
 
-%% for 6 cable falcon configuration (20220704)
-bx = 0.017; %in m
-by = 0.017; %in m
-bz = 0.202  %in m
-b26 = [0.02  bx  -bx    0  -0.02   bx    -bx   0;
-       by  -by  -by   0   by    -by    -by  0;
-       bz  bz   bz    0   -0.21    -0.21   -0.21  0];
+%% for 6 Cable triangular winch position (2) too big (length = 800mm)02b1
+bx = 0; %in m
+by = -0.02; %in m
+bz = 1.1  %in m
+b26 = [bx  bx  -bx    0  bx   bx    -bx   0;
+       0  0  0  -by   -by    0    0  0;
+       bz  bz   bz    -0.04   -0.04    -0.04   0  0];
 b26 = b26.*1000; %in mm
 
+%% for 6 Cable parallel triangle winch position (700mm)02b2
+b28 = [0  0  0      0  0   0   0   0;
+       0  0  0      10 10  -10 -10  0;
+       500 500 500  0   0  0   0   0];
+   
+%% for 6 Cable hexagone (600mm)02c
+b29 = [0  0  0      0  0   0   0   0;
+       0  0  0      0 0  0 0  0;
+       550 550 550 -200   -200   -200  0   0];
 
 %  b_cell = {b1; b2; b3; b4; b5; b6; b7; b8; b9; b10; b11;
 %      b12; b13; b14; b15; b16; b17; b18; b19};
-b_cell = {b20}; %%KHAW
+b_cell = {b25}; %%KHAW
  end 
