@@ -1,3 +1,3 @@
-plot([0 1])
-[t,s] = title('Straight Line','Slope = 1, y-Intercept = 0',...
-    'Color','blue');
+plot([0 2],[1 5])
+title('Straight Line')
+subtitle('Slope = 2, y-Intercept = 1')

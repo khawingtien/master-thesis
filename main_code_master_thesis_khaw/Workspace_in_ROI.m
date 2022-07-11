@@ -18,9 +18,9 @@ counter_circle = 0; %counter of point within ROI is 0 at first
        end 
    end 
  end
-format long
 percentage = counter_circle/ length(workspace_adapt_pointwise)*100; %calculate the percentage of ws within ROI
 %%Display
+format long g
 formatSpec = "%e %s of workspace was in ROI ";
 A1 = percentage;  
 A2 = '%';

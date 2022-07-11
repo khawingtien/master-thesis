@@ -50,8 +50,7 @@ for i = 1 : length(coordinate.x) %for coordinate x
 end
 
 
-%To choose the bigger area if there are two point cloud area exist at the
-%same time
+%To choose the bigger area if there are two point cloud area exist at the same time
 workspace_further_adapt_struct = bwconncomp(workspace_adapt); %Find and count connected components in binary image, default connectivity is 8.
 workspace_further_adapt_cell = struct2cell(workspace_further_adapt_struct);
 % pixel = workspace_further_adapt_struct.PixelIdxList{1, 1};
@@ -92,7 +91,7 @@ figure
 trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3),'FaceColor','b','Edgecolor','b')
 % axis equal
 %Define the projection onto the wall 
-y_plane = max(workspace_adapt_pointwise(:,2))+150 %from maximum of y_plane coordinate +200 mm (show on right)
+y_plane = max(workspace_adapt_pointwise(:,2))+150; %from maximum of y_plane coordinate +200 mm (show on right)
 x_plane = max(workspace_adapt_pointwise(:,1))+150; %from maximum of x_plane coordinate +200 mm (show on left)
 z_plane = max(workspace_adapt_pointwise(:,2))-400; %from maximum of z_plane coordinate -150 mm (show on bottom) 
 hold on
@@ -102,12 +101,18 @@ trisurf(k,workspace_adapt_pointwise(:,1), y_plane*ones(size(workspace_adapt_poin
 trisurf(k,x_plane*ones(size(workspace_adapt_pointwise(:,1))), workspace_adapt_pointwise(:,2), workspace_adapt_pointwise(:,3),'FaceColor','c','Edgecolor','c'); % project in y-z axis at x=2
 trisurf(k,workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2), z_plane*ones(size(workspace_adapt_pointwise(:,3))),'FaceColor','g','Edgecolor','g'); % project in x-y axis at z=-2
 
+ %Calculate the percentage of Workspace within ROI
+ [percentage] = Workspace_in_ROI(workspace_adapt_pointwise); 
+
 %add Title workaround methode
 formatSpec = "The current workspace is: %e %s";
+format long g
 A1 = convexhull_volume*1e-9; %1e-9 for changing from mm3 to m3 
 A2 = 'm3';
-str = sprintf(formatSpec,A1,A2)
+str = sprintf(formatSpec,A1,A2);
 title(str)
+str2 = [num2str(percentage) '% of Workspace was in ROI'];
+subtitle(str2)
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate

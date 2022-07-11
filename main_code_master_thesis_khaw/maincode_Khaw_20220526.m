@@ -87,13 +87,13 @@ elseif pulley_kin == 'no'
 % a= a.*1000; %in mm 
 
 %% for 8 cable falcon configuration (2) (02a)  
-ax = 0.230; %x in m
-ay = 0.230; %y in m 
-az = 0.102; %z in m
-a = [ax   ax   -ax    -ax   ax   ax    -ax   -ax ;   
-     ay   -ay  -ay  ay   ay  -ay  -ay  ay;  
-     az    az   az   az   -az  -az   -az    -az ]; 
-a= a.*1000; %in mm 
+% ax = 0.230; %x in m
+% ay = 0.230; %y in m 
+% az = 0.102; %z in m
+% a = [ax   ax   -ax    -ax   ax   ax    -ax   -ax ;   
+%      ay   -ay  -ay  ay   ay  -ay  -ay  ay;  
+%      az    az   az   az   -az  -az   -az    -az ]; 
+% a= a.*1000; %in mm 
 
 %% for 6 cable falcon configuration (20220704)
 % ax = 0.230; %x in m
@@ -103,6 +103,11 @@ a= a.*1000; %in mm
 %      ay   -ay  -ay  0   ay  -ay  -ay  0;  %y in m 
 %      az    az   az   0   -az  -az   -az    0 ]; 
 % a= a.*1000; %in mm 
+
+ax = 0.230;
+ay = 0.230; 
+az = 0.102;
+[a] = SetupParameter(ax,ay,az)
 
 R_A = 1; %just for input, is not in use 
 rot_angle_A = 1; %just for input, is not in use  
@@ -201,8 +206,7 @@ for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line f
         %finalen Arbeitsraum bestimmen und darstellen
         counter_analysis = counter_analysis +   1;
         [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, rot_name, analysis, coordinate, workspace_logical, R, grid_deg);
-        %Calculate the percentage of WS within ROI
-        [percentage] = Workspace_in_ROI(workspace_adapt_pointwise); 
+       
    end
 end
 %Sheet : analysis

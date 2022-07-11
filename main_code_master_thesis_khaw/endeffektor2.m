@@ -102,7 +102,7 @@ b24 = [0.2  0.2     -0.2    -0.2    0.2   0.2   -0.2   -0.2 ;
 %% for 8 cable falcon endeffector (2) (02a) 
 bx = 0.017; %in m
 by = 0.017; %in m
-bz = 0.26  %in m
+bz = 0.5;  %in m
 b25 = [bx  bx  -bx    -bx  bx   bx    -bx   -bx;
        by  -by  -by   by   by    -by    -by  by;
        bz  bz   bz    bz   -bz    -bz   -bz  -bz];
