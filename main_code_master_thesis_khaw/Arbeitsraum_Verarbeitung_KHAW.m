@@ -1,5 +1,5 @@
 %% Function Arbeitsraum_Verarbeitung
-function [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, counter_analysis_proj ,rot_name, analysis, coordinate, workspace_logical, R, grid_deg)
+function [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis ,rot_name, analysis, coordinate, workspace_logical, R, grid_deg)
 %% AUSWERTUNG Arbeitsraum
 workspace_adapt = workspace_logical; %workspace_logical has the final logic of all wrench-frasible working space in 3D
 global f_min f_max noC %import global variable 
@@ -107,9 +107,9 @@ trisurf(k,workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2), z_plan
 %add Title workaround methode
 formatSpec = "The current workspace is: %e %s";
 format long g
-A1 = convexhull_volume*1e-9; %1e-9 for changing from mm3 to m3 
-A2 = 'm3';
-str = sprintf(formatSpec,A1,A2);
+current_ws = convexhull_volume*1e-9; %1e-9 for changing from mm3 to m3
+unit = 'm3';
+str = sprintf(formatSpec,current_ws,unit);
 title(str)
 str2 = [num2str(percentage) '% of Workspace was in ROI'];
 subtitle(str2)
@@ -132,6 +132,15 @@ meanA = mean(workspace_further_adapt(:));
 centerOfMasscolumn = mean(workspace_further_adapt(:) .* SP_column(:)) / meanA;
 centerOfMassrow = mean(workspace_further_adapt(:) .* SP_row(:)) / meanA;
 centerOfMasspage = mean(workspace_further_adapt(:) .* SP_page(:)) / meanA;
+
+%%Calculate the Volume of the frame
+length_frame = max(a(1,:))-min(a(1,:)); %x-axis, use long insted of length cause length has been used before
+width_frame = max(a(2,:))-min(a(2,:)); %y-axis
+height_frame = max(a(3,:))-min(a(3,:)); %z-axis 
+height_rod = max(b(3,:))-min(b(3,:)); %length of the rod in total
+Volume_frame = length_frame*width_frame*height_rod*1e-9; 
+
+
 %% Speichern in analysis array
 %Platform Konfig
 analysis(counter_analysis, 1) = b_name;
@@ -152,12 +161,20 @@ analysis(counter_analysis, 8) = centerOfMasspage;
 %Fläche des Arbeitsraumes
 % analysis(counter_analysis, 9) = convexhull_volume;
 
+%Volume of the frame 
+analysis(counter_analysis,10) = Volume_frame;
+
+%current Workspace
+analysis(counter_analysis,11) = current_ws;
+
+%Ratio of Volume to total Workspace
+analysis(counter_analysis,12) = Volume_frame./current_ws;
 
 
 
 %% Plots Working space
 %plot Konvexe Hülle und speichern
-figure(counter_analysis_proj)
+figure()
 plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g','LineWidth',8); %Plot x- and y & z-coordinate
 hold on 
 grid on
@@ -219,29 +236,32 @@ end
 % xticks([-350 0 350]) %label of x-coordinate
 % yticks([-350 0 350]) %label of y-coordinate
 % axis square  %Use axis lines with equal lengths. Adjust the increments between data units accordingly.
-title('Wrench-feasible working space in cable-driven Robotics')
 length_frame = max(a(1,:))-min(a(1,:)); %x-axis, use long insted of length cause length has been used before
 width_frame = max(a(2,:))-min(a(2,:)); %y-axis
-height_frame = max(a(3,:))-min(a(3,:));
+height_frame = max(a(3,:))-min(a(3,:)); %z-axis 
 height_rod = max(b(3,:))-min(b(3,:));
+
+title('Wrench-feasible working space in cable-driven Robotics')
 txt = ['L= ' int2str(length_frame) ' x W= ' int2str(width_frame) ' x H= ' int2str(height_frame) ' Rod= ' int2str(height_rod) ' [mm]'];
 subtitle(txt)
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
 
-%%Save 3d figure to file 
+
+% %%Save 3d figure to file 
 % folder = 'D:\Masterarbeit\11_MATLAB_GIT\Figure';
   baseFileName = "Feasible_Workspace_%d_%d";
   path = sprintf(baseFileName, b_name, height_rod); %current working directory 
   saveas(figure(counter_analysis), path, 'png'); %save as (filename,variable,format)
-  close(figure(counter_analysis))
+%   close(figure(counter_analysis))
 
-  %%Save projection figure
-  baseFileName = "Feasible_Workspace_projection_%d_%d";
-  path = sprintf(baseFileName, b_name, height_rod); %current working directory 
-  saveas(figure(counter_analysis_proj), path, 'png'); %save as (filename,variable,format)
-  close(figure(counter_analysis_proj))
+%   %%Save projection figure
+%   baseFileName = "Feasible_Workspace_projection_%d_%d";
+%   path = sprintf(baseFileName, b_name, height_rod); %current working directory 
+%   saveas(figure(counter_analysis_proj), path, 'png'); %save as (filename,variable,format)
+%   close(figure(counter_analysis_proj))
+
 
  % fullFileName = fullfile(folder,baseFileName);
 % saveas(figure(counter_analysis),[pwd '/Figure/myFig.fig']);

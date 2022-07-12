@@ -1,5 +1,5 @@
 close all
-clear all
+clear 
 clc
 tic %start Stopwatch timer
 
@@ -107,7 +107,7 @@ elseif pulley_kin == 'no'
 ax = 0.230;
 ay = 0.230; 
 az = 0.102;
-[a] = SetupParameter(ax,ay,az)
+[a] = SetupParameter(ax,ay,az);
 
 R_A = 1; %just for input, is not in use 
 rot_angle_A = 1; %just for input, is not in use  
@@ -135,8 +135,8 @@ grid_delta = (grid.x_max - grid.x_min)  / grid_n;  %step size in x-direction in 
 b_cell = endeffektor2();
 
 %% Definiere zu untersuchende Rotationen des Endeffektors um die z-Achse
-% rotation_array_values = [-45;-40;-35;-30;-25;-20;-15;-10;-8;-6;-4;-2;0]; %13 times rotation angle
-rotation_array_values = [0];
+%  rotation_array_values = [-45;-40;-35;-30;-25;-20;-15;-10;-8;-6;-4;-2;0]; %13 times rotation angle
+rotation_array_values = 0;
 for i = 1 : size(rotation_array_values, 1)
     rotation_array(i, :) = [0 0 1 ((pi/180) * rotation_array_values(i))];
 end
@@ -158,7 +158,6 @@ end
 f_g = 0; % tbd Gewichtskraft implementieren wenn Gewicht bekannt
 %% Standardparameter
 % Anzahl der Seile = number of cable 
-global noC
 noC = length(a);
 
 %% Parameter zur Arbeitsraum Berechnung
@@ -170,7 +169,7 @@ f_min = 5;
 f_max = 36; % fmax berechnet: 2* 183 / 10 = 36, 6 %Motor 
 
 counter_analysis = 1; %tbd counter logik ändern!!!!
-counter_analysis_proj = 1;
+% counter_analysis_proj = 1;
 
 %% Analyse Arbeitsraum
 % untersucht werden verschiedene b's und Rotationen bei verschiedenen wrenches
@@ -180,9 +179,9 @@ counter_analysis_proj = 1;
 % 0 = Position nicht in const. orientation workspace enthalten
 % 1 = enthalten
 
-coordinate.x = [grid.x_min : grid_delta: grid.x_max]'; %step size in x-direction
-coordinate.y = [grid.y_min : grid_delta: grid.y_max]';
-coordinate.z = [grid.z_min : grid_delta: grid.z_max]'; 
+coordinate.x = (grid.x_min : grid_delta: grid.x_max)'; %step size in x-direction (all same grid_delta)
+coordinate.y = (grid.y_min : grid_delta: grid.y_max)'; %step size in y-direction
+coordinate.z = (grid.z_min : grid_delta: grid.z_max)'; %step size in z-direction
 
 %analysis for different parameter, will be saved in a Zeilenvektor. preallocating the variable for speed
 analysis = zeros(1, 7);
@@ -206,8 +205,8 @@ for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line f
         end
         %finalen Arbeitsraum bestimmen und darstellen
         counter_analysis = counter_analysis +   1;
-        counter_analysis_proj = counter_analysis_proj +1;
-        [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, counter_analysis_proj ,rot_name, analysis, coordinate, workspace_logical, R, grid_deg);
+      
+        [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis ,rot_name, analysis, coordinate, workspace_logical, R, grid_deg);
        
    end
 end
