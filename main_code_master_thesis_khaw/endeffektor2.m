@@ -99,15 +99,60 @@ b24 = [0.2  0.2     -0.2    -0.2    0.2   0.2   -0.2   -0.2 ;
        3.55  3.55  3.55   3.55   -3.05  -3.05  -3.05  -3.05 ];
  b24 = b24./10;
 
-%% for 8 cable falcon endeffector (2) (02a) 
+%% for 8 cable falcon endeffector (2) (02a)
+%a. rod length = 320mm 
+bx = 0.017; %in m
+by = 0.017; %in m
+bz = 0.16;  %in m
+b25a = [bx  bx  -bx    -bx  bx   bx    -bx   -bx;
+       by  -by  -by   by   by    -by    -by  by;
+       bz  bz   bz    bz   -bz    -bz   -bz  -bz];
+b25a = b25a.*1000; %in mm
+
+%b. rod length = 460mm
+bx = 0.017; %in m
+by = 0.017; %in m
+bz = 0.23;  %in m
+b25b = [bx  bx  -bx    -bx  bx   bx    -bx   -bx;
+       by  -by  -by   by   by    -by    -by  by;
+       bz  bz   bz    bz   -bz    -bz   -bz  -bz];
+b25b = b25b.*1000; %in mm
+
+%c. rod length = 460mm
+bx = 0.017; %in m
+by = 0.017; %in m
+bz = 0.25;  %in m
+b25c = [bx  bx  -bx    -bx  bx   bx    -bx   -bx;
+       by  -by  -by   by   by    -by    -by  by;
+       bz  bz   bz    bz   -bz    -bz   -bz  -bz];
+b25c = b25c.*1000; %in mm
+
+%d. rod length = 920mm
+bx = 0.017; %in m
+by = 0.017; %in m
+bz = 0.46;  %in m
+b25d = [bx  bx  -bx    -bx  bx   bx    -bx   -bx;
+       by  -by  -by   by   by    -by    -by  by;
+       bz  bz   bz    bz   -bz    -bz   -bz  -bz];
+b25d = b25d.*1000; %in mm
+
+%e. rod length = 1000mm
 bx = 0.017; %in m
 by = 0.017; %in m
 bz = 0.5;  %in m
-b25 = [bx  bx  -bx    -bx  bx   bx    -bx   -bx;
+b25e = [bx  bx  -bx    -bx  bx   bx    -bx   -bx;
        by  -by  -by   by   by    -by    -by  by;
        bz  bz   bz    bz   -bz    -bz   -bz  -bz];
-b25 = b25.*1000; %in mm
+b25e = b25e.*1000; %in mm
 
+%f. rod length = 1200mm
+bx = 0.017; %in m
+by = 0.017; %in m
+bz = 0.6;  %in m
+b25f = [bx  bx  -bx    -bx  bx   bx    -bx   -bx;
+       by  -by  -by   by   by    -by    -by  by;
+       bz  bz   bz    bz   -bz    -bz   -bz  -bz];
+b25f = b25f.*1000; %in mm
 %% for 6 Cable triangular winch position (2) too big (length = 800mm)02b1
 bx = 0; %in m
 by = -0.02; %in m
@@ -129,5 +174,5 @@ b29 = [0  0  0      0  0   0   0   0;
 
 %  b_cell = {b1; b2; b3; b4; b5; b6; b7; b8; b9; b10; b11;
 %      b12; b13; b14; b15; b16; b17; b18; b19};
-b_cell = {b25}; %%KHAW
+b_cell = {b25a; b25b; b25c;b25d;b25e;b25f}; 
  end 
