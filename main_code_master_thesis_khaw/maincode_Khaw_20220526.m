@@ -170,6 +170,7 @@ f_min = 5;
 f_max = 36; % fmax berechnet: 2* 183 / 10 = 36, 6 %Motor 
 
 counter_analysis = 1; %tbd counter logik ändern!!!!
+counter_analysis_proj = 1;
 
 %% Analyse Arbeitsraum
 % untersucht werden verschiedene b's und Rotationen bei verschiedenen wrenches
@@ -189,10 +190,10 @@ analysis = zeros(1, 7);
 %% Calculation for workspace logical
 for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line form, square form...)
     b = b_cell{counter_b, 1};
-    b_name = counter_b; %extra 
+    b_name = counter_b; %necessary to save the path name for figure automatically 
     for counter_r = 1 : size(rotation_array, 1)
         rotation = rotation_array(counter_r, :); %go through rotation array one by one
-        rot_name = counter_r; %extra
+        rot_name = counter_r; %necessary to save the path name for figure automatically
         
         %workspace_logical: in der 2. Dimension wird der Arbeitsraum für
         %jedes w_p gespeichert, anschließend mit 1. Dimension abgeglichen
@@ -205,7 +206,8 @@ for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line f
         end
         %finalen Arbeitsraum bestimmen und darstellen
         counter_analysis = counter_analysis +   1;
-        [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, rot_name, analysis, coordinate, workspace_logical, R, grid_deg);
+        counter_analysis_proj = counter_analysis_proj +1;
+        [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, counter_analysis_proj ,rot_name, analysis, coordinate, workspace_logical, R, grid_deg);
        
    end
 end

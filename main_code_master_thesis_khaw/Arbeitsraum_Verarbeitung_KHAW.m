@@ -1,5 +1,5 @@
 %% Function Arbeitsraum_Verarbeitung
-function [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, rot_name, analysis, coordinate, workspace_logical, R, grid_deg)
+function [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p, w_p_t, f_g, counter_analysis, counter_analysis_proj ,rot_name, analysis, coordinate, workspace_logical, R, grid_deg)
 %% AUSWERTUNG Arbeitsraum
 workspace_adapt = workspace_logical; %workspace_logical has the final logic of all wrench-frasible working space in 3D
 global f_min f_max noC %import global variable 
@@ -153,10 +153,11 @@ analysis(counter_analysis, 8) = centerOfMasspage;
 % analysis(counter_analysis, 9) = convexhull_volume;
 
 
+
+
 %% Plots Working space
 %plot Konvexe Hülle und speichern
-% figure(counter_analysis)
-figure
+figure(counter_analysis_proj)
 plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g','LineWidth',8); %Plot x- and y & z-coordinate
 hold on 
 grid on
@@ -219,15 +220,31 @@ end
 % yticks([-350 0 350]) %label of y-coordinate
 % axis square  %Use axis lines with equal lengths. Adjust the increments between data units accordingly.
 title('Wrench-feasible working space in cable-driven Robotics')
+length_frame = max(a(1,:))-min(a(1,:)); %x-axis, use long insted of length cause length has been used before
+width_frame = max(a(2,:))-min(a(2,:)); %y-axis
+height_frame = max(a(3,:))-min(a(3,:));
+height_rod = max(b(3,:))-min(b(3,:));
+txt = ['L= ' int2str(length_frame) ' x W= ' int2str(width_frame) ' x H= ' int2str(height_frame) ' Rod= ' int2str(height_rod) ' [mm]'];
+subtitle(txt)
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
 
-% filename = "1R2T_workspace_convhull_%d_%d_%d_%d";
-% path = sprintf(filename, b_name, rot_name, w_p, w_p_t);
-% saveas(figure(counter_analysis), path, 'png');
-% close(figure(counter_analysis))
+%%Save 3d figure to file 
+% folder = 'D:\Masterarbeit\11_MATLAB_GIT\Figure';
+  baseFileName = "Feasible_Workspace_%d_%d";
+  path = sprintf(baseFileName, b_name, height_rod); %current working directory 
+  saveas(figure(counter_analysis), path, 'png'); %save as (filename,variable,format)
+  close(figure(counter_analysis))
 
+  %%Save projection figure
+  baseFileName = "Feasible_Workspace_projection_%d_%d";
+  path = sprintf(baseFileName, b_name, height_rod); %current working directory 
+  saveas(figure(counter_analysis_proj), path, 'png'); %save as (filename,variable,format)
+  close(figure(counter_analysis_proj))
+
+ % fullFileName = fullfile(folder,baseFileName);
+% saveas(figure(counter_analysis),[pwd '/Figure/myFig.fig']);
 
 %% Speichern
 % filename_excel = "Workspace_analysis.xlsx";
