@@ -156,7 +156,7 @@ b25f = b25f.*1000; %in mm
 %% for 6 Cable triangular winch position (2) too big (length = 800mm)02b1
 bx = 0; %in m
 by = -0.02; %in m
-bz = 1.1  %in m
+bz = 1.1;  %in m
 b26 = [bx  bx  -bx    0  bx   bx    -bx   0;
        0  0  0  -by   -by    0    0  0;
        bz  bz   bz    -0.04   -0.04    -0.04   0  0];
@@ -172,7 +172,16 @@ b29 = [0  0  0      0  0   0   0   0;
        0  0  0      0 0  0 0  0;
        550 550 550 -200   -200   -200  0   0];
 
+%Trocar Point with rod length = 320mm
+bx = 0.017; %in m
+by = 0.017; %in m
+bz = 0.46;  %in m
+b30 = [bx  bx  -bx    -bx  bx   bx    -bx   -bx;
+       by  -by  -by   by   by    -by    -by  by;
+       0.12  0.12   0.12    0.12   -bz    -bz   -bz  -bz];
+b30 = b30.*1000; %in mm
+
 %  b_cell = {b1; b2; b3; b4; b5; b6; b7; b8; b9; b10; b11;
 %      b12; b13; b14; b15; b16; b17; b18; b19};
-b_cell = {b25d}; 
+b_cell = {b30}; 
  end 

@@ -1,5 +1,5 @@
 %% Function berechnungSeilkraftverteilung 
-function [stop,R,l] = berechnungSeilkraftverteilung_KHAW(r, a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, pulley_kin, rad_pulley, R_A, rot_angle_A)
+function [stop,R,length_of_cable] = berechnungSeilkraftverteilung_KHAW(r, a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, pulley_kin, rad_pulley, R_A, rot_angle_A)
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
 
 % Basispunkte Roboter
@@ -19,7 +19,8 @@ b_rot = R * b;
 
 if pulley_kin == 'no'
     % Schließbedingung Vektoren 
-    l = a - r - b_rot; 
+    length_of_cable = a - r - b_rot; %Gleichung3.1 in Pott Buch  
+
 elseif pulley_kin == 'yes'
     %calculate bx, by 
     %r_0_A = a;
@@ -31,13 +32,13 @@ elseif pulley_kin == 'yes'
     b_y_A = b_A(2, :);
     %calculate cable length 
     for i = 1 : noC
-        l(i) = (acos((sqrt(b_x_A(1, i)^2 - 2*b_x_A(1, i)*rad_pulley + b_y_A(1, i)^2)) / (sqrt((b_x_A(1, i) - rad_pulley)^2 + b_y_A(1, i)^2))) + acos(b_y_A(1, i) / (sqrt((b_x_A(1, i) - rad_pulley)^2 + b_y_A(1, i)^2)))) * rad_pulley + sqrt(b_x_A(1, i)^2 - 2*b_x_A(1, i)*rad_pulley + b_y_A(1, i)^2);
+        length_of_cable(i) = (acos((sqrt(b_x_A(1, i)^2 - 2*b_x_A(1, i)*rad_pulley + b_y_A(1, i)^2)) / (sqrt((b_x_A(1, i) - rad_pulley)^2 + b_y_A(1, i)^2))) + acos(b_y_A(1, i) / (sqrt((b_x_A(1, i) - rad_pulley)^2 + b_y_A(1, i)^2)))) * rad_pulley + sqrt(b_x_A(1, i)^2 - 2*b_x_A(1, i)*rad_pulley + b_y_A(1, i)^2);
     end
 end 
     
 %1st Check: für Arbeitsraum Berechnung: check ob length = 0 --> leads to NaN in u(unit vector)
 for check_l = 1 : noC
-    if l(:, check_l) == zeros(3,1)
+    if length_of_cable(:, check_l) == zeros(3,1)
         stop = 1; %violation exist 
         %     f_closedform = 0; %tbd
         %     f = 0; %tbd weil hier noch nicht definiert, daher kein output möglich
@@ -49,7 +50,7 @@ end
 u = zeros(3,noC);
 if pulley_kin == 'no'
     for i=1:noC
-        u(:,i) = l(:,i) / norm(l(:,i));
+        u(:,i) = length_of_cable(:,i) / norm(length_of_cable(:,i));
     end
 elseif pulley_kin == 'yes'
     for i = 1 : noC

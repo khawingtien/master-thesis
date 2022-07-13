@@ -85,7 +85,7 @@ for j = 1 : length(index_convexhull_point)
 end
 
 %% get convex hull of current working space in extra figure
-
+%{
 [k, convexhull_volume] = convhull(workspace_adapt_pointwise,'Simplify',true);
 figure
 trisurf(k,workspace_adapt_pointwise(:,1),workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3),'FaceColor','b','Edgecolor','b')
@@ -141,34 +141,34 @@ height_rod = max(b(3,:))-min(b(3,:)); %length of the rod in total
 Volume_frame = length_frame*width_frame*height_rod*1e-9; 
 
 
-%% Speichern in analysis array
-%Platform Konfig
-analysis(counter_analysis, 1) = b_name;
-%Minimale Seilkraft
-analysis(counter_analysis, 2) = f_min;
-%Maximale Seilkraft
-analysis(counter_analysis, 3) = f_max;
-%Rotation der Plattform
-analysis(counter_analysis, 4) = rot_name;
-%Fläche des Arbeitsraumes Anteilsmäßig aus Anteil 1en
-analysis(counter_analysis, 5) = frac_area_of_1;
-%Schwerpunkt des Arbeitsraumes Row  (x)
-analysis(counter_analysis, 6) = centerOfMassrow;
-%Schwerpunkt des Arbeitsraumes Column (y)
-analysis(counter_analysis, 7) = centerOfMasscolumn;
-%Schwerpunkt des Arbeitsraumes Page (z)
-analysis(counter_analysis, 8) = centerOfMasspage;
-%Fläche des Arbeitsraumes
-% analysis(counter_analysis, 9) = convexhull_volume;
-
-%Volume of the frame 
-analysis(counter_analysis,10) = Volume_frame;
+% %% Speichern in analysis array
+% %Platform Konfig
+% analysis(counter_analysis, 1) = b_name;
+% %Minimale Seilkraft
+% analysis(counter_analysis, 2) = f_min;
+% %Maximale Seilkraft
+% analysis(counter_analysis, 3) = f_max;
+% %Rotation der Plattform
+% analysis(counter_analysis, 4) = rot_name;
+% %Fläche des Arbeitsraumes Anteilsmäßig aus Anteil 1en
+% analysis(counter_analysis, 5) = frac_area_of_1;
+% %Schwerpunkt des Arbeitsraumes Row  (x)
+% analysis(counter_analysis, 6) = centerOfMassrow;
+% %Schwerpunkt des Arbeitsraumes Column (y)
+% analysis(counter_analysis, 7) = centerOfMasscolumn;
+% %Schwerpunkt des Arbeitsraumes Page (z)
+% analysis(counter_analysis, 8) = centerOfMasspage;
+% %Fläche des Arbeitsraumes
+% % analysis(counter_analysis, 9) = convexhull_volume;
+% 
+% %Volume of the frame 
+% analysis(counter_analysis,10) = Volume_frame;
 
 %current Workspace
-analysis(counter_analysis,11) = current_ws;
+% analysis(counter_analysis,11) = current_ws;
 
 %Ratio of Volume to total Workspace
-analysis(counter_analysis,12) = Volume_frame./current_ws;
+% analysis(counter_analysis,12) = Volume_frame./current_ws;
 
 
 
@@ -251,9 +251,9 @@ zlabel('z in mm') %text in z-coordinate
 
 % %%Save 3d figure to file 
 % folder = 'D:\Masterarbeit\11_MATLAB_GIT\Figure';
-  baseFileName = "Feasible_Workspace_%d_%d";
-  path = sprintf(baseFileName, b_name, height_rod); %current working directory 
-  saveas(figure(counter_analysis), path, 'png'); %save as (filename,variable,format)
+%   baseFileName = "Feasible_Workspace_%d_%d";
+%   path = sprintf(baseFileName, b_name, height_rod); %current working directory 
+%   saveas(figure(counter_analysis), path, 'png'); %save as (filename,variable,format)
 %   close(figure(counter_analysis))
 
 %   %%Save projection figure

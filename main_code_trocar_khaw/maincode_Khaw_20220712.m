@@ -1,5 +1,5 @@
-close all
-clear 
+% close all
+% clear 
 clc
 tic %start Stopwatch timer
 
@@ -133,7 +133,7 @@ b_cell = endeffektor2();
 
 %% Definiere zu untersuchende Rotationen des Endeffektors um die z-Achse
 %  rotation_array_values = [-45;-40;-35;-30;-25;-20;-15;-10;-8;-6;-4;-2;0]; %13 times rotation angle
-rotation_array_values = 0;
+ rotation_array_values = 0;
 for i = 1 : size(rotation_array_values, 1)
     rotation_array(i, :) = [0 0 1 ((pi/180) * rotation_array_values(i))];
 end
@@ -155,6 +155,7 @@ end
 f_g = 0; % tbd Gewichtskraft implementieren wenn Gewicht bekannt
 %% Standardparameter
 % Anzahl der Seile = number of cable 
+global noC
 noC = length(a);
 
 %% Parameter zur Arbeitsraum Berechnung
