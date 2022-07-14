@@ -12,10 +12,26 @@ else
     motion_pattern = 2; %2T %if element b is zeors, then motion pattern = 2
     disp('motion pattern failure');
 end
-
+% r=r+offset.z;
 r = repmat(r, 1, noC); %r for workspace position, in order to achieve the dimension (1,noC) 
-R = axang2rotm(rotation); %axis angle to rotation matrix [0 0 1 angle] to Matrix Dimension=(2,2)
-b_rot = R * b;
+R = axang2rotm(rotation); %axis angle to rotation matrix [0 0 1 angle] to Matrix Dimension=(3,3)
+% A(:, 1) = rod_length_x; %rod length x
+% A(:, 2) = rod_length_y; %rod length y
+
+% trocar_start = [0; 0; 120];% coordinate of trocar in mm 
+% trocar_end = [0; 0; -380];% coordinate of trocar in mm 
+% plot3(trocar_start(1),trocar_start(2),trocar_start(3),'bo','LineWidth', 2)
+% plot3(trocar_end(1),trocar_end(2),trocar_end(3),'bo','LineWidth', 2)
+% trocar_x = zeros(1,501);
+% trocar_y = zeros(1,501);
+% trocar_z = 120:-1:-380;
+% 
+% plot3(trocar_x,trocar_y,trocar_z,'b-','LineWidth', 2)
+% offset = 0; %Offset from rotation point
+% b(3,:)=b(3,:)
+b_rot = R *b;
+% b(3,:)=b(3,:)-offset;
+% b_rot(3,:)=b_rot(3,:)-offset;
 
 if pulley_kin == 'no'
     % Schließbedingung Vektoren 

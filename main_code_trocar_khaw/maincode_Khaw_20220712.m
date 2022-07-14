@@ -1,5 +1,5 @@
 % close all
-% clear 
+clear 
 clc
 tic %start Stopwatch timer
 
@@ -112,13 +112,13 @@ end
 
     
 %Define max and min of grid in all direction
-grid.x_max = max(a(1,:)); %mm %largest length in x direction
-grid.y_max = max(a(2,:));
-grid.z_max = max(a(3,:));
+grid.x_max = -300; %mm %largest length in x direction
+grid.y_max = -300; %put as very large as the Falcon conf. will always more than the frame 
+grid.z_max = -820;
 
-grid.x_min = min(a(1,:)); %mm %smallest length in x direction
-grid.y_min = min(a(2,:));
-grid.z_min = min(a(3,:));
+grid.x_min = 300; %mm %smallest length in x direction
+grid.y_min = 300;
+grid.z_min = 820;
 
 % grid_n = 20;  %Anzahl der Unterteilungen in X-Richtung
 grid_n = 23;  %Anzahl der Unterteilungen in X-Richtung
@@ -132,10 +132,12 @@ grid_delta = (grid.x_max - grid.x_min)  / grid_n;  %step size in x-direction in 
 b_cell = endeffektor2();
 
 %% Definiere zu untersuchende Rotationen des Endeffektors um die z-Achse
-%  rotation_array_values = [-45;-40;-35;-30;-25;-20;-15;-10;-8;-6;-4;-2;0]; %13 times rotation angle
- rotation_array_values = 0;
-for i = 1 : size(rotation_array_values, 1)
-    rotation_array(i, :) = [0 0 1 ((pi/180) * rotation_array_values(i))];
+ rotation_array_values = [0];  
+ 
+%   rotation_array_values = [-45;-40;-35;-30;-25;-20;-15;-10;-8;-6;-4;-2;0]; %13 times rotation angle
+%  rotation_array_values = 0;
+for i = 1 : size(rotation_array_values,1)
+    rotation_array(i, :) = [0 1 0 ((pi/180) * rotation_array_values(i))]; %rotation at z-axis with rotation angle in radian
 end
 
 %% Definiere zu untersuchende Lasten in bestimmte Raumrichtungen definiert durch rotation_w_p

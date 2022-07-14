@@ -61,12 +61,12 @@ max_object = find(nrows == max_object); %find the nrows exactly as 3113, which i
 
 if isempty(max_object) %Determine whether array is empty, returns logical 1 (true) if A is empty, and logical 0 (false) otherwise
 disp('Fehler')
-    workspace_further_adapt = zeros(grid_n, grid_n,grid_n); %assign all to zeros
+    workspace_further_adapt = zeros(length(coordinate.x), length(coordinate.y), length(coordinate.z)); %assign all to zeros
     workspace_adapt_pointwise = [0 0 0]; %random point, to plot in the middle 
 else
     workspace_further_adapt_temp = workspace_further_adapt_cell{4,1}{1,max_object}; %D= 3113x1 double, all the position (Position 69, 70, 132, 133...) of connected components has been listed in 3113x1 matrix. 
     %  = cell2mat(workspace_further_adapt_cell{4,1}{1,max_object});
-    workspace_further_adapt = zeros(grid_n, grid_n, grid_n);  %preallocation for speed
+    workspace_further_adapt = zeros(length(coordinate.x), length(coordinate.y), length(coordinate.z) );  %preallocation for speed
     workspace_further_adapt(workspace_further_adapt_temp) = 1; %go thorugh the matrix with position of connected components, then change them to one
 end
 
@@ -175,6 +175,7 @@ Volume_frame = length_frame*width_frame*height_rod*1e-9;
 %% Plots Working space
 %plot Konvexe Hülle und speichern
 figure()
+workspace_adapt_pointwise(:,3) = workspace_adapt_pointwise(:,3)-500;
 plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g','LineWidth',8); %Plot x- and y & z-coordinate
 hold on 
 grid on
@@ -186,7 +187,7 @@ r = 150; %radius in mm
 % X = X+90;
 % Y = Y+100;
 h = 200; %height in mm
-Z = (Z*h)-100; %minus 100 so that its from -100 to 100 in Z-axis
+Z = (Z*h)-500; %minus 100 so that its from -100 to 100 in Z-axis
 surf(X,Y,Z,'FaceColor','r','FaceAlpha','0.3')
 hold on 
 
@@ -223,6 +224,20 @@ hold on
 b_figure = R * b; %Rotation * base(end-effector)
 b_figure (:,noC+1) = b_figure(1:3,1); %extend to next column (so the shape can close up)
 plot3(b_figure(1, :), b_figure(2, :),b_figure(3, :), 'x-k','LineWidth',2);
+hold on 
+daspect([1 1 1])
+
+%plot trocar point & middle line of endeffector
+trocar_start = [0; 0; 120];% coordinate of trocar in mm 
+trocar_end = [0; 0; -380];% coordinate of trocar in mm 
+plot3(trocar_start(1),trocar_start(2),trocar_start(3),'bo','LineWidth', 2)
+plot3(trocar_end(1),trocar_end(2),trocar_end(3),'bo','LineWidth', 2)
+trocar_x = zeros(1,501);
+trocar_y = zeros(1,501);
+trocar_z = 120:-1:-380;
+plot3(trocar_x,trocar_y,trocar_z,'b-','LineWidth', 2)
+
+
 
 %plot Seile
 str = ["w1" "w2" "w3" "w4" "w5" "w6" "w7" "w8"]; 

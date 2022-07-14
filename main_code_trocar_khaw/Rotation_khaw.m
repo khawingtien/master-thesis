@@ -26,19 +26,19 @@ b30_close = [b30  b30([1 2])'];%to close up the rectangle, to connect to the sta
 
 %calculate the 30° rotation for rod at the trocar (origin)
 angle = 30;
-A(:, 1) = rod_length_x; %rod length x
+A(:, 1) = rod_length_x; %rod length x %the rotation point muss remain the same !
 A(:, 2) = rod_length_y; %rod length y
 
 %calculate rotation of endeffector right
-B_x = ones(380,1)*bx;
+B_x = ones(380,1)*bx; %the rotation point muss remain the same ! 
 B(:,1) = B_x;
-B_y = linspace(by_zero, -by, 380);
+B_y = linspace(by_zero, -by, 380); %the length of the endeffector in small steps (top to bottom)
 B(:,2) = B_y;
 
 %calculate rotation of endeffector left
-C_x = ones(380,1)*-bx;
+C_x = ones(380,1)*-bx; %the rotation point muss remain the same !
 C(:,1) = C_x;
-C_y = linspace(by_zero, -by, 380); %same as B_y
+C_y = linspace(by_zero, -by, 380); %same as B_y  %the length of the endeffector in small steps (top to bottom)
 C(:,2) = C_y;
 
 % Compute the rotation matrix.

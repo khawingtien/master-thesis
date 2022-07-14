@@ -2,6 +2,11 @@
 function [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, ~, rotation, w_p, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate)
 counter = 1; %predefine counter = 1
 workspace_logical_temp = ones(length(coordinate.x), length(coordinate.y), length(coordinate.z));
+% offset.x=0;
+% offset.y=0;
+% offset.z= b(3,5);
+% coordinate.z = coordinate.z - min(coordinate.z);
+
 
 %Go through all the coordinate combination of the x_row, y_column, z_page, and save them in variable workspace_position 
        for i = 1:length(coordinate.x)
