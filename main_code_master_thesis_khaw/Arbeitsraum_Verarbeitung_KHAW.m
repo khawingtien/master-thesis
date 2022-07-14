@@ -61,12 +61,12 @@ max_object = find(nrows == max_object); %find the nrows exactly as 3113, which i
 
 if isempty(max_object) %Determine whether array is empty, returns logical 1 (true) if A is empty, and logical 0 (false) otherwise
 disp('Fehler')
-    workspace_further_adapt = zeros(grid_n, grid_n,grid_n); %assign all to zeros
+    workspace_further_adapt = zeros(length(coordinate.x), length(coordinate.y), length(coordinate.z)); %assign all to zeros
     workspace_adapt_pointwise = [0 0 0]; %random point, to plot in the middle 
 else
     workspace_further_adapt_temp = workspace_further_adapt_cell{4,1}{1,max_object}; %D= 3113x1 double, all the position (Position 69, 70, 132, 133...) of connected components has been listed in 3113x1 matrix. 
     %  = cell2mat(workspace_further_adapt_cell{4,1}{1,max_object});
-    workspace_further_adapt = zeros(grid_n, grid_n, grid_n);  %preallocation for speed
+    workspace_further_adapt = zeros(length(coordinate.x), length(coordinate.y), length(coordinate.z));  %preallocation for speed
     workspace_further_adapt(workspace_further_adapt_temp) = 1; %go thorugh the matrix with position of connected components, then change them to one
 end
 
@@ -145,9 +145,9 @@ Volume_frame = length_frame*width_frame*height_rod*1e-9;
 %Platform Konfig
 analysis(counter_analysis, 1) = b_name;
 %Minimale Seilkraft
-analysis(counter_analysis, 2) = f_min;
-%Maximale Seilkraft
-analysis(counter_analysis, 3) = f_max;
+% analysis(counter_analysis, 2) = f_min;
+% %Maximale Seilkraft
+% analysis(counter_analysis, 3) = f_max;
 %Rotation der Plattform
 analysis(counter_analysis, 4) = rot_name;
 %Fläche des Arbeitsraumes Anteilsmäßig aus Anteil 1en

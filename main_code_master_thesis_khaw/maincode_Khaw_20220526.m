@@ -112,13 +112,13 @@ end
 
     
 %Define max and min of grid in all direction
-grid.x_max = max(a(1,:)); %mm %largest length in x direction
-grid.y_max = max(a(2,:));
-grid.z_max = max(a(3,:));
+grid.x_max = -300; %mm %largest length in x direction
+grid.y_max = -300;
+grid.z_max = -820;
 
-grid.x_min = min(a(1,:)); %mm %smallest length in x direction
-grid.y_min = min(a(2,:));
-grid.z_min = min(a(3,:));
+grid.x_min = 300; %mm %smallest length in x direction
+grid.y_min = 300;
+grid.z_min = 820;
 
 % grid_n = 20;  %Anzahl der Unterteilungen in X-Richtung
 grid_n = 23;  %Anzahl der Unterteilungen in X-Richtung
