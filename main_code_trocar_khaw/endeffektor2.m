@@ -175,13 +175,13 @@ b29 = [0  0  0      0  0   0   0   0;
 %Trocar Point with rod length = 320mm
 bx = 0.017; %in m
 by = 0.017; %in m
-bz = 0.102;  %in m
+bz = 0.46;  %in m
 b30 = [bx  bx  -bx    -bx  bx   bx    -bx   -bx;
        by  -by  -by   by   by    -by    -by  by;
-       bz  bz   bz    bz   -bz    -bz   -bz  -bz];
+       0.12  0.12   0.12    0.12   -bz    -bz   -bz  -bz];
 b30 = b30.*1000; %in mm
 
 %  b_cell = {b1; b2; b3; b4; b5; b6; b7; b8; b9; b10; b11;
 %      b12; b13; b14; b15; b16; b17; b18; b19};
-b_cell = {b25e}; 
+b_cell = {b30}; 
  end 
