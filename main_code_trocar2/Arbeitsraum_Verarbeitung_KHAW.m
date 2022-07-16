@@ -181,6 +181,10 @@ grid on
 grid minor
 daspect([1,1,1])
 
+%%Plot Trocar point at Origin
+plot3(0,0,0,'bo','LineWidth',5)
+hold on 
+
 %%Plot Region of Interest (ROI)
 r = 150; %radius in mm 
 [X,Y,Z] = cylinder(r);

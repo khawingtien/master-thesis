@@ -3,13 +3,21 @@ function [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, grid_n, r
 counter = 1; %predefine counter = 1
 workspace_logical_temp = ones(length(coordinate.x), length(coordinate.y), length(coordinate.z));
 
+%Define Point of Interest (POI) 
+POI_offset = [0 0 b(3,5)]'; %first value of endeffector in z-axis (offset to half the rod length)
+
+%rotate the POI in accordance with the rotation angle 
+R = axang2rotm(rotation); %axis angle to rotation matrix [0 1 0 angle] to Matrix Dimension=(3,3)
+POI_rot = R * POI_offset; %the position of the POI after rotation 
+
 %Go through all the coordinate combination of the x_row, y_column, z_page, and save them in variable workspace_position 
-offset = -500;
        for i = 1:length(coordinate.x)
          for j = 1:length(coordinate.y)
            for k = 1:length(coordinate.z)
-             workspace_position = [coordinate.x(i) coordinate.y(j) coordinate.z(k)-offset]'; %workspace_position in a column vector 
-%              workspace_position =  workspace_position - offset;    
+             workspace_position = [coordinate.x(i) coordinate.y(j) coordinate.z(k)]'; %workspace_position in a column vector 
+             workspace_position = workspace_position - POI_rot;
+%              workspace_position = (workspace_position' *R)';
+%              workspace_position_rotation = workspace_position *R;
         %berechne die Seilkraftverteilung an dieser Position 
         [stop, R,l] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, pulley_kin, rad_pulley, R_A, rot_angle_A); %hier erstmal nur stop von Interesse tbd
         counter = counter + 1 %no semicolon, to show the current progression during debugging 
