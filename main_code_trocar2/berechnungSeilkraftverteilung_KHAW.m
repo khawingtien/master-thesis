@@ -8,7 +8,7 @@ global noC
 
 if any(b)  %if any element of b is nonzero = logical 1  (b is endeffector)
    % motion_pattern = 3; %1R2T
-    motion_pattern = 5; %2R3T
+    motion_pattern = 6; %2R3T
 else
     motion_pattern = 2; %2T %if element b is zeors, then motion pattern = 2
     disp('motion pattern failure');
@@ -19,7 +19,7 @@ R = axang2rotm(rotation); %axis angle to rotation matrix [0 0 1 angle] to Matrix
 b_rot = R * b;
 
 if pulley_kin == 'no'
-    % Schließbedingung Vektoren 
+    % Schließbedingung Vektoren (Closure constrain v_i) Equation 3.1 & 3.2 in Pott's Book 
     l = a - r - b_rot; 
 elseif pulley_kin == 'yes'
     %calculate bx, by 
@@ -46,11 +46,11 @@ for check_l = 1 : noC
     end
 end
 
-%Define Einheitsvektoren
+%Define Einheitsvektoren (Unit vector) 
 u = zeros(3,noC);
 if pulley_kin == 'no'
     for i=1:noC
-        u(:,i) = l(:,i) / norm(l(:,i));
+        u(:,i) = l(:,i) / norm(l(:,i)); %Equation 3.3 Pott's book 
     end
 elseif pulley_kin == 'yes'
     for i = 1 : noC
@@ -65,10 +65,10 @@ end
 
 % Strukturmatrix
 A_T = [u; b_cross_u];
-A_T(~any(A_T,2),:) = []; %when all values in Dimension 2 (row) == 0, then delete the row.     Löscht die leeren Zeilen, z.B. fuer den 3R, 2T Roboter
-                          %(any)Determine if any array elements are nonzero
-                          
-%2.Check if robot is in a nonsingular posn --> A_T full row rank
+% A_T(~any(A_T,2),:) = []; %when all values in Dimension 2 (row) == 0, then delete the row.     Löscht die leeren Zeilen, z.B. fuer den 3R, 2T Roboter
+%                           %(any)Determine if any array elements are nonzero
+                           
+% 2.Check if robot is in a nonsingular posn --> A_T full row rank
 rank_A_T = size(orth(A_T.').', 1); %Orthonormal basis for range of matrix (Pott page 93)
     %nonsingular posn
 if rank_A_T == size(A_T, 1) %%%%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!
@@ -82,24 +82,30 @@ end
     
 % Closed-form method
 f_M = ones(noC(1),1);
-f_M = f_M .* ((f_min + f_max) / 2); %average feasible force (Eq 3.53 Pott Book)
+f_M = f_M .* ((f_min + f_max) / 2); % f_M = average feasible force (below Eq 3.53 Pott Book)
 
 A_inv = pinv(A_T); % Moore-Penrose Inverse
 
 %wrench berechnen unter Berücksichtigung von Rotationen definiert in rotation_w_p
-rotation_wrench_p = repmat(axang2rotm(rotation_w_p),2);
-rotation_wrench_p = rotation_wrench_p(1:size(A_inv, 2), 1:size(A_inv, 2)); %crop rotation matrix to 2 or 3-dimensional
-wrench_p = zeros(size(A_inv, 2), 1);
-wrench_p(1, 1) = w_p;
-wrench_p = rotation_wrench_p * wrench_p;
+rotation_matrix = axang2rotm(rotation_w_p); %define rotation matrix 
+rotation_wrench_p = [rotation_matrix rotation_matrix];
+wrench_p = zeros(size(A_inv, 2), 1); %preallocating for speed (need to be same size as A_inv row, cz later need to multiply with A_inv
+wrench_p(1, 1) = w_p; %for f_x at first position of wrench, f_y = 0 cause the rotation already cover the f-y position 
+wrench_p = rotation_wrench_p  * wrench_p; %TO ASK (why) 
 
 %tbd momentan x, y oder torque wegen rot 
-if size(A_inv, 2) == 3
-    wrench_p(3, 1) = w_p_t;
+% if size(A_inv, 2) == 3 % motion pattern = 3  (for 1R2T configiration) 
+%     wrench_p(3, 1) = w_p_t;  % Then the third value is torque See Eq 3.5 Pott Book (w_p composed from applied force f_p and applied torque t_p)
+% end 
+
+if size(A_inv, 2) == 6 % motion pattern = 3  (for 1R2T configiration) 
+    wrench_p(4, 1) = w_p_t;  % Then the third value is torque_x, See Eq 3.5 Pott Book (w_p composed from applied force f_p and applied torque t_p)
+    wrench_p(5, 1) = 0; %torque_y = 0
+    wrench_p(6, 1) = 0; %torque_z = 0
 end 
 
 f_V = -A_inv * (wrench_p + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
-if norm(f_V, 2) >= (1/2 * (f_max - f_min)) && norm(f_V, 2) <= (1/2 * sqrt(noC) * (f_max - f_min)) %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector
+if norm(f_V, 2) >= (1/2 * (f_max - f_min)) && norm(f_V, 2) <= (1/2 * sqrt(noC) * (f_max - f_min)) %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
     %disp("fail to provide a feasible solution although such a solution exists")
 elseif norm(f_V, 2) > (1/2 * sqrt(noC) * (f_max - f_min))
     %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
@@ -143,7 +149,7 @@ for counter_closed_form = 1 : (noC - motion_pattern)
     end
     
     % Wenn eine Kraft die Kraftgrenzen verletzt
-    if fail_diff ~= 0 %tbd Artur: f_fail
+    if fail_diff ~= 0 %tbd Artur: f_fail (static equilibrium is not zero)
         %     f = round(f, 5);
         %     f_fail = round(f_fail, 5);
         index_f_fail = find(f == f_fail);
@@ -158,7 +164,7 @@ for counter_closed_form = 1 : (noC - motion_pattern)
         f_M_neu = f_M;
         f_M_neu(index_f_fail) = [];
         
-        w_p_neu = f_min .* A_T(:, index_f_fail) + wrench_p;
+        w_p_neu = f_min .* A_T(:, index_f_fail) + wrench_p; %Equation 3.61 Pott's book
         
         %tbd test
         f_neu = A_inv_neu * (- w_p_neu); %Lösung des Problems Af + w = 0
@@ -175,32 +181,35 @@ for counter_closed_form = 1 : (noC - motion_pattern)
 end
 %% check static equlibrium
 %Force
+array_sum_force = zeros(3,noC); %predefine for speed
 for i = 1 : noC
-    array_sum_force(:, i) = f(i) .* u(:, i);
+    array_sum_force(:, i) = f(i,:) .* A_T(1:3,i); %force distribution of noC * u (Einheitsvektor)
 end
 sum_f = sum(array_sum_force, 2); %sum(A,dimension 2)is a column vector containing the sum of each row.
-sum_f = sum_f + wrench_p(1:3);
+sum_f = sum_f + wrench_p(1:3); %% f + [f_x f_y f_z]  Equation 3.5 Pott's book 
 sum_f = round(sum_f, 5); %round to 5 digits
 stop = 0;
 if any(sum_f, 'all') %Determine if any array elements are nonzero, test over ALL elements of sum_f with the command 'all'
-    stop = 1;
+    stop = 1; %static equilibrium not fulfill
     return
 end
+
 %torque
-if size(A_T, 1) == 3 %TOASK: Only for degree of freedom = 3???
+if size(A_T, 1) == 6 %for motion pattern 
+    array_sum_torque = zeros(3,noC);
     for i = 1 : noC
-        %     array_sum_torque(:,i) = array_sum_force (1, i) * b_rot(2, i) + array_sum_force(2, i) * b(1, i);
-        array_sum_torque(:,i) = f(i) * A_T(3, i);
+        %     array_sum_torque(:,i) = array_sum_force (1, i) * b_rot(2, i) + array_sum_force(2, i) * b(1, i); 
+        array_sum_torque(:,i) = f(i,:) * A_T(4:6, i); %its the same as the above equation force distribution * b_cross_u
     end
     sum_torque = sum(array_sum_torque, 2);
-    sum_torque = sum_torque + wrench_p(3);
+    sum_torque = sum_torque + wrench_p(4:6); %% f + [torque_x torque_y torque_z]
     sum_torque = round(sum_torque, 5);
 else
     sum_torque = 0;
 end
 stop = 0;
 if any(sum_torque, 'all') %Determine if any array elements are nonzero, test over ALL elements of sum_torque with the command 'all'
-    stop = 1;
+    stop = 1; %the static equilibrium was not fulfilled 
     return
 end
 %% display info 

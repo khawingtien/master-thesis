@@ -133,23 +133,25 @@ b_cell = endeffektor2();
 
 %% Definiere zu untersuchende Rotationen des Endeffektors um die z-Achse
 %  rotation_array_values = [-45;-40;-35;-30;-25;-20;-15;-10;-8;-6;-4;-2;0]; %13 times rotation angle
-rotation_array_values = [10];
+rotation_array_values = [10;20;30];
 % rotation_array_values = [0;20;40;60;80];
 for i = 1 : size(rotation_array_values, 1)
     rotation_array(i, :) = [0 1 0 ((pi/180) * rotation_array_values(i))];
 end
 
 %% Definiere zu untersuchende Lasten in bestimmte Raumrichtungen definiert durch rotation_w_p
-w_p = 0; %dieser Wert wird in berechnungSeilkraftverteilung in den wrench Vektor als x-Koordinate eingesetzt, y=0, T=0 (Feedback Kraft in alle Richtung) 
-w_p_t = 0; %Torque (Feedback Kraft in Rotation)%wrench in torque
+w_p = 3; %dieser Wert wird in berechnungSeilkraftverteilung in den wrench Vektor als x-Koordinate eingesetzt, y=0, T=0 (Feedback Kraft in alle Richtung, Translation) 
+w_p_t = 3; %Torque (Feedback Kraft in Rotation)%wrench in torque
 grid_deg = 9; % rotatorische Auflösung
-discrete_rot_angle_w_p = transpose(linspace(0, 2*pi, grid_deg)); %(x1, x2, n) n Punkte zwischen x1 und x2
+discrete_rot_angle_w_p = linspace(0, 2*pi, grid_deg)'; %(x1, x2, n) n Punkte zwischen x1 und x2
 rotation_w_array = zeros(size(discrete_rot_angle_w_p, 1), 4);
+%if rotation = zero 
 if w_p == 0
-    rotation_w_array = [0, 0, 1, 0]; %Euler Winkel (x,y,z, Winkel), a rotation of 0 radians around the z-axis
+    rotation_w_array = [1 0 0 0]; %Euler Winkel (x,y,z, Winkel), a rotation of 0 radians around the y-axis
 else
+    %if rotation exists
     for i = 1 : size(discrete_rot_angle_w_p, 1) %K:calculate each of the rotation
-        rotation_w_array(i, :) = [0 0 1 discrete_rot_angle_w_p(i)]; % a rotation of every 'discret angle' radians around the z-axis
+        rotation_w_array(i, :) = [1 0 0 discrete_rot_angle_w_p(i)]; % a rotation of every 'discret angle' radians around the y-axis
     end
 end
 
@@ -160,15 +162,14 @@ global noC
 noC = length(a);
 
 %% Parameter zur Arbeitsraum Berechnung
-t = linspace(0,10,100); % 0 bis 10 Sekunden in 100 Schritten
-steps = length(t);
-loesung_closed_form = zeros(noC,steps); %tbd check check if needed
-f = zeros(noC,steps);
+% t = linspace(0,10,100); % 0 bis 10 Sekunden in 100 Schritten
+% steps = length(t);
+% loesung_closed_form = zeros(noC,steps); %tbd check check if needed
+% f = zeros(noC,steps);
 f_min = 5;
 f_max = 36; % fmax berechnet: 2* 183 / 10 = 36, 6 %Motor 
 
 counter_analysis = 1; %tbd counter logik ändern!!!!
-% counter_analysis_proj = 1;
 
 %% Analyse Arbeitsraum
 % untersucht werden verschiedene b's und Rotationen bei verschiedenen wrenches
@@ -200,7 +201,7 @@ for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line f
 
         for counter_w = 1 : size(rotation_w_array, 1)
             rotation_w_p = rotation_w_array(counter_w, :);
-            [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, grid_n, rotation, w_p, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate);
+            [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate);
         end
 
         %finalen Arbeitsraum bestimmen und darstellen
