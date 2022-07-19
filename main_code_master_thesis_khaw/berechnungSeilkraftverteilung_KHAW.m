@@ -86,7 +86,7 @@ f_M = f_M .* ((f_min + f_max) / 2);
 A_inv = pinv(A_T); % Moore-Penrose Inverse
 
 %wrench berechnen unter Berücksichtigung von Rotationen definiert in rotation_w_p
-rotation_wrench_p = repmat(axang2rotm(rotation_w_p),2);
+rotation_wrench_p = axang2rotm(rotation_w_p);
 rotation_wrench_p = rotation_wrench_p(1:size(A_inv, 2), 1:size(A_inv, 2)); %crop rotation matrix to 2 or 3-dimensional
 wrench_p = zeros(size(A_inv, 2), 1);
 wrench_p(1, 1) = w_p;
