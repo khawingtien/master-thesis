@@ -1,5 +1,5 @@
 %% Function Arbeitsraum
-function [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate)
+function [workspace_logical, R,norm_f_V_vector] = Arbeitsraum_khaw(a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate)
 counter = 1; %predefine counter = 1
 workspace_logical_temp = ones(length(coordinate.x), length(coordinate.y), length(coordinate.z));
 
@@ -10,6 +10,7 @@ POI_offset = [0 0 b(3,5)]'; %first value of endeffector in z-axis (offset to hal
 R = axang2rotm(rotation); %axis angle to rotation matrix [0 1 0 angle] to Matrix Dimension=(3,3)
 POI_rot = R * POI_offset; %the position of the POI after rotation at (0,0,0)
 
+% norm_f_V_vector = []; %predefine for norm(f_V) 
 %Go through all the coordinate combination of the x_row, y_column, z_page, and save them in variable workspace_position 
        for i = 1:length(coordinate.x)
          for j = 1:length(coordinate.y)
@@ -18,9 +19,10 @@ POI_rot = R * POI_offset; %the position of the POI after rotation at (0,0,0)
              workspace_position = workspace_position - POI_rot;
 
         %berechne die Seilkraftverteilung an dieser Position 
-        [stop, R,l] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, pulley_kin, rad_pulley, R_A, rot_angle_A); %hier erstmal nur stop von Interesse tbd
+       
+        [stop, R ] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, pulley_kin, rad_pulley, R_A, rot_angle_A); %hier erstmal nur stop von Interesse tbd
         counter = counter + 1 %no semicolon, to show the current progression during debugging 
-        
+%         norm_f_V_vector = [norm_f_V_vector ; norm_f_V]; %to show the norm(f_V) value 
         %write the value (True or false) into the workspace logical matrix  
             if stop == 0  %no violation of f_min & f_max (fulfil the requirements)(TRUE)
               workspace_logical_temp (i,j,k) = 1; %write 1 as TRUE

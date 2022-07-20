@@ -114,17 +114,17 @@ end
 %Define max and min of grid in all direction
 grid.x_max = 300; %mm %largest length in x direction
 grid.y_max = 300;
-grid.z_max = 820;
+grid.z_max = 720;
 
 grid.x_min = -300; %mm %smallest length in x direction
 grid.y_min = -300;
-grid.z_min = -820;
+grid.z_min = -720;
 
 % grid_n = 20;  %Anzahl der Unterteilungen in X-Richtung
-grid_n = 23;  %Anzahl der Unterteilungen in X-Richtung
+grid_n = 30;  %Anzahl der Unterteilungen in X-Richtung
 
 %Definiere Grid                      
-grid_delta = (grid.x_max - grid.x_min)  / grid_n;  %step size in x-direction in mm %Gitterabstand von X-Richtung (Y- & Z-Richtung auch in diesem Abstand)
+grid_delta = (grid.x_max - grid.x_min) / grid_n;  %step size in x-direction in mm %Gitterabstand von X-Richtung (Y- & Z-Richtung auch in diesem Abstand)
 
 %% Definiere distale Ankerpunkte Plattform [x; y]
 % hier werden verschiedene Konfigurationen b1, b2... betrachtet und in
@@ -133,15 +133,15 @@ b_cell = endeffektor2();
 
 %% Definiere zu untersuchende Rotationen des Endeffektors um die z-Achse
 %  rotation_array_values = [-45;-40;-35;-30;-25;-20;-15;-10;-8;-6;-4;-2;0]; %13 times rotation angle
-rotation_array_values = [10;20;30];
+rotation_array_values = [0];
 % rotation_array_values = [0;20;40;60;80];
 for i = 1 : size(rotation_array_values, 1)
     rotation_array(i, :) = [0 1 0 ((pi/180) * rotation_array_values(i))];
 end
 
 %% Definiere zu untersuchende Lasten in bestimmte Raumrichtungen definiert durch rotation_w_p
-w_p = 3; %dieser Wert wird in berechnungSeilkraftverteilung in den wrench Vektor als x-Koordinate eingesetzt, y=0, T=0 (Feedback Kraft in alle Richtung, Translation) 
-w_p_t = 3; %Torque (Feedback Kraft in Rotation)%wrench in torque
+w_p = 5; %dieser Wert wird in berechnungSeilkraftverteilung in den wrench Vektor als x-Koordinate eingesetzt, y=0, T=0 (Feedback Kraft in alle Richtung, Translation) 
+w_p_t = 0; %Torque (Feedback Kraft in Rotation)%wrench in torque
 grid_deg = 9; % rotatorische Auflösung
 discrete_rot_angle_w_p = linspace(0, 2*pi, grid_deg)'; %(x1, x2, n) n Punkte zwischen x1 und x2
 rotation_w_array = zeros(size(discrete_rot_angle_w_p, 1), 4);
@@ -151,7 +151,7 @@ if w_p == 0
 else
     %if rotation exists
     for i = 1 : size(discrete_rot_angle_w_p, 1) %K:calculate each of the rotation
-        rotation_w_array(i, :) = [1 0 0 discrete_rot_angle_w_p(i)]; % a rotation of every 'discret angle' radians around the y-axis
+        rotation_w_array(i, :) = [0 1 0 discrete_rot_angle_w_p(i)]; % a rotation of every 'discret angle' radians around the y-axis
     end
 end
 
@@ -201,7 +201,7 @@ for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line f
 
         for counter_w = 1 : size(rotation_w_array, 1)
             rotation_w_p = rotation_w_array(counter_w, :);
-            [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate);
+            [workspace_logical, R,norm_f_V_vector] = Arbeitsraum_khaw(a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate);
         end
 
         %finalen Arbeitsraum bestimmen und darstellen
