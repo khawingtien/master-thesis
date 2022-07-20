@@ -136,7 +136,7 @@ centerOfMasspage = mean(workspace_further_adapt(:) .* SP_page(:)) / meanA;
 %%Calculate the Volume of the frame
 length_frame = max(a(1,:))-min(a(1,:)); %x-axis, use long insted of length cause length has been used before
 width_frame = max(a(2,:))-min(a(2,:)); %y-axis
-height_frame = max(a(3,:))-min(a(3,:)); %z-axis 
+%height_frame = max(a(3,:))-min(a(3,:)); %z-axis 
 height_rod = max(b(3,:))-min(b(3,:)); %length of the rod in total
 Volume_frame = length_frame*width_frame*height_rod*1e-9; 
 

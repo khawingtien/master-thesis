@@ -1,5 +1,5 @@
 %% Function Arbeitsraum
-function [workspace_logical, R,norm_f_V_vector] = Arbeitsraum_khaw(a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate)
+function [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max,noC, rotation, w_p_x, w_p_y, w_p_t, rotation_w_p_x,rotation_w_p_y, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate)
 counter = 1; %predefine counter = 1
 workspace_logical_temp = ones(length(coordinate.x), length(coordinate.y), length(coordinate.z));
 
@@ -9,6 +9,10 @@ POI_offset = [0 0 b(3,5)]'; %first value of endeffector in z-axis (offset to hal
 %rotate the POI in accordance with the rotation angle 
 R = axang2rotm(rotation); %axis angle to rotation matrix [0 1 0 angle] to Matrix Dimension=(3,3)
 POI_rot = R * POI_offset; %the position of the POI after rotation at (0,0,0)
+% 
+% %calculate rotation matrix for wrench 
+rotation_matrix_wpx = axang2rotm(rotation_w_p_x); %rotation matrix for f_Y around X-AXIS (IMPORTANT)
+rotation_matrix_wpy = axang2rotm(rotation_w_p_y); %rotation matrix for f_X around Y-AXIS (IMPORTANT)
 
 % norm_f_V_vector = []; %predefine for norm(f_V) 
 %Go through all the coordinate combination of the x_row, y_column, z_page, and save them in variable workspace_position 
@@ -20,7 +24,7 @@ POI_rot = R * POI_offset; %the position of the POI after rotation at (0,0,0)
 
         %berechne die Seilkraftverteilung an dieser Position 
        
-        [stop, R ] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, pulley_kin, rad_pulley, R_A, rot_angle_A); %hier erstmal nur stop von Interesse tbd
+        [stop, R ] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, b, f_min, f_max,noC, rotation, w_p_x,w_p_y, w_p_t, rotation_matrix_wpx,rotation_matrix_wpy, pulley_kin, rad_pulley, R_A, rot_angle_A); %hier erstmal nur stop von Interesse tbd
         counter = counter + 1 %no semicolon, to show the current progression during debugging 
 %         norm_f_V_vector = [norm_f_V_vector ; norm_f_V]; %to show the norm(f_V) value 
         %write the value (True or false) into the workspace logical matrix  

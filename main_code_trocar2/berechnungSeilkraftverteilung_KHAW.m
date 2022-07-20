@@ -1,11 +1,9 @@
 
 %% Function berechnungSeilkraftverteilung 
-function [stop,R] = berechnungSeilkraftverteilung_KHAW(r, a, b, f_min, f_max, rotation, w_p, w_p_t, rotation_w_p, pulley_kin, rad_pulley, R_A, rot_angle_A)
+function [stop,R] = berechnungSeilkraftverteilung_KHAW(r, a, b, f_min, f_max,noC, rotation, w_p_x,w_p_y, w_p_t,  rotation_matrix_wpx,rotation_matrix_wpy,  pulley_kin, rad_pulley, R_A, rot_angle_A)
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
 
 % Basispunkte Roboter
-global noC
-
 if any(b)  %if any element of b is nonzero = logical 1  (b is endeffector)
    % motion_pattern = 3; %1R2T
     motion_pattern = 6; %2R3T
@@ -86,22 +84,27 @@ f_M = f_M .* ((f_min + f_max) / 2); % f_M = average feasible force (below Eq 3.5
 
 A_inv = pinv(A_T); % Moore-Penrose Inverse
 
-%wrench berechnen unter Berücksichtigung von Rotationen definiert in rotation_w_p
-rotation_matrix = axang2rotm(rotation_w_p); %define rotation matrix 
-rotation_wrench_p = [rotation_matrix rotation_matrix];
-wrench_p = zeros(size(A_inv, 2), 1); %preallocating for speed (need to be same size as A_inv row, cz later need to multiply with A_inv
-wrench_p(1, 1) = w_p; %for f_x at first position of wrench, f_y = 0 cause the rotation already cover the f-y position 
-wrench_p = rotation_wrench_p  * wrench_p; %TO ASK (why) 
+%wrench berechnen unter Berücksichtigung von Rotationen definiert in rotation_w_p_x
+% rotation_matrix = axang2rotm(rotation_w_p); %define rotation matrix 
+
+% wrench_p = zeros(size(A_inv, 2), 1); %preallocating for speed (need to be same size as A_inv row, cz later need to multiply with A_inv
+wrench_p_x = [w_p_x; 0; 0]; %for f_x at first position of wrench, f_y = 0 cause the rotation already cover the f-y position 
+wrench_p_y = [0; w_p_x; 0];
+wrench_p_x = rotation_matrix_wpy  * wrench_p_x; %wrench in x direction rotated around y-axis (IMPORTANT)
+wrench_p_y = rotation_matrix_wpx  * wrench_p_y; %wrench in y direction rotated around x-axis (IMPORTANT)
 
 %tbd momentan x, y oder torque wegen rot 
 % if size(A_inv, 2) == 3 % motion pattern = 3  (for 1R2T configiration) 
 %     wrench_p(3, 1) = w_p_t;  % Then the third value is torque See Eq 3.5 Pott Book (w_p composed from applied force f_p and applied torque t_p)
 % end 
 %  size(A_inv, 2) == 6 % motion pattern = 3  (for 1R2T configiration) 
-    wrench_p(4, 1) = w_p_t;  % Then the third value is torque_x, See Eq 3.5 Pott Book (w_p composed from applied force f_p and applied torque t_p)
-    wrench_p(5, 1) = 0; %torque_y = 0
-    wrench_p(6, 1) = 0; %torque_z = 0
 
+wrench_p_t_x = [w_p_t; 0;0]; % Then the third value is torque_x, See Eq 3.5 Pott Book (w_p composed from applied force f_p and applied torque t_p)
+wrench_p_t_y = [0; w_p_t; 0]; %torque_y = 0
+wrench_p_t_x = rotation_matrix_wpx  * wrench_p_t_x; %rotation matrix multiply with wrench_torque_x vector 
+wrench_p_t_y= rotation_matrix_wpy  * wrench_p_t_y;  %rotation matrix multiply with wrench_torque_y vector 
+
+wrench_p = [wrench_p_x; wrench_p_t_x]; %% wrench (f_x) rotated around y %% CURRENTLY NEED TO RUN TWO TIMES (each x and y) 20220720
 
 f_V = -A_inv * (wrench_p + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
 % norm_f_V = norm(f_V,2);
