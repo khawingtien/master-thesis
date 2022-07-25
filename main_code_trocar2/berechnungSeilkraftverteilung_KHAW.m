@@ -1,6 +1,6 @@
 
 %% Function berechnungSeilkraftverteilung 
-function [stop,R] = berechnungSeilkraftverteilung_KHAW(r, a, b, f_min, f_max,noC, rotation, w_p_x,w_p_y, w_p_t,  rotation_matrix_wpx,rotation_matrix_wpy,  pulley_kin, rad_pulley, R_A, rot_angle_A)
+function [stop,R] = berechnungSeilkraftverteilung_KHAW(r, a, b, f_min, f_max,noC, rotation, w_p_x, w_p_t,  rotation_matrix,  pulley_kin, rad_pulley, R_A, rot_angle_A, limit, f_direction)
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
 
 % Basispunkte Roboter
@@ -8,7 +8,7 @@ if any(b)  %if any element of b is nonzero = logical 1  (b is endeffector)
    % motion_pattern = 3; %1R2T
     motion_pattern = 6; %2R3T
 else
-    motion_pattern = 2; %2T %if element b is zeors, then motion pattern = 2
+    motion_pattern = 3; %2T %if element b is zeors, then motion pattern = 2
     disp('motion pattern failure');
 end
 
@@ -69,7 +69,7 @@ A_T = [u; b_cross_u];
 % 2.Check if robot is in a nonsingular posn --> A_T full row rank
 rank_A_T = size(orth(A_T.').', 1); %Orthonormal basis for range of matrix (Pott page 93)
     %nonsingular posn
-if rank_A_T == size(A_T, 1)-1 %%%%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!
+if rank_A_T == size(A_T, 1) %%%%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!
     %disp('non singular posn')
 else
     %sigular posn
@@ -84,33 +84,32 @@ f_M = f_M .* ((f_min + f_max) / 2); % f_M = average feasible force (below Eq 3.5
 
 A_inv = pinv(A_T); % Moore-Penrose Inverse
 
+%{
 %wrench berechnen unter Berücksichtigung von Rotationen definiert in rotation_w_p_x
-% rotation_matrix = axang2rotm(rotation_w_p); %define rotation matrix 
-
-% wrench_p = zeros(size(A_inv, 2), 1); %preallocating for speed (need to be same size as A_inv row, cz later need to multiply with A_inv
-wrench_p_x = [w_p_x; 0; 0]; %for f_x at first position of wrench, f_y = 0 cause the rotation already cover the f-y position 
+ wrench_p_x = [w_p_x; 0; 0]; %for f_x at first position of wrench, f_y = 0 cause the rotation already cover the f-y position 
 wrench_p_y = [0; w_p_x; 0];
-wrench_p_x = rotation_matrix_wpy  * wrench_p_x; %wrench in x direction rotated around y-axis (IMPORTANT)
+ wrench_p_x = rotation_matrix_wpy  * wrench_p_x; %wrench in x direction rotated around y-axis (IMPORTANT)
 wrench_p_y = rotation_matrix_wpx  * wrench_p_y; %wrench in y direction rotated around x-axis (IMPORTANT)
 
-%tbd momentan x, y oder torque wegen rot 
-% if size(A_inv, 2) == 3 % motion pattern = 3  (for 1R2T configiration) 
-%     wrench_p(3, 1) = w_p_t;  % Then the third value is torque See Eq 3.5 Pott Book (w_p composed from applied force f_p and applied torque t_p)
-% end 
-%  size(A_inv, 2) == 6 % motion pattern = 3  (for 1R2T configiration) 
-
-wrench_p_t_x = [w_p_t; 0;0]; % Then the third value is torque_x, See Eq 3.5 Pott Book (w_p composed from applied force f_p and applied torque t_p)
+%calculation of wrench with torque
+ wrench_p_t_x = [w_p_t; 0;0]; % Then the third value is torque_x, See Eq 3.5 Pott Book (w_p composed from applied force f_p and applied torque t_p)
 wrench_p_t_y = [0; w_p_t; 0]; %torque_y = 0
-wrench_p_t_x = rotation_matrix_wpx  * wrench_p_t_x; %rotation matrix multiply with wrench_torque_x vector 
-wrench_p_t_y= rotation_matrix_wpy  * wrench_p_t_y;  %rotation matrix multiply with wrench_torque_y vector 
+ wrench_p_t_x = rotation_matrix_wpx  * wrench_p_t_x; %rotation matrix multiply with wrench_torque_x vector 
+wrench_p_t_y = rotation_matrix_wpy  * wrench_p_t_y;  %rotation matrix multiply with wrench_torque_y vector 
 
 wrench_p = [wrench_p_x; wrench_p_t_x]; %% wrench (f_x) rotated around y %% CURRENTLY NEED TO RUN TWO TIMES (each x and y) 20220720
+%  wrench_p = [wrench_p_y; wrench_p_t_y];
+%}
+% [wrench_p_f] = wrench_khaw(w_p_x,w_p_t,rotation_matrix);
 
-f_V = -A_inv * (wrench_p + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
-% norm_f_V = norm(f_V,2);
-if norm(f_V, 2) >= (1/2 * (f_max - f_min)) && norm(f_V, 2) <= (1/2 * sqrt(noC) * (f_max - f_min)) %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
+
+[wrench_p_f] = wrench_khaw2(w_p_x,w_p_t,rotation_matrix,f_direction);
+
+f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
+%  norm_f_V = norm(f_V,2)
+if norm(f_V, 2) >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
     %disp("fail to provide a feasible solution although such a solution exists")
-elseif norm(f_V, 2) > (1/2 * sqrt(noC) * (f_max - f_min))
+elseif norm(f_V, 2) > limit.upper
     %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
     % if it below the lower limit, the force distribution is feasible
     stop = 1; %violation exist
@@ -167,7 +166,7 @@ for counter_closed_form = 1 : (noC - motion_pattern)
 %         f_M_neu = f_M;
 %         f_M_neu(index_f_fail) = [];
         
-        w_p_neu = f_min .* A_T(:, index_f_fail) + wrench_p; %Equation 3.61 Pott's book
+        w_p_neu = f_min .* A_T(:, index_f_fail) + wrench_p_f; %Equation 3.61 Pott's book
         
         f_neu = A_inv_neu * (- w_p_neu); %Lösung des Problems Af + w = 0 nach f_neu
         
@@ -190,7 +189,7 @@ for i = 1 : noC
     array_sum_force(:, i) = f(i,:) .* A_T(1:3,i); %force distribution of noC * u (Einheitsvektor)
 end
 sum_f = sum(array_sum_force, 2); %sum(A,dimension 2)is a column vector containing the sum of each row.
-sum_f = sum_f + wrench_p(1:3,:); %% f + [f_x f_y f_z]  Equation 3.5 Pott's book 
+sum_f = sum_f + wrench_p_f(1:3,:); %% f + [f_x f_y f_z]  Equation 3.5 Pott's book 
 sum_f = round(sum_f, 0); %round to 5 digits %%WARNING TODO
 stop = 0;
 
@@ -206,7 +205,7 @@ for i = 1 : noC
     array_sum_torque(:,i) = f(i,:) * A_T(4:6, i); %its the same as the above equation force distribution * b_cross_u
 end
 sum_torque = sum(array_sum_torque, 2);
-sum_torque = sum_torque + wrench_p(4:6); %% f + [torque_x torque_y torque_z]
+sum_torque = sum_torque + wrench_p_f(4:6); %% f + [torque_x torque_y torque_z]
 sum_torque = round(sum_torque, 0); %%WARNING TODO
 stop = 0; %static equilibrium fulfill, no violation of force distribution 
 
