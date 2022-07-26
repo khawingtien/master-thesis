@@ -1,8 +1,8 @@
 %% Function Arbeitsraum_Verarbeitung
-function [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, ~, b_name,  w_p, w_p_t, f_g, counter_analysis ,rot_name, analysis, coordinate, workspace_logical, R, grid_deg)
+function [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, ~, b_name,  w_p, w_p_t, f_g, counter_analysis ,rot_name, analysis, coordinate, workspace_logical, R, noC)
 %% AUSWERTUNG Arbeitsraum
 workspace_adapt = workspace_logical; %workspace_logical has the final logic of all wrench-frasible working space in 3D
-global f_min f_max noC %import global variable 
+
 
 %% calculate relative neighbours (27-1) point for 3D.
 ind = (1:27)'; 
@@ -134,11 +134,11 @@ centerOfMassrow = mean(workspace_further_adapt(:) .* SP_row(:)) / meanA;
 centerOfMasspage = mean(workspace_further_adapt(:) .* SP_page(:)) / meanA;
 
 %%Calculate the Volume of the frame
-length_frame = max(a(1,:))-min(a(1,:)); %x-axis, use long insted of length cause length has been used before
-width_frame = max(a(2,:))-min(a(2,:)); %y-axis
+% length_frame = max(a(1,:))-min(a(1,:)); %x-axis, use long insted of length cause length has been used before
+% width_frame = max(a(2,:))-min(a(2,:)); %y-axis
 %height_frame = max(a(3,:))-min(a(3,:)); %z-axis 
-height_rod = max(b(3,:))-min(b(3,:)); %length of the rod in total
-Volume_frame = length_frame*width_frame*height_rod*1e-9; 
+% height_rod = max(b(3,:))-min(b(3,:)); %length of the rod in total
+% Volume_frame = length_frame*width_frame*height_rod*1e-9; 
 
 
 %% Speichern in analysis array
@@ -162,7 +162,7 @@ analysis(counter_analysis, 8) = centerOfMasspage;
 % analysis(counter_analysis, 9) = convexhull_volume;
 
 %Volume of the frame 
-analysis(counter_analysis,10) = Volume_frame;
+% analysis(counter_analysis,10) = Volume_frame;
 
 %current Workspace
 % analysis(counter_analysis,11) = current_ws;
@@ -179,11 +179,11 @@ plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_a
 hold on 
 grid on
 grid minor
-daspect([1,1,1])
 
 %%Plot Trocar point at Origin
 plot3(0,0,0,'bo','LineWidth',5)
 hold on 
+
 
 %%Plot Region of Interest (ROI)
 r = 150; %radius in mm 
@@ -191,69 +191,40 @@ r = 150; %radius in mm
 % X = X+90;
 % Y = Y+100;
 h = 200; %height in mm
-Z = (Z*h)-100; %minus 100 so that its from -100 to 100 in Z-axis
+Z = (Z*h)-400; %minus 100 so that its from -100 to 100 in Z-axis
 surf(X,Y,Z,'FaceColor','r','FaceAlpha','0.3')
 hold on 
 
 %plot Rahmen
 a_adapt = a;
-% a_adapt(1:3, noC+1) = a(1:3,1); %extend to next column (so that the rectangle close up)
+%  a_adapt(1:3, noC+1) = a(1:3,1); %extend to next column (so that the rectangle close up)
 
-%{
-%Plot Rahmen (KHAW) 
-box =  [-0.25  0.1875  0.125 %define the coordinate of the box
-       0.25    0.1875   0.125
-       0.25   -0.1875   0.125
-      -0.25   -0.1875   0.125
-       -0.25   0.1875   0.0625
-       0.25    0.1875   0.0625
-       0.25   -0.1875   0.0625
-      -0.25   -0.1875   0.0625];
-box = box.*1000;
-  
-idx = [4 8 5 1 4; 1 5 6 2 1; 2 6 7 3 2; 3 7 8 4 3; 5 8 7 6 5; 1 4 3 2 1]'; %the ascending index of the box that will be plotted one after another 
-
-xc = box(:,1);
-yc = box(:,2);
-zc = box(:,3);
-
-
-%Plot one or more filled polygonal regions with facealpha = semitransparent polygons 
-patch(xc(idx), yc(idx), zc(idx), 'r', 'facealpha', 0.1); 
-view(3); %3D view
-%}
 
 %plot Endeffektor
 hold on
-b_figure = R * b; %Rotation * base(end-effector)
+b_figure = R * b; %Rotation * base(end-effector) means the position of endeffector after certain degree rotation
 b_5 = b_figure(:,1); %so that it close up the endeffector upper side
 b_10 = b_figure(:,5); %so that it close up the endeffector lower side
-b_figure_new = [b_figure(:,1:4) b_5 b_figure(:,5:8) b_10];
-plot3(b_figure_new(1, :), b_figure_new(2, :),b_figure_new(3, :), 'x-k','LineWidth',2);
-%plot straight line for endeffector 
-% w2 = b_figure_new (:,2);
-% w7 = b_figure_new (:,7);
-% w3 = b_figure_new (:,3);
-% w8 = b_figure_new (:,8);
-% w4 = b_figure_new (:,4);
-% w9 = b_figure_new (:,9);
-% line = [w2 w7 w3 w8 w4 w9];
-%  plot3(line(1,:),line(2,:),line(3,:), 'x-k','LineWidth',2)
+b_middle_top = R* [[0;0;b(3,1)], [0; 0; b(3,5)]]; %rotation of the center line through trocar point
 
+b_figure_new = [b_figure(:,1:4), b_5, b_figure(:,5:8), b_10];
+plot3(b_middle_top(1,:),b_middle_top(2,:),b_middle_top(3,:) ,'b','LineWidth',2) %plot middle line through trocar point
+plot3(b_figure_new(1, 1:5), b_figure_new(2, 1:5),b_figure_new(3, 1:5), 'x-k','LineWidth',2); %plot the frame of end-effector only top 
+plot3(b_figure_new(1, 6:10), b_figure_new(2, 6:10),b_figure_new(3, 6:10), 'x-k','LineWidth',2); %plot the frame of end-effector only bottom
 
 
 %plot Seile
 str = ["w1" "w2" "w3" "w4" "w5" "w6" "w7" "w8"]; 
 for i = 1 : noC
-    hold on
     plot3([a_adapt(1, i) b_figure(1, i)], [a_adapt(2, i) b_figure(2, i)], [a_adapt(3, i) b_figure(3, i)],'--r');
     text(a_adapt(1, i), a_adapt(2,i), a_adapt(3,i), str(i)); %add the label on each cable 
 end
+daspect([1,1,1]) %For equal data unit lengths in all directions
 
 % axis([-400 400 -400 400]) %axis in x_min, x_max and y_min, y_max 
 % xticks([-350 0 350]) %label of x-coordinate
 % yticks([-350 0 350]) %label of y-coordinate
-% axis square  %Use axis lines with equal lengths. Adjust the increments between data units accordingly.
+%  axis square  %Use axis lines with equal lengths. Adjust the increments between data units accordingly.
 length_frame = max(a(1,:))-min(a(1,:)); %x-axis, use long insted of length cause length has been used before
 width_frame = max(a(2,:))-min(a(2,:)); %y-axis
 height_frame = max(a(3,:))-min(a(3,:)); %z-axis 

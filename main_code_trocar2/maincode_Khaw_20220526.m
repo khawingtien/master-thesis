@@ -143,7 +143,7 @@ rotation_array = zeros(length(rotation_array_values),4); %preallocationg for spe
 
 % rotation_array_values = [0;20;40;60;80];
 for i = 1 : size(rotation_array_values, 1)
-    rotation_array(i, :) = [0 1 0 ((pi/180) * rotation_array_values(i))];
+    rotation_array(i, :) = [1 0 0 ((pi/180) * rotation_array_values(i))];
 end
 
 %% Definiere zu untersuchende Lasten in bestimmte Raumrichtungen definiert durch rotation_w_p
@@ -165,7 +165,6 @@ else
     for i = 1 : size(discrete_rot_angle_w_p, 1) %K:calculate each of the rotation
         rotation_w_array_x(i, :) = [1 0 0 discrete_rot_angle_w_p(i)]; % a rotation of every 'discret angle' radians around the y-axis
         rotation_w_array_y(i, :) = [0 1 0 discrete_rot_angle_w_p(i)]; % a rotation of every 'discret angle' radians around the y-axis
-
     end
 end
 
@@ -199,16 +198,18 @@ coordinate.z = (grid.z_min : grid_delta: grid.z_max)'; %step size in z-direction
 
 %analysis for different parameter, will be saved in a Zeilenvektor. 
 analysis = zeros(1, 12); %preallocating the variable for speed
+C = cell(2,1); %predefine for speed
+f_directions = ["x","y"]; %define the f_x and f_y wrench direction. 
+ figure %open a figure before the for-loop, so that x- and y-plane can be plotted on the same figure 
 
-f_directions = ["x","y"];
-figure
-for f_xy=1:2
+for f_xy=1:2 
 f_direction=f_directions(f_xy);
+
 %% Calculation for workspace logical
-for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line form, square form...)
+    for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line form, square form...)
     b = b_cell{counter_b, 1};
     b_name = counter_b; %necessary to save the path name for figure automatically 
-    for counter_r = 1 : size(rotation_array, 1)
+        for counter_r = 1 : size(rotation_array, 1)
         rotation = rotation_array(counter_r, :); %go through rotation array one by one
         rot_name = rotation_array_values(counter_r); %necessary to save the path name for figure automatically
         
@@ -217,26 +218,31 @@ for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line f
         %und die Übereinstimmung in 1. Dimension gespeichert. Loop
         workspace_logical = ones(length(coordinate.x), length(coordinate.y), length(coordinate.z)); %preallocating the variable for speed
     
-    if w_p_x == 0
-         for counter_w = 1 %This is the only diff 
-            rotation_w_p_x = rotation_w_array_x(counter_w, :);
-            rotation_w_p_y = rotation_w_array_y(counter_w, :);
-            [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, noC, rotation, w_p_x, w_p_t, rotation_w_p_x, rotation_w_p_y, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate, limit, f_direction);
-         end
-    else  %for w_p ~= 0 
-        for counter_w = 1 : size(rotation_w_array, 1) %for w_p ~= 0 
-            rotation_w_p_x = rotation_w_array_x(counter_w, :);
-            rotation_w_p_y = rotation_w_array_y(counter_w, :);
-            [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, noC, rotation, w_p_x, w_p_t, rotation_w_p_x, rotation_w_p_y, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate, limit, f_direction);
-        end
-    end
+            if w_p_x == 0
+             for counter_w = 1 %This is the only diff 
+                rotation_w_p.x = rotation_w_array_x(counter_w, :);
+                rotation_w_p.y = rotation_w_array_y(counter_w, :);
+                [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, noC, rotation, w_p_x, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate, limit, f_direction);
+             end
+            else  %for w_p ~= 0 
+                for counter_w = 1 : size(rotation_w_array, 1) %for w_p ~= 0 
+                rotation_w_p.x = rotation_w_array_x(counter_w, :);
+                rotation_w_p.y = rotation_w_array_y(counter_w, :);
+                [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, noC, rotation, w_p_x, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate, limit, f_direction);
+                end
+            end
 
         %finalen Arbeitsraum bestimmen und darstellen
         counter_analysis = counter_analysis +   1;
-        [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p_x, w_p_t, f_g, counter_analysis ,rot_name, analysis, coordinate, workspace_logical, R, grid_deg);
+        [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p_x, w_p_t, f_g, counter_analysis ,rot_name, analysis, coordinate, workspace_logical, R, noC);
        
-   end
-end
+        %%Save workspace in cell array  
+        C(counter_r,2) = {workspace_adapt_pointwise};     
+       end
+    end
+    %%Save workspace in cell array    
+    C(f_xy,1) = {C};
+
 end
 %Sheet : analysis
 % excel_save = "1R2T_Rahmen1_%d_%d_%d_%d_%d_%d_%d.xlsx";
