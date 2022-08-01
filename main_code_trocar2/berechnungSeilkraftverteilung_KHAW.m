@@ -1,6 +1,6 @@
 
 %% Function berechnungSeilkraftverteilung 
-function [stop,R] = berechnungSeilkraftverteilung_KHAW(r, a, b, f_min, f_max,noC, rotation, w_p_x, w_p_t,  rotation_matrix,  pulley_kin, rad_pulley, R_A, rot_angle_A, limit, f_direction)
+function [stop,R] = berechnungSeilkraftverteilung_KHAW(r, a, b, f_min, f_max,noC, R, w_p_x, w_p_t,  rotation_matrix,  pulley_kin, rad_pulley, R_A, rot_angle_A, limit, f_direction,POI_rot)
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
 
 % Basispunkte Roboter
@@ -13,7 +13,7 @@ else
 end
 
 r = repmat(r, 1, noC); %r for workspace position, in order to achieve the dimension (1,noC) 
-R = axang2rotm(rotation); %axis angle to rotation matrix [0 0 1 angle] to Matrix Dimension=(3,3)
+% R = axang2rotm(rotation); %axis angle to rotation matrix [0 0 1 angle] to Matrix Dimension=(3,3)
 b_rot = R * b;
 
 if pulley_kin == 'no'
@@ -69,7 +69,7 @@ A_T = [u; b_cross_u];
 % 2.Check if robot is in a nonsingular posn --> A_T full row rank
 rank_A_T = size(orth(A_T.').', 1); %Orthonormal basis for range of matrix (Pott page 93)
     %nonsingular posn
-if rank_A_T == size(A_T, 1)%%%%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!
+if rank_A_T == size(A_T, 1)-1 %%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!
     %disp('non singular posn')
 else
     %sigular posn
@@ -79,31 +79,12 @@ else
 end
     
 % Closed-form method
-f_M = ones(noC(1),1);
+f_M = ones(noC(1),1); 
 f_M = f_M .* ((f_min + f_max) / 2); % f_M = average feasible force (below Eq 3.53 Pott Book)
-
 A_inv = pinv(A_T); % Moore-Penrose Inverse
 
-%{
-%wrench berechnen unter Berücksichtigung von Rotationen definiert in rotation_w_p_x
- wrench_p_x = [w_p_x; 0; 0]; %for f_x at first position of wrench, f_y = 0 cause the rotation already cover the f-y position 
-wrench_p_y = [0; w_p_x; 0];
- wrench_p_x = rotation_matrix_wpy  * wrench_p_x; %wrench in x direction rotated around y-axis (IMPORTANT)
-wrench_p_y = rotation_matrix_wpx  * wrench_p_y; %wrench in y direction rotated around x-axis (IMPORTANT)
-
-%calculation of wrench with torque
- wrench_p_t_x = [w_p_t; 0;0]; % Then the third value is torque_x, See Eq 3.5 Pott Book (w_p composed from applied force f_p and applied torque t_p)
-wrench_p_t_y = [0; w_p_t; 0]; %torque_y = 0
- wrench_p_t_x = rotation_matrix_wpx  * wrench_p_t_x; %rotation matrix multiply with wrench_torque_x vector 
-wrench_p_t_y = rotation_matrix_wpy  * wrench_p_t_y;  %rotation matrix multiply with wrench_torque_y vector 
-
-wrench_p = [wrench_p_x; wrench_p_t_x]; %% wrench (f_x) rotated around y %% CURRENTLY NEED TO RUN TWO TIMES (each x and y) 20220720
-%  wrench_p = [wrench_p_y; wrench_p_t_y];
-%}
-% [wrench_p_f] = wrench_khaw(w_p_x,w_p_t,rotation_matrix);
-
-
-[wrench_p_f] = wrench_khaw2(w_p_x,w_p_t,rotation_matrix,f_direction);
+%Implementation of wrench either in x-axis or y-axis 
+[wrench_p_f, level_arm_mat] = wrench_khaw2(b,w_p_x,w_p_t,rotation_matrix,f_direction,POI_rot);
 
 f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
 %  norm_f_V = norm(f_V,2)
@@ -199,16 +180,23 @@ if any(sum_f, 'all') %Determine if any array elements are nonzero, test over ALL
 end
 
 %torque
-array_sum_torque = zeros(3,noC);
-for i = 1 : noC
-    %     array_sum_torque(:,i) = array_sum_force (1, i) * b_rot(2, i) + array_sum_force(2, i) * b(1, i);
-    array_sum_torque(:,i) = f(i,:) * A_T(4:6, i); %its the same as the above equation force distribution * b_cross_u
-end
-sum_torque = sum(array_sum_torque, 2);
+%define the level arm for torque 
+% level_arm = (max(b(3,:))-min(b(3,:)))*0.5; %length of level arm for f_x and f_y (both are the same) 
+% level_arm_mat = [level_arm; level_arm; 0]; %assign level arm for f_z = 0 
+
+% array_sum_torque = zeros(3,noC);
+% for i = 1 : noC
+%     %     array_sum_torque(:,i) = array_sum_force (1, i) * b_rot(2, i) + array_sum_force(2, i) * b(1, i);
+% %      array_sum_torque(:, i) = f(i,:) .* A_T(4:6,i); 
+%     array_sum_torque(:,i) = f(i,:).* A_T(4:6,i); %its the same as the above equation force distribution * b_cross_u
+% end
+% sum_torque0 = sum(array_sum_torque, 2);
+
+sum_torque = A_T(4:6,:) * f;
 sum_torque = sum_torque + wrench_p_f(4:6); %% f + [torque_x torque_y torque_z]
 sum_torque = round(sum_torque, 0); %%WARNING TODO
 stop = 0; %static equilibrium fulfill, no violation of force distribution 
-
+% disp("debug")
 if any(sum_torque, 'all') %Determine if any array elements are nonzero, test over ALL elements of sum_torque with the command 'all'
     stop = 1; %the static equilibrium was not fulfilled 
     return

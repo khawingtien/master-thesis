@@ -186,14 +186,14 @@ hold on
 
 
 %%Plot Region of Interest (ROI)
-r = 150; %radius in mm 
-[X,Y,Z] = cylinder(r);
-% X = X+90;
-% Y = Y+100;
-h = 200; %height in mm
-Z = (Z*h)-400; %minus 100 so that its from -100 to 100 in Z-axis
-surf(X,Y,Z,'FaceColor','r','FaceAlpha','0.3')
-hold on 
+% r = 150; %radius in mm 
+% [X,Y,Z] = cylinder(r);
+% % X = X+90;
+% % Y = Y+100;
+% h = 200; %height in mm
+% Z = (Z*h)-400; %minus 100 so that its from -100 to 100 in Z-axis
+% surf(X,Y,Z,'FaceColor','r','FaceAlpha','0.3')
+% hold on 
 
 %plot Rahmen
 a_adapt = a;

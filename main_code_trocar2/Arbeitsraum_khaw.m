@@ -24,7 +24,7 @@ rotation_matrix.wpy = axang2rotm(rotation_w_p.y); %rotation matrix for f_X aroun
 
         %berechne die Seilkraftverteilung an dieser Position 
        
-        [stop, R ] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, b, f_min, f_max,noC, rotation, w_p_x, w_p_t, rotation_matrix, pulley_kin, rad_pulley, R_A, rot_angle_A, limit, f_direction); %hier erstmal nur stop von Interesse tbd
+        [stop, R ] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, b, f_min, f_max,noC, R, w_p_x, w_p_t, rotation_matrix, pulley_kin, rad_pulley, R_A, rot_angle_A, limit, f_direction, POI_rot); %hier erstmal nur stop von Interesse tbd
         %counter = counter + 1 %no semicolon, to show the current progression during debugging 
 %         norm_f_V_vector = [norm_f_V_vector ; norm_f_V]; %to show the norm(f_V) value 
 

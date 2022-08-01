@@ -1,3 +1,5 @@
+
+
 % close all
 clear 
 clc
@@ -138,7 +140,7 @@ b_cell = endeffektor2();
 
 %% Definiere zu untersuchende Rotationen des Endeffektors um die z-Achse
 %  rotation_array_values = [-45;-40;-35;-30;-25;-20;-15;-10;-8;-6;-4;-2;0]; %13 times rotation angle
-rotation_array_values = [30;-30];
+rotation_array_values = [0];
 rotation_array = zeros(length(rotation_array_values),4); %preallocationg for speed
 
 % rotation_array_values = [0;20;40;60;80];
@@ -148,7 +150,7 @@ end
 
 %% Definiere zu untersuchende Lasten in bestimmte Raumrichtungen definiert durch rotation_w_p
 w_p_x = 5; %dieser Wert wird in berechnungSeilkraftverteilung in den wrench Vektor als x-Koordinate eingesetzt, y=0, T=0 (Feedback Kraft in alle Richtung, Translation) 
-w_p_t = 5; %Torque (Feedback Kraft in Rotation)%wrench in torque
+w_p_t = 10; %Torque (Feedback Kraft in Rotation)%wrench in torque
 grid_deg = 8; % rotatorische Auflösung %for 8 only, because 360° is the same as 0°
 discrete_rot_angle_w_p = linspace(0, 2*pi*(1-1/grid_deg), grid_deg)'; %(x1, 1/8 from the complete 360°, n) n Punkte zwischen x1 und x2 
 rotation_w_array = zeros(size(discrete_rot_angle_w_p, 1), 4);%predefine for speed
@@ -162,6 +164,8 @@ if w_p_x == 0
 %     rotation_w_array = zeros(size(discrete_rot_angle_w_p, 1), 4);%predefine for speed
 else
     %if wrench rotation exists
+    rotation_w_array_x = zeros(size(discrete_rot_angle_w_p, 1),4); %preallocating for speed
+    rotation_w_array_y = zeros(size(discrete_rot_angle_w_p, 1),4); %preallocating for speed
     for i = 1 : size(discrete_rot_angle_w_p, 1) %K:calculate each of the rotation
         rotation_w_array_x(i, :) = [1 0 0 discrete_rot_angle_w_p(i)]; % a rotation of every 'discret angle' radians around the y-axis
         rotation_w_array_y(i, :) = [0 1 0 discrete_rot_angle_w_p(i)]; % a rotation of every 'discret angle' radians around the y-axis
@@ -205,7 +209,7 @@ f_directions = ["x","y"]; %define the f_x and f_y wrench direction.
 for f_xy=1:2 
 f_direction=f_directions(f_xy);
 
-%% Calculation for workspace logical
+% Calculation for workspace logical
     for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line form, square form...)
     b = b_cell{counter_b, 1};
     b_name = counter_b; %necessary to save the path name for figure automatically 
