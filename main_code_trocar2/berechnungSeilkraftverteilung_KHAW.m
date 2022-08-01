@@ -106,31 +106,15 @@ f = f_M + f_V; %Eq 3.53 Pott Book (feasible force + arbitrary force vector)
 for counter_closed_form = 1 : (noC - motion_pattern)
     f_fail = 0;
     fail_diff = 0;
-    for i = 1 : noC
-        if f(i) < f_min   %%Case 1 if f(i) <5N, then set it to 0N. 
-            if f_fail == 0 %Case 1a
-                f_fail = f(i); %original value
-                fail_diff = f_min - f_fail; %suppose to be 5N
-            else
-                if (f_min - f(i)) > fail_diff %Case 1b %großerer Differenz auswählen 
-                    f_fail = f(i); %original value
-                    fail_diff = f_min - f_fail;
-                end
-            end
-            
-        elseif f(i) > f_max %%Case 2
-            if f_fail == 0
-                f_fail = f(i);
-                fail_diff = f_fail - f_max;
-            else
-                if(f(i) - f_max) > fail_diff
-                    f_fail = f(i);
-                    fail_diff = f_fail - f_max;
-                end
-            end
-        end
+
+    if any(f<f_min) %condition check if cable force violate the minimum force
+        [fail_diff, f_id] = min(f-f_min); %find the maximum difference of the cable force (use min as command as its ans is negative)
+        f_fail=f(f_id);
+    elseif any(f>f_max)
+        [fail_diff, f_id] = max(f+f_max);
+        f_fail=f(f_id);
     end
-    
+
     % Wenn eine Kraft die Kraftgrenzen verletzt
     if fail_diff ~= 0 %tbd Artur: f_fail (static equilibrium is not zero)
         %     f = round(f, 5);
@@ -142,12 +126,11 @@ for counter_closed_form = 1 : (noC - motion_pattern)
         A_inv_neu = pinv(A_T_neu);
         
 %         f_neu = f;
-%         f_neu(index_f_fail) = [];
-        
+%         f_neu(index_f_fail) = [];        
 %         f_M_neu = f_M;
 %         f_M_neu(index_f_fail) = [];
         
-        w_p_neu = f_min .* A_T(:, index_f_fail) + wrench_p_f; %Equation 3.61 Pott's book
+        w_p_neu = f_min * A_T(:, index_f_fail) + wrench_p_f; %Equation 3.61 Pott's book
         
         f_neu = A_inv_neu * (- w_p_neu); %Lösung des Problems Af + w = 0 nach f_neu
         
@@ -158,8 +141,9 @@ for counter_closed_form = 1 : (noC - motion_pattern)
                 counter_f_neu = counter_f_neu + 1;
             end
         end
-        f(f == f_fail) = f_min; %Subsitute the logic when f==f_fail with 5N, so the f_min range can be fulfilled 
     end
+ f(f == f_fail) = f_min; %Subsitute the logic when f==f_fail with 5N, so the f_min range can be fulfilled 
+
 end
 
 
@@ -193,7 +177,7 @@ end
 % sum_torque0 = sum(array_sum_torque, 2);
 
 sum_torque = A_T(4:6,:) * f;
-sum_torque = sum_torque + wrench_p_f(4:6); %% f + [torque_x torque_y torque_z]
+sum_torque = sum_torque + wrench_p_f(4:6); 
 sum_torque = round(sum_torque, 0); %%WARNING TODO
 stop = 0; %static equilibrium fulfill, no violation of force distribution 
 % disp("debug")
@@ -206,9 +190,32 @@ end
 if find(f > f_max)
 %        disp("Achtung! Seilkraft ueberschreitet den Maximalwert");
     stop = 1;
+    return
 elseif find(f < f_min)
 %        disp("Achtung! Seilkraft unterschreitet den Minimalwert")
+%   stop = 1;
+
+%wrench-closure workspace 
+Kappa = zeros(1,3);
+k = null(A_T);
+for i = 1:3
+    k_col=k(:,i);
+    if  min(k_col) > 0
+        Kappa(i) = min(k_col)/max(k_col);
+        
+    elseif max(k_col) < 0
+        Kappa(i) = max(k_col)/min(k_col);
+        
+    else
+        Kappa(i) = 0;
+    end 
+end
+if any(Kappa)
+    stop = 0;
+else
     stop = 1;
 end
+
+
 
 end
