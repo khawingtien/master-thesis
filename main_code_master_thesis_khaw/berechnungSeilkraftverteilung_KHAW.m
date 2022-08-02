@@ -3,7 +3,7 @@ function [stop,R,l] = berechnungSeilkraftverteilung_KHAW(r, a, b, f_min, f_max, 
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
 
 % Basispunkte Roboter
-global noC
+ noC =8;
 
 if any(b)  %if any element of b is nonzero = logical 1  (b is endeffector)
    % motion_pattern = 3; %1R2T
@@ -87,7 +87,8 @@ A_inv = pinv(A_T); % Moore-Penrose Inverse
 
 %wrench berechnen unter Berücksichtigung von Rotationen definiert in rotation_w_p
 rotation_wrench_p = axang2rotm(rotation_w_p);
-rotation_wrench_p = rotation_wrench_p(1:size(A_inv, 2), 1:size(A_inv, 2)); %crop rotation matrix to 2 or 3-dimensional
+rotation_wrench_p =  repmat(rotation_wrench_p,1,2);
+% rotation_wrench_p = rotation_wrench_p(1:size(A_inv, 2), 1:size(A_inv, 2)); %crop rotation matrix to 2 or 3-dimensional
 wrench_p = zeros(size(A_inv, 2), 1);
 wrench_p(1, 1) = w_p;
 wrench_p = rotation_wrench_p * wrench_p;
