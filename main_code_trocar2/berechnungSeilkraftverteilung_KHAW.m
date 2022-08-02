@@ -1,30 +1,21 @@
-
 %% Function berechnungSeilkraftverteilung 
-function [stop,R] = berechnungSeilkraftverteilung_KHAW(r, a, b, f_min, f_max,noC, R, w_p_x, w_p_t,  rotation_matrix,  pulley_kin, rad_pulley, R_A, rot_angle_A, limit, f_direction,POI_rot)
+function [stop,R] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max,noC, R, w_p_x, w_p_t,  rotation_matrix,  pulley_kin, rad_pulley, R_A, rot_angle_A, limit, f_direction,POI_rot)
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
 
 % Basispunkte Roboter
-if any(b)  %if any element of b is nonzero = logical 1  (b is endeffector)
-   % motion_pattern = 3; %1R2T
-    motion_pattern = 6; %2R3T
-else
-    motion_pattern = 3; %2T %if element b is zeors, then motion pattern = 2
-    disp('motion pattern failure');
-end
-
-r = repmat(r, 1, noC); %r for workspace position, in order to achieve the dimension (1,noC) 
+ws_position = repmat(ws_position, 1, noC); %ws_position for workspace position, in order to achieve the dimension (1,noC) 
 % R = axang2rotm(rotation); %axis angle to rotation matrix [0 0 1 angle] to Matrix Dimension=(3,3)
 b_rot = R * b;
 
 if pulley_kin == 'no'
     % Schließbedingung Vektoren (Closure constrain v_i) Equation 3.1 & 3.2 in Pott's Book 
-    l = a - r - b_rot; 
+    l = a - ws_position - b_rot; 
 elseif pulley_kin == 'yes'
     %calculate bx, by 
     %r_0_A = a;
-    %R_A * b_A + a = r + b_rot;
+    %R_A * b_A + a = ws_position + b_rot;
     for i = 1 : noC
-        b_A(:, i) = R_A(:, :, i) \ (r(:, i) + b_rot(:, i) - a(:, i));
+        b_A(:, i) = R_A(:, :, i) \ (ws_position(:, i) + b_rot(:, i) - a(:, i));
     end 
     b_x_A = b_A(1, :);
     b_y_A = b_A(2, :);
@@ -63,8 +54,6 @@ end
 
 % Strukturmatrix
 A_T = [u; b_cross_u];
-% A_T(~any(A_T,2),:) = []; %when all values in Dimension 2 (row) == 0, then delete the row.     Löscht die leeren Zeilen, z.B. fuer den 3R, 2T Roboter
-%                           %(any)Determine if any array elements are nonzero
                            
 % 2.Check if robot is in a nonsingular posn --> A_T full row rank
 rank_A_T = size(orth(A_T.').', 1); %Orthonormal basis for range of matrix (Pott page 93)
@@ -87,7 +76,7 @@ A_inv = pinv(A_T); % Moore-Penrose Inverse
 [wrench_p_f, level_arm_mat] = wrench_khaw2(b,w_p_x,w_p_t,rotation_matrix,f_direction,POI_rot);
 
 f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
-%  norm_f_V = norm(f_V,2)
+
 if norm(f_V, 2) >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
     %disp("fail to provide a feasible solution although such a solution exists")
 elseif norm(f_V, 2) > limit.upper
@@ -98,55 +87,70 @@ elseif norm(f_V, 2) > limit.upper
 end
 
 f = f_M + f_V; %Eq 3.53 Pott Book (feasible force + arbitrary force vector)
-% f_closedform = f;
 
 %Improved closed-form
 % Pruefen, ob eine Kraft die Kraftgrenzen verletzt und die Kraft mit der
 % groessten Differenz wählen
-for counter_closed_form = 1 : (noC - motion_pattern)
+DOF = 6; %3R3T
+r = noC - DOF; %r = m-n
+f_id_mat = [];
+A_T_neu = A_T;
+f_neu = f;
+no_reduction = false;
+f_id = noC+1;
+
+%Compute the solution by recursively reducing the order until the
+%degree-of-redundancy become r= 0 (Pott book pg 95)
+while r ~= 0 %calculate redundancy
+% for counter_closed_form = 1 : (noC - DOF)
     f_fail = 0;
     fail_diff = 0;
-
-    if any(f<f_min) %condition check if cable force violate the minimum force
-        [fail_diff, f_id] = min(f-f_min); %find the maximum difference of the cable force (use min as command as its ans is negative)
-        f_fail=f(f_id);
-    elseif any(f>f_max)
-        [fail_diff, f_id] = max(f+f_max);
-        f_fail=f(f_id);
+    f_id_old=f_id;
+    if any(f_neu<f_min) %condition check if cable force violate the minimum force
+        [fail_diff, f_id] = min(f_neu-f_min); %find the maximum difference of the cable force (use min as command as its ans is negative)
+        f_fail=f_neu(f_id);
+    elseif any(f_neu>f_max)
+        [fail_diff, f_id] = max(f_neu+f_max);
+        f_fail=f_neu(f_id);
+    else
+        no_reduction=true;
+        break
     end
 
     % Wenn eine Kraft die Kraftgrenzen verletzt
     if fail_diff ~= 0 %tbd Artur: f_fail (static equilibrium is not zero)
-        %     f = round(f, 5);
-        %     f_fail = round(f_fail, 5);
-        index_f_fail = find(f == f_fail); %find the index of the fail force distribution,that is not within 5N and 36N
+       
+%         index_f_fail = find(f_neu == f_fail); %find the index of the fail force distribution,that is not within 5N and 36N
         
-        A_T_neu = A_T;
-        A_T_neu(:, index_f_fail) = [];
+        A_T_neu(:, f_id) = [];
         A_inv_neu = pinv(A_T_neu);
-        
-%         f_neu = f;
-%         f_neu(index_f_fail) = [];        
-%         f_M_neu = f_M;
-%         f_M_neu(index_f_fail) = [];
-        
-        w_p_neu = f_min * A_T(:, index_f_fail) + wrench_p_f; %Equation 3.61 Pott's book
-        
+        w_p_neu = f_min * A_T(:, f_id) + wrench_p_f; %Equation 3.61 Pott's book    
         f_neu = A_inv_neu * (- w_p_neu); %Lösung des Problems Af + w = 0 nach f_neu
         
-        counter_f_neu = 1;
-        for j = 1 : noC
-            if f(j) ~= f_fail
-                f(j) = f_neu(counter_f_neu);
-                counter_f_neu = counter_f_neu + 1;
-            end
+%         counter_f_neu = 1;
+%         for j = 1 : noC
+%             if f(j) ~= f_fail
+%                 f(j) = f_neu(counter_f_neu);
+%                 counter_f_neu = counter_f_neu + 1;
+%             end
+%         end
+        r = length(f_neu) - DOF; %r = m-n
+        if f_id >= f_id_old
+            offset=1;
+        else
+            offset=0;
         end
-    end
- f(f == f_fail) = f_min; %Subsitute the logic when f==f_fail with 5N, so the f_min range can be fulfilled 
 
+        f_id_mat = [f_id_mat;f_id+offset]; %Subsitute the logic when f==f_fail with 5N, so the f_min range can be fulfilled 
+%         reduction_counter=reduction_counter+1;
+    end
+ 
 end
 
-
+if no_reduction == false
+    f(f_id_mat) = f_min; %Subsitute the logic when f==f_fail with 5N, so the f_min range can be fulfilled 
+    f(f~=f_min) = f_neu; %Subsitute the f_neu into the f. 
+end
 %% check static equlibrium
 %Force
 array_sum_force = zeros(3,noC); %predefine for speed
