@@ -14,7 +14,6 @@ POI_rot = R * POI_offset; %the position of the POI after rotation at (0,0,0)
 rotation_matrix.wpx = axang2rotm(rotation_w_p.x); %rotation matrix for f_Y around X-AXIS (IMPORTANT)
 rotation_matrix.wpy = axang2rotm(rotation_w_p.y); %rotation matrix for f_X around Y-AXIS (IMPORTANT)
 
-% norm_f_V_vector = []; %predefine for norm(f_V) 
 %Go through all the coordinate combination of the x_row, y_column, z_page, and save them in variable workspace_position 
        for i = 1:length(coordinate.x)
          for j = 1:length(coordinate.y)

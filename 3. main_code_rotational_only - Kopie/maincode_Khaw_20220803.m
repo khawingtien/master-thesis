@@ -138,7 +138,7 @@ b_cell = endeffektor2();
 
 %% Definiere zu untersuchende Rotationen des Endeffektors um die z-Achse
 %  rotation_array_values = [-45;-40;-35;-30;-25;-20;-15;-10;-8;-6;-4;-2;0]; %13 times rotation angle
-rotation_array_values = [30];
+rotation_array_values = [0];
 rotation_array = zeros(length(rotation_array_values),4); %preallocationg for speed
 
 % rotation_array_values = [0;20;40;60;80];
@@ -157,9 +157,7 @@ rotation_w_array = zeros(size(discrete_rot_angle_w_p, 1), 4);%predefine for spee
 if w_p_x == 0
     rotation_w_array_x = [1 0 0 0]; %Euler Winkel (x,y,z, Winkel), a rotation of 0 radians around the y-axis
     rotation_w_array_y = [0 1 0 0];
-%     grid_deg = 0;
-%     discrete_rot_angle_w_p = linspace(0, 2*pi*(1-1/grid_deg), grid_deg)'; %(x1, 1/8 from the complete 360°, n) n Punkte zwischen x1 und x2 
-%     rotation_w_array = zeros(size(discrete_rot_angle_w_p, 1), 4);%predefine for speed
+
 else
     %if wrench rotation exists
     rotation_w_array_x = zeros(size(discrete_rot_angle_w_p, 1),4); %preallocating for speed
@@ -174,10 +172,6 @@ f_g = 0; % tbd Gewichtskraft implementieren wenn Gewicht bekannt
 
 
 %% Parameter zur Arbeitsraum Berechnung
-% t = linspace(0,10,100); % 0 bis 10 Sekunden in 100 Schritten
-% steps = length(t);
-% loesung_closed_form = zeros(noC,steps); %tbd check check if needed
-% f = zeros(noC,steps);
 f_min = 5;
 f_max = 36; % fmax berechnet: 2* 183 / 10 = 36, 6 %Motor 
 limit.lower = (1/2 * (f_max - f_min)) ; %upper limit for improve closed-form solution (eq. 3.6 Pott book)
