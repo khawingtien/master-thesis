@@ -149,18 +149,14 @@ end
 
 if no_reduction == false
     f(f_id_mat) = f_min; %Subsitute the logic when f==f_fail with 5N, so the f_min range can be fulfilled 
-    f(f~=f_min) = f_neu; %Subsitute the f_neu into the f. 
+    f(f~=f_min) = f_neu; %Subsitute the f_neu into the f
 end
 %% check static equlibrium
 %Force
-array_sum_force = zeros(3,noC); %predefine for speed
-for i = 1 : noC
-    array_sum_force(:, i) = f(i,:) .* A_T(1:3,i); %force distribution of noC * u (Einheitsvektor)
-end
-sum_f = sum(array_sum_force, 2); %sum(A,dimension 2)is a column vector containing the sum of each row.
+sum_f = A_T(1:3,:)* f;
 sum_f = sum_f + wrench_p_f(1:3,:); %% f + [f_x f_y f_z]  Equation 3.5 Pott's book 
 sum_f = round(sum_f, 0); %round to 5 digits %%WARNING TODO
-stop = 0;
+stop = 0; %static equilibrium fulfill
 
 if any(sum_f, 'all') %Determine if any array elements are nonzero, test over ALL elements of sum_f with the command 'all'
     stop = 1; %static equilibrium not fulfill
@@ -168,23 +164,11 @@ if any(sum_f, 'all') %Determine if any array elements are nonzero, test over ALL
 end
 
 %torque
-%define the level arm for torque 
-% level_arm = (max(b(3,:))-min(b(3,:)))*0.5; %length of level arm for f_x and f_y (both are the same) 
-% level_arm_mat = [level_arm; level_arm; 0]; %assign level arm for f_z = 0 
-
-% array_sum_torque = zeros(3,noC);
-% for i = 1 : noC
-%     %     array_sum_torque(:,i) = array_sum_force (1, i) * b_rot(2, i) + array_sum_force(2, i) * b(1, i);
-% %      array_sum_torque(:, i) = f(i,:) .* A_T(4:6,i); 
-%     array_sum_torque(:,i) = f(i,:).* A_T(4:6,i); %its the same as the above equation force distribution * b_cross_u
-% end
-% sum_torque0 = sum(array_sum_torque, 2);
-
 sum_torque = A_T(4:6,:) * f;
 sum_torque = sum_torque + wrench_p_f(4:6); 
 sum_torque = round(sum_torque, 0); %%WARNING TODO
 stop = 0; %static equilibrium fulfill, no violation of force distribution 
-% disp("debug")
+
 if any(sum_torque, 'all') %Determine if any array elements are nonzero, test over ALL elements of sum_torque with the command 'all'
     stop = 1; %the static equilibrium was not fulfilled 
     return
@@ -195,31 +179,33 @@ if find(f > f_max)
 %        disp("Achtung! Seilkraft ueberschreitet den Maximalwert");
     stop = 1;
     return
+
+
 elseif find(f < f_min)
-%        disp("Achtung! Seilkraft unterschreitet den Minimalwert")
-%   stop = 1;
+       disp("Achtung! Seilkraft unterschreitet den Minimalwert")
+  stop = 1;
 
 %wrench-closure workspace 
-Kappa = zeros(1,3);
-k = null(A_T);
-for i = 1:3
-    k_col=k(:,i);
-    if  min(k_col) > 0
-        Kappa(i) = min(k_col)/max(k_col);
-        
-    elseif max(k_col) < 0
-        Kappa(i) = max(k_col)/min(k_col);
-        
-    else
-        Kappa(i) = 0;
-    end 
-end
-if any(Kappa)
-    stop = 0;
-else
-    stop = 1;
-end
-
+% Kappa = zeros(1,3);
+% k = null(A_T);
+% for i = 1:3
+%     k_col=k(:,i);
+%     if  min(k_col) > 0
+%         Kappa(i) = min(k_col)/max(k_col);
+%         
+%     elseif max(k_col) < 0
+%         Kappa(i) = max(k_col)/min(k_col);
+%         
+%     else
+%         Kappa(i) = 0;
+%     end 
+% end
+% if any(Kappa)
+%     stop = 0;
+% else
+%     stop = 1;
+% end
+% 
 
 
 end

@@ -1,5 +1,3 @@
-
-
 % close all
 clear 
 clc
@@ -140,7 +138,7 @@ b_cell = endeffektor2();
 
 %% Definiere zu untersuchende Rotationen des Endeffektors um die z-Achse
 %  rotation_array_values = [-45;-40;-35;-30;-25;-20;-15;-10;-8;-6;-4;-2;0]; %13 times rotation angle
-rotation_array_values = [0];
+rotation_array_values = [30];
 rotation_array = zeros(length(rotation_array_values),4); %preallocationg for speed
 
 % rotation_array_values = [0;20;40;60;80];
@@ -184,8 +182,6 @@ f_min = 5;
 f_max = 36; % fmax berechnet: 2* 183 / 10 = 36, 6 %Motor 
 limit.lower = (1/2 * (f_max - f_min)) ; %upper limit for improve closed-form solution (eq. 3.6 Pott book)
 limit.upper = (1/2 * sqrt(noC) * (f_max - f_min)); %lower limit for improved closed form (eq. 3.6 Pott book)
-
-
 counter_analysis = 1; %tbd counter logik ändern!!!!
 
 %% Analyse Arbeitsraum
@@ -207,7 +203,7 @@ f_directions = ["x","y"]; %define the f_x and f_y wrench direction.
  figure %open a figure before the for-loop, so that x- and y-plane can be plotted on the same figure 
 
 for f_xy=1:2 
-f_direction=f_directions(f_xy);
+f_direction = f_directions(f_xy);
 
 % Calculation for workspace logical
     for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line form, square form...)

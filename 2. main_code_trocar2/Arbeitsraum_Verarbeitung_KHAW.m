@@ -231,7 +231,7 @@ height_frame = max(a(3,:))-min(a(3,:)); %z-axis
 height_rod = max(b(3,:))-min(b(3,:));
 
 title('Wrench-feasible working space in cable-driven input device')
-txt = ['L= ' int2str(length_frame) ' x W= ' int2str(width_frame) ' x H= ' int2str(height_frame) ' Rod= ' int2str(height_rod) ' [mm] Rotation = ' int2str(rot_name) '° ' 'wp = ' int2str(w_p)];
+txt = ['L= ' int2str(length_frame) ' x W= ' int2str(width_frame) ' x H= ' int2str(height_frame) ' Rod= ' int2str(height_rod) ' [mm] Rotation = ' int2str(rot_name) '° ' 'wp = ' int2str(w_p) ' wpt = ' int2str(w_p_t)];
 subtitle(txt)
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
