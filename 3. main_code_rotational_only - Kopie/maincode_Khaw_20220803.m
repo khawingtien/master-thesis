@@ -28,82 +28,10 @@ if pulley_kin == 'yes'
     a = tang_pulley_outer;
 
 elseif pulley_kin == 'no'
-    
-%     a = [0   350  -250 -350 350 350  -350;  %x in mm 
-%          450 0   -450  450  450 -450 -450 ;  %y in mm 
-%          250 300  250  250  300 300  250 ]; %z in mm
 
-%% for 6 Cable triangular winch position (1)too small (500mm/700mm)02b0
-%     a = [-250 250  250  -250 250 250  0 0;  %x in mm (change to 350mm for l = 700mm)
-%          250 250   -250  250  250 -250 0 0;  %y in mm 
-%          300 300  300  250  250 250  0  0]; %z in mm
-
-%% for 6 Cable triangular winch position (2) too big (length = 800mm)02b1
-% ax = 0.4; 
-% ay = 0.4;
-% az = 0.6;
-%     a = [-ax  ax ax -ax ax ax  0 0 ;  %x in m 
-%          ay ay   -ay  ay ay -ay 0 0;  %y in m
-%          az az  az  0.5  0.5 0.5 0  0]; %z in m
-%  a = a.*1000; %a in mm   
-
-%% for 6 Cable parallel triangle winch position (700mm)02b2
-%     a = [-120 350  -250  -350 350 350 -350  0 ;  %x in mm 
-%          450  0   -450  450  450  -450 -450 0;  %y in mm 
-%          250 300  250  250  300  300  250  0]; %z in mm
-     
-%% for 6 Cable hexagone (600mm)02c 
-%    a = [300 -225  -225  225 225 -300 0  0 ;  %x in mm 
-%         0  -300   300  -300  300  0 0 0;  %y in mm 
-%         300 300  300  250  250  250   0  0]; %z in mm
-     
-%% for 8 cable standard configuration (WireX landing page)  
-% a = [-20   20   20  -20  -20  20  20 -20;  %x in mm 
-%      15    15  -15  -15  15   15  -15 -15;  %y in mm 
-%      20    20   20   20  0     0   0   0];  %z in mm
-% a = a.*100; %in mm 
-
-%% for 8 cable falcon configuration (1)  
-% a = [-0.25   0.25  0.25   -0.25  -0.25  0.25  0.25 -0.25;  %x in m 
-%      0.1875    0.1875  -0.1875  -0.1875  0.1875   0.1875  -0.1875 -0.1875;  %y in m 
-%      0.125    0.125   0.125   0.125  0.0625     0.0625   0.0625   0.0625];  %z in m
-% a= a.*10; %in mm 
-
-
-% for 6 cable Hexagon confuguration (old)
-% a = [-0.20   0.2   0     0     0.2   -0.2  0  0;  %x in m 
-%      0.15    0.15  -0.15 0.15  -0.15 -0.15  0 0;  %y in m 
-%      0.20    0.2   0.2   0     0     0    0  0];  %z in m
-% a= a.*1000; %in mm 
-
-
-%% for 8-wires_robot.py cable falcon configuration  (Artur)
-% a = [2.7   2.7   -2.7  -2.7  2.7  2.7  -2.7   -2.7;  %x in m 
-%      2.7   -2.7  -2.7  2.7   2.7  -2.7  -2.7  2.7;  %y in m 
-%      2.7   2.7   2.7   2.7  -2.7  -2.7  -2.7  -2.7];  %z in m
-% a= a.*1000; %in mm 
-
-%% for 8 cable falcon configuration (2) (02a)  
-% ax = 0.230; %x in m
-% ay = 0.230; %y in m 
-% az = 0.102; %z in m
-% a = [ax   ax   -ax    -ax   ax   ax    -ax   -ax ;   
-%      ay   -ay  -ay  ay   ay  -ay  -ay  ay;  
-%      az    az   az   az   -az  -az   -az    -az ]; 
-% a= a.*1000; %in mm 
-
-%% for 6 cable falcon configuration (20220704)
-% ax = 0.230; %x in m
-% ay = 0.230; %y in m 
-% az = 0.520; %z in m
-% a = [0   ax   -ax    0   0   ax    -ax   0 ;   
-%      ay   -ay  -ay  0   ay  -ay  -ay  0;  %y in m 
-%      az    az   az   0   -az  -az   -az    0 ]; 
-% a= a.*1000; %in mm 
-
-ax = 0.230;
-ay = 0.230; 
-az = 0.102;
+ax = 0.230; %in m
+ay = 0.230; %in m 
+az = 0.102; %in m
 [a] = SetupParameter(ax,ay,az);
 
 %% Standardparameter
