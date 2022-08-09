@@ -41,6 +41,8 @@ end
 u = zeros(3,noC);
 for i=1:noC
     u(:,i) = l(:,i) / norm(l(:,i)); %Equation 3.3 Pott's book 
+%     u2(:,i) = l(:,i) / norm(l(:,i),2); norm with p = 2 (no different to
+%     p=1 )
 end
 
 %Calculate cross product 
@@ -76,9 +78,10 @@ f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
 
 if norm(f_V, 2) >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
     %disp("fail to provide a feasible solution although such a solution exists")
-elseif norm(f_V, 2) > limit.upper
+elseif norm(f_V, 2) >limit.upper
      test = norm(f_V, 2)    %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
-    % if it below the lower limit, the force distribution is feasible            
+    % if it below the lower limit, the force distribution is feasible
+    % 
     stop = 1; %violation exist
 %     return
 end
