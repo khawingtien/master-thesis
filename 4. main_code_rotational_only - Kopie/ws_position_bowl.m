@@ -24,7 +24,7 @@ R_z_cell = cell(1,360);
     end
 
 %Rotation of all the orientation (0 to 30°) around z-axis
-for angle = 1:30:360 %%ACHTUNG INTERVAL [with 10° in between 1,11,21...360]
+for angle = 1:90 %%ACHTUNG INTERVAL [with 10° in between 1,11,21...360]
 rotation_z = [0 0 1 deg2rad(angle)]; %rotation at z-axis  
 R_z = axang2rotm(rotation_z); 
     for index = 1:30 %rotation for every Kippwinkel 

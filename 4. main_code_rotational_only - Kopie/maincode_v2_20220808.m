@@ -51,7 +51,7 @@ ws_logical_bowl = cell(1,length(position_bowl_360)); %preallocating for speed
 for bowl_arm = 1:length(position_bowl_360)
     for bowl_index = 1: 30
         ws_position = position_bowl_360{1,bowl_arm}{1,bowl_index};
-        for bowl_rot_z = 1:30:360 %ACHTUNG INTERVAL [1,31,61,91..331]
+        for bowl_rot_z = 1:90 %ACHTUNG INTERVAL [1,31,61,91..331]
         R_temp = R_x_cell{1,bowl_index};
         R = R_temp .* R_z_cell{1,bowl_rot_z};
     
