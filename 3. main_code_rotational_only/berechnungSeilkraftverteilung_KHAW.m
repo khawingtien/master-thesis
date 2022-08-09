@@ -58,7 +58,7 @@ A_T = [u; b_cross_u];
 % 2.Check if robot is in a nonsingular posn --> A_T full row rank
 rank_A_T = size(orth(A_T.').', 1); %Orthonormal basis for range of matrix (Pott page 93)
     %nonsingular posn
-if rank_A_T == size(A_T, 1)%%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!1
+if rank_A_T == size(A_T, 1)-1 %%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!1
     %disp('non singular posn')
 else
     %sigular posn
@@ -98,13 +98,12 @@ elseif norm(f_V, 2) > limit.upper
                     Kappa(i) = 0;
                 end 
             end
-            if any(Kappa)
-                stop = 0;
-            else
-                stop = 1;
-            end
             
-%     stop = 1; %violation exist
+                if any(Kappa)
+                    stop = 0;
+                else
+                    stop = 1;
+                end
     return
 end
 
