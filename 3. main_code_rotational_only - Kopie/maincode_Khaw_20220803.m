@@ -1,3 +1,4 @@
+%Maincode
 % close all
 clear 
 clc
@@ -43,7 +44,12 @@ R_A = 1; %just for input, is not in use
 rot_angle_A = 1; %just for input, is not in use  
 end
 
-    
+% [ws_bowl_mat] = ws_position_bowl();
+% 
+% for bowl_index = 1: length(ws_bowl_mat)
+%     ws_position = ws_bowl_mat(:,bowl_index);
+
+
 %Define max and min of grid in all direction
 grid.x_max = 300; %mm %largest length in x direction
 grid.y_max = 300;
@@ -75,8 +81,8 @@ for i = 1 : size(rotation_array_values, 1)
 end
 
 %% Definiere zu untersuchende Lasten in bestimmte Raumrichtungen definiert durch rotation_w_p
-w_p_x = 5; %dieser Wert wird in berechnungSeilkraftverteilung in den wrench Vektor als x-Koordinate eingesetzt, y=0, T=0 (Feedback Kraft in alle Richtung, Translation) 
-w_p_t = 5; %Torque (Feedback Kraft in Rotation)%wrench in torque
+w_p_x = 0; %dieser Wert wird in berechnungSeilkraftverteilung in den wrench Vektor als x-Koordinate eingesetzt, y=0, T=0 (Feedback Kraft in alle Richtung, Translation) 
+w_p_t = 0; %Torque (Feedback Kraft in Rotation)%wrench in torque
 grid_deg = 8; % rotatorische Auflösung %for 8 only, because 360° is the same as 0°
 discrete_rot_angle_w_p = linspace(0, 2*pi*(1-1/grid_deg), grid_deg)'; %(x1, 1/8 from the complete 360°, n) n Punkte zwischen x1 und x2 
 rotation_w_array = zeros(size(discrete_rot_angle_w_p, 1), 4);%predefine for speed
@@ -122,12 +128,15 @@ coordinate.z = (grid.z_min : grid_delta: grid.z_max)'; %step size in z-direction
 analysis = zeros(1, 12); %preallocating the variable for speed
 C = cell(2,1); %predefine for speed
 f_directions = ["x","y"]; %define the f_x and f_y wrench direction. 
- figure %open a figure before the for-loop, so that x- and y-plane can be plotted on the same figure 
+figure %open a figure before the for-loop, so that x- and y-plane can be plotted on the same figure 
 
-for f_xy=1:2 
-f_direction = f_directions(f_xy);
 
-% Calculation for workspace logical
+for ws_position_bowl = ws_bowl_mat(:,bowl_index)
+
+    for f_xy=1:2 
+    f_direction = f_directions(f_xy);
+
+    % Calculation for workspace logical
     for counter_b = 1 : size(b_cell, 1) %counter for endeffector design type (line form, square form...)
     b = b_cell{counter_b, 1};
     b_name = counter_b; %necessary to save the path name for figure automatically 
@@ -144,13 +153,13 @@ f_direction = f_directions(f_xy);
              for counter_w = 1 %This is the only diff 
                 rotation_w_p.x = rotation_w_array_x(counter_w, :);
                 rotation_w_p.y = rotation_w_array_y(counter_w, :);
-                [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, noC, rotation, w_p_x, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate, limit, f_direction);
+                [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, noC, rotation, w_p_x, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate, limit, f_direction,ws_position_bowl);
              end
             else  %for w_p ~= 0 
                 for counter_w = 1 : size(rotation_w_array, 1) %for w_p ~= 0 
                 rotation_w_p.x = rotation_w_array_x(counter_w, :);
                 rotation_w_p.y = rotation_w_array_y(counter_w, :);
-                [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, noC, rotation, w_p_x, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate, limit, f_direction);
+                [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max, noC, rotation, w_p_x, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate, limit, f_direction,ws_position_bowl);
                 end
             end
 
@@ -160,12 +169,13 @@ f_direction = f_directions(f_xy);
        
         %%Save workspace in cell array  
         C(counter_r,2) = {workspace_adapt_pointwise};     
-       end
+        end
     end
     %%Save workspace in cell array    
     C(f_xy,1) = {C};
-
+    end
 end
+
 %Sheet : analysis
 % excel_save = "1R2T_Rahmen1_%d_%d_%d_%d_%d_%d_%d.xlsx";
 % excel_name = sprintf(excel_save, f_min, f_max, w_p, f_g, grid_n, grid_deg, w_p_t);

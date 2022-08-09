@@ -1,9 +1,10 @@
 %% Function berechnungSeilkraftverteilung 
-function [stop,R] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max,noC, R, w_p_x, w_p_t,  rotation_matrix,  pulley_kin, rad_pulley, R_A, rot_angle_A, limit, f_direction,POI_rot)
+function [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max,noC, R, w_p_x, w_p_t,  rotation_matrix,  pulley_kin, rad_pulley, R_A, limit, f_direction,ws_bowl_mat)
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
 
 % Basispunkte Roboter
 ws_position = repmat(ws_position, 1, noC); %ws_position for workspace position, in order to achieve the dimension (1,noC) 
+
 % R = axang2rotm(rotation); %axis angle to rotation matrix [0 0 1 angle] to Matrix Dimension=(3,3)
 b_rot = R * b;
 
@@ -19,34 +20,30 @@ elseif pulley_kin == 'yes'
     end 
     b_x_A = b_A(1, :);
     b_y_A = b_A(2, :);
+
     %calculate cable length 
     for i = 1 : noC
         l(i) = (acos((sqrt(b_x_A(1, i)^2 - 2*b_x_A(1, i)*rad_pulley + b_y_A(1, i)^2)) / (sqrt((b_x_A(1, i) - rad_pulley)^2 + b_y_A(1, i)^2))) + acos(b_y_A(1, i) / (sqrt((b_x_A(1, i) - rad_pulley)^2 + b_y_A(1, i)^2)))) * rad_pulley + sqrt(b_x_A(1, i)^2 - 2*b_x_A(1, i)*rad_pulley + b_y_A(1, i)^2);
     end
-end 
-    
-%1st Check: für Arbeitsraum Berechnung: check ob length = 0 --> leads to NaN in u(unit vector)
-for check_l = 1 : noC
-    if l(:, check_l) == zeros(3,1)
-        stop = 1; %violation exist 
-        %     f_closedform = 0; %tbd
-        %     f = 0; %tbd weil hier noch nicht definiert, daher kein output möglich
-        return %Return control to invoking script or function            
-    end
 end
+
+
+
+%1st Check: für Arbeitsraum Berechnung: check ob length = 0 --> leads to NaN in u(unit vector)
+    for check_l = 1 : noC
+        if l(:, check_l) == zeros(3,1)
+            stop = 1; %violation exist 
+            return %Return control to invoking script or function            
+        end
+    end
 
 %Define Einheitsvektoren (Unit vector) 
 u = zeros(3,noC);
-if pulley_kin == 'no'
-    for i=1:noC
-        u(:,i) = l(:,i) / norm(l(:,i)); %Equation 3.3 Pott's book 
-    end
-elseif pulley_kin == 'yes'
-    for i = 1 : noC
-        u(:, i) = R_A(:, :, i) * [-sind(rot_angle_A(:, i)); cosd(rot_angle_A(:, i))]; %Cosine of argument in degrees
-    end 
-end 
+for i=1:noC
+    u(:,i) = l(:,i) / norm(l(:,i)); %Equation 3.3 Pott's book 
+end
 
+%Calculate cross product 
 b_cross_u = zeros(3,noC);
 for i=1:noC
     b_cross_u(:,i) = cross(b(:,i),u(:,i)); %from Artur 3D vector
@@ -58,7 +55,7 @@ A_T = [u; b_cross_u];
 % 2.Check if robot is in a nonsingular posn --> A_T full row rank
 rank_A_T = size(orth(A_T.').', 1); %Orthonormal basis for range of matrix (Pott page 93)
     %nonsingular posn
-if rank_A_T == size(A_T, 1)-1%%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!1
+if rank_A_T == size(A_T, 1)%%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!1
     %disp('non singular posn')
 else
     %sigular posn
@@ -73,39 +70,17 @@ f_M = f_M .* ((f_min + f_max) / 2); % f_M = average feasible force (below Eq 3.5
 A_inv = pinv(A_T); % Moore-Penrose Inverse
 
 %Implementation of wrench either in x-axis or y-axis 
-[wrench_p_f, level_arm_mat] = wrench_khaw2(b,w_p_x,w_p_t,rotation_matrix,f_direction,POI_rot);
+[wrench_p_f, ~] = wrench_khaw2(b,w_p_x,w_p_t,rotation_matrix,f_direction);
 
 f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
 
 if norm(f_V, 2) >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
     %disp("fail to provide a feasible solution although such a solution exists")
 elseif norm(f_V, 2) > limit.upper
-    test = norm(f_V, 2)    %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
-    % if it below the lower limit, the force distribution is feasible
-
-            Kappa = zeros(1,3);
-            k = null(A_T); %nullspace of A_T (one-Dimensional Kernel) so that A_T*k = 0 (Pott pg167) eq 5.7
-            
-            for i = 1:size(k,2)
-                k_col=k(:,i);
-                if  min(k_col) > 0 %eq 5.8
-                    Kappa(i) = min(k_col)/max(k_col); 
-                    
-                elseif max(k_col) < 0
-                    Kappa(i) = max(k_col)/min(k_col);
-                    
-                else
-                    Kappa(i) = 0;
-                end 
-            end
-            if any(Kappa)
-                stop = 0;
-            else
-                stop = 1;
-            end
-            
-%     stop = 1; %violation exist
-    return
+     test = norm(f_V, 2)    %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
+    % if it below the lower limit, the force distribution is feasible            
+    stop = 1; %violation exist
+%     return
 end
 
 f = f_M + f_V; %Eq 3.53 Pott Book (feasible force + arbitrary force vector)
@@ -146,31 +121,22 @@ while r ~= 0 %calculate redundancy
         A_inv_neu = pinv(A_T_neu);
         w_p_neu = f_min * A_T(:, f_id) + wrench_p_f; %Equation 3.61 Pott's book    
         f_neu = A_inv_neu * (- w_p_neu); %Lösung des Problems Af + w = 0 nach f_neu
-        
-%         counter_f_neu = 1;
-%         for j = 1 : noC
-%             if f(j) ~= f_fail
-%                 f(j) = f_neu(counter_f_neu);
-%                 counter_f_neu = counter_f_neu + 1;
-%             end
-%         end
         r = length(f_neu) - DOF; %r = m-n
+
         if f_id >= f_id_old
             offset=1;
         else
             offset=0;
         end
-
         f_id_mat = [f_id_mat;f_id+offset]; %Subsitute the logic when f==f_fail with 5N, so the f_min range can be fulfilled 
-%         reduction_counter=reduction_counter+1;
-    end
- 
+    end 
 end
 
 if no_reduction == false
     f(f_id_mat) = f_min; %Subsitute the logic when f==f_fail with 5N, so the f_min range can be fulfilled 
     f(f~=f_min) = f_neu; %Subsitute the f_neu into the f
 end
+
 %% check static equlibrium
 %Force
 sum_f = A_T(1:3,:)* f;
@@ -206,26 +172,25 @@ elseif find(f < f_min)
   stop = 1;
 
 %wrench-closure workspace 
-% Kappa = zeros(1,3);
-% k = null(A_T);
-% for i = 1:3
-%     k_col=k(:,i);
-%     if  min(k_col) > 0
-%         Kappa(i) = min(k_col)/max(k_col);
-%         
-%     elseif max(k_col) < 0
-%         Kappa(i) = max(k_col)/min(k_col);
-%         
-%     else
-%         Kappa(i) = 0;
-%     end 
-% end
-% if any(Kappa)
-%     stop = 0;
-% else
-%     stop = 1;
-% end
-% 
-
-
+Kappa = zeros(1,3);
+k = null(A_T);
+    for i = 1:3
+        k_col=k(:,i);
+        if  min(k_col) > 0
+            Kappa(i) = min(k_col)/max(k_col);
+            
+        elseif max(k_col) < 0
+            Kappa(i) = max(k_col)/min(k_col);
+            
+        else
+            Kappa(i) = 0;
+        end 
+    end
+        if any(Kappa)
+            stop = 0;
+        else
+            stop = 1;
+        end
 end
+end 
+

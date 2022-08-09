@@ -1,37 +1,22 @@
-function [ws_bowl_mat] = ws_position_bowl()
+[ws_bowl_mat] = ws_position_bowl();
 
-position = [0;0;-300];
-ws_orientation = [];
-ws_bowl_mat = [];
-
-figure
-plot3(position(1),position(2),position(3),'bo') % end of end-effector 
-hold on 
-plot3(0,0,0,'ro') %origin 
-hold on
-
-%Rotation of all orientation around x-axis
-    for i=1:31 %orientation 0 to 30°
-        rotation = [1 0 0 deg2rad(i-1)]; %rotation at x-axis
-        R = axang2rotm(rotation);
-        rod_middle = R* [[0;0;300], [0; 0; -300]]; %rotation of the center line through origin
-        plot3(rod_middle(1,:),rod_middle(2,:),rod_middle(3,:) ,'b','LineWidth',2) %plot middle line through trocar point
-        ws_orientation = [ws_orientation rod_middle(:,2)]; 
-    end
-
-%Rotation of all the orientation (0 to 30°) around z-axis
-for angle = 1:10:360
-rotation_z = [0 0 1 deg2rad(angle)]; %rotation at z-axis  
-    R = axang2rotm(rotation_z); 
-    for index = 1:30
-    ws_bowl = R* ws_orientation(:,index);
-    plot3(ws_bowl(1,:),ws_bowl(2,:),ws_bowl(3,:) ,'ro','LineWidth',1) %plot middle line through trocar point
-    ws_bowl_mat = [ws_bowl_mat ws_bowl];
-    end
+for bowl_index = 1: length(ws_bowl_mat)
+    ws_position = ws_bowl_mat(:,bowl_index);
 end
 
-grid on 
-daspect([1,1,1]) %For equal data unit lengths in all directions
-xlabel('x in mm') %text in x-coordinate
-ylabel('y in mm') %text in y-coordinate
-zlabel('z in mm') %text in z-coordinate
+ax = 0.230; %in m
+ay = 0.230; %in m 
+az = 0.102; %in m
+
+[a] = SetupParameter(ax,ay,az);
+b_cell = endeffektor2();
+
+f_min = 5;
+f_max = 36; % fmax berechnet: 2* 183 / 10 = 36, 6 %Motor 
+limit.lower = (1/2 * (f_max - f_min)) ; %upper limit for improve closed-form solution (eq. 3.6 Pott book)
+limit.upper = (1/2 * sqrt(noC) * (f_max - f_min)); %lower limit for improved closed form (eq. 3.6 Pott book)
+counter_analysis = 1; %tbd counter logik ändern!!!!
+
+[workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max,noC, rotation, w_p_x, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate, limit, f_direction);
+
+[stop,R] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max,noC, R, w_p_x, w_p_t,  rotation_matrix,  pulley_kin, rad_pulley, R_A, rot_angle_A, limit, f_direction,POI_rot);

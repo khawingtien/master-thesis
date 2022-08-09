@@ -1,5 +1,5 @@
 %% Function Arbeitsraum
-function [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max,noC, rotation, w_p_x, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate, limit, f_direction)
+function [workspace_logical, R] = Arbeitsraum_khaw(a, b, f_min, f_max,noC, rotation, w_p_x, w_p_t, rotation_w_p, workspace_logical, pulley_kin, rad_pulley, R_A, rot_angle_A, coordinate, limit, f_direction,ws_position_bowl)
 counter = 1; %predefine counter = 1
 workspace_logical_temp = ones(length(coordinate.x), length(coordinate.y), length(coordinate.z));
 
@@ -23,7 +23,7 @@ rotation_matrix.wpy = axang2rotm(rotation_w_p.y); %rotation matrix for f_X aroun
 
         %berechne die Seilkraftverteilung an dieser Position 
        
-        [stop, R ] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, b, f_min, f_max,noC, R, w_p_x, w_p_t, rotation_matrix, pulley_kin, rad_pulley, R_A, rot_angle_A, limit, f_direction, POI_rot); %hier erstmal nur stop von Interesse tbd
+        [stop, R ] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, b, f_min, f_max,noC, R, w_p_x, w_p_t, rotation_matrix, pulley_kin, rad_pulley, R_A, rot_angle_A, limit, f_direction, POI_rot,ws_position_bowl); %hier erstmal nur stop von Interesse tbd
         counter = counter + 1; %no semicolon, to show the current progression during debugging
 %         if mod(counter,500)==0
 %             disp(counter)

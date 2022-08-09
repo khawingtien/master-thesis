@@ -1,8 +1,8 @@
-function [wrench_p_f, level_arm_mat] = wrench_khaw2(~, w_p_x,w_p_t,rotation_matrix,f_direction,POI_rot)
+function [wrench_p_f, level_arm_mat] = wrench_khaw2(~, w_p_x,w_p_t,rotation_matrix,f_direction)
 %wrench berechnen unter Berücksichtigung von Rotationen definiert in rotation_w_p_x
 
 %define the level arm for torque 
-level_arm_mat = POI_rot; %level arm in coordinate form 
+level_arm_mat = [0; 0;-300]; %level arm in coordinate form 
 switch f_direction
     case "x"
     wrench_p = [w_p_x; 0; 0]; %for f_x at first position of wrench, f_y = 0 cause the rotation already cover the f-y position 
