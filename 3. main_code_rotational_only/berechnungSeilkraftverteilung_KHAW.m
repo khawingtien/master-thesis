@@ -82,28 +82,28 @@ if norm(f_V, 2) >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-
 elseif norm(f_V, 2) > limit.upper
     test = norm(f_V, 2)    %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
     % if it below the lower limit, the force distribution is feasible
-
-            Kappa = zeros(1,3);
-            k = null(A_T); %nullspace of A_T (one-Dimensional Kernel) so that A_T*k = 0 (Pott pg167) eq 5.7
-            
-            for i = 1:size(k,2)
-                k_col=k(:,i);
-                if  min(k_col) > 0 %eq 5.8
-                    Kappa(i) = min(k_col)/max(k_col); 
-                    
-                elseif max(k_col) < 0
-                    Kappa(i) = max(k_col)/min(k_col);
-                    
-                else
-                    Kappa(i) = 0;
-                end 
-            end
-            
-                if any(Kappa)
-                    stop = 0;
-                else
-                    stop = 1;
-                end
+    stop = 1;
+%             Kappa = zeros(1,3);
+%             k = null(A_T); %nullspace of A_T (one-Dimensional Kernel) so that A_T*k = 0 (Pott pg167) eq 5.7
+%             
+%             for i = 1:size(k,2)
+%                 k_col=k(:,i);
+%                 if  min(k_col) > 0 %eq 5.8
+%                     Kappa(i) = min(k_col)/max(k_col); 
+%                     
+%                 elseif max(k_col) < 0
+%                     Kappa(i) = max(k_col)/min(k_col);
+%                     
+%                 else
+%                     Kappa(i) = 0;
+%                 end 
+%             end
+%             
+%                 if any(Kappa)
+%                     stop = 0;
+%                 else
+%                     stop = 1;
+%                 end
     return
 end
 
