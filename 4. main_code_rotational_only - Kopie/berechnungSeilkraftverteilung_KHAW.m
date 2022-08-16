@@ -1,31 +1,40 @@
 %% Function berechnungSeilkraftverteilung 
-function [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max,noC, R, w_p_x, w_p_t,  rotation_matrix,  pulley_kin, rad_pulley, R_A, limit, f_direction,ws_bowl_mat)
-% Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
+function [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max,noC, b_rot,  POI_rot, w_p_x, w_p_t,  rotation_matrix, pulley_kin, rad_pulley, R_A, limit, f_direction,ws_bowl_mat)
+
+%Define Point of Interest (POI) 
+% POI_offset = [0 0 b(3,5)]'; %first value of endeffector in z-axis (offset to half the rod length)
+
+%rotate the POI in accordance with the rotation angle 
+% R = axang2rotm(rotation); %axis angle to rotation matrix [0 1 0 angle] to Matrix Dimension=(3,3)
+% POI_rot = R_x * POI_offset; %the position of the POI after rotation at (0,0,0)
+
+ws_position = ws_position - POI_rot; % reverse calculation to trocar point (ORIGIN)
 
 % Basispunkte Roboter
 ws_position = repmat(ws_position, 1, noC); %ws_position for workspace position, in order to achieve the dimension (1,noC) 
 
 % R = axang2rotm(rotation); %axis angle to rotation matrix [0 0 1 angle] to Matrix Dimension=(3,3)
-b_rot = R * b;
+% b_rot = R * b; [b_rot as input arguement already) 
 
-if pulley_kin == 'no'
-    % Schließbedingung Vektoren (Closure constrain v_i) Equation 3.1 & 3.2 in Pott's Book 
-    l = a - ws_position - b_rot; 
-elseif pulley_kin == 'yes'
-    %calculate bx, by 
-    %r_0_A = a;
-    %R_A * b_A + a = ws_position + b_rot;
-    for i = 1 : noC
-        b_A(:, i) = R_A(:, :, i) \ (ws_position(:, i) + b_rot(:, i) - a(:, i));
-    end 
-    b_x_A = b_A(1, :);
-    b_y_A = b_A(2, :);
 
-    %calculate cable length 
-    for i = 1 : noC
-        l(i) = (acos((sqrt(b_x_A(1, i)^2 - 2*b_x_A(1, i)*rad_pulley + b_y_A(1, i)^2)) / (sqrt((b_x_A(1, i) - rad_pulley)^2 + b_y_A(1, i)^2))) + acos(b_y_A(1, i) / (sqrt((b_x_A(1, i) - rad_pulley)^2 + b_y_A(1, i)^2)))) * rad_pulley + sqrt(b_x_A(1, i)^2 - 2*b_x_A(1, i)*rad_pulley + b_y_A(1, i)^2);
+    if pulley_kin == 'no'
+        % Schließbedingung Vektoren (Closure constrain v_i) Equation 3.1 & 3.2 in Pott's Book 
+        l = a - ws_position - b_rot; 
+    elseif pulley_kin == 'yes'
+        %calculate bx, by 
+        %r_0_A = a;
+        %R_A * b_A + a = ws_position + b_rot;
+        for i = 1 : noC
+            b_A(:, i) = R_A(:, :, i) \ (ws_position(:, i) + b_rot(:, i) - a(:, i));
+        end 
+        b_x_A = b_A(1, :);
+        b_y_A = b_A(2, :);
+    
+        %calculate cable length 
+        for i = 1 : noC
+            l(i) = (acos((sqrt(b_x_A(1, i)^2 - 2*b_x_A(1, i)*rad_pulley + b_y_A(1, i)^2)) / (sqrt((b_x_A(1, i) - rad_pulley)^2 + b_y_A(1, i)^2))) + acos(b_y_A(1, i) / (sqrt((b_x_A(1, i) - rad_pulley)^2 + b_y_A(1, i)^2)))) * rad_pulley + sqrt(b_x_A(1, i)^2 - 2*b_x_A(1, i)*rad_pulley + b_y_A(1, i)^2);
+        end
     end
-end
 
 
 
@@ -57,7 +66,7 @@ A_T = [u; b_cross_u];
 % 2.Check if robot is in a nonsingular posn --> A_T full row rank
 rank_A_T = size(orth(A_T.').', 1); %Orthonormal basis for range of matrix (Pott page 93)
     %nonsingular posn
-if rank_A_T == size(A_T, 1)%%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!1
+if rank_A_T == size(A_T, 1) %%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!1
     %disp('non singular posn')
 else
     %sigular posn
@@ -76,14 +85,37 @@ A_inv = pinv(A_T); % Moore-Penrose Inverse
 
 f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
 
-if norm(f_V, 2) >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
-    %disp("fail to provide a feasible solution although such a solution exists")
-elseif norm(f_V, 2) >limit.upper
-     test = norm(f_V, 2)    %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
+norm_f_V = norm(f_V, 2)
+if norm_f_V >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
+    disp("fail to provide a feasible solution although such a solution exists")
+elseif norm_f_V > limit.upper
+   %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
     % if it below the lower limit, the force distribution is feasible
-    % 
+
+%     Kappa = zeros(1,3);
+% 
+%     k = null(A_T);
+%         for i = 1:size(k,2)
+%             k_col=k(:,i);
+%             if  min(k_col) > 0
+%                 Kappa(i) = min(k_col)/max(k_col);
+%                 
+%             elseif max(k_col) < 0
+%                 Kappa(i) = max(k_col)/min(k_col);
+%                 
+%             else
+%                 Kappa(i) = 0;
+%             end 
+%         end
+%             if any(Kappa)
+%                 stop = 0;
+%             else
+%                 stop = 1;
+%             end
+
+
     stop = 1; %violation exist
-%     return
+     return
 end
 
 f = f_M + f_V; %Eq 3.53 Pott Book (feasible force + arbitrary force vector)

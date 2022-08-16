@@ -1,5 +1,5 @@
 %% Function Arbeitsraum_Verarbeitung
-function [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, ~, b_name,  w_p, w_p_t, f_g, counter_analysis ,rot_name, analysis, coordinate, workspace_logical, R, noC)
+function [workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, w_p_x, w_p_t,rot_name, coordinate, workspace_logical, R, noC)
 %% AUSWERTUNG Arbeitsraum
 workspace_adapt = workspace_logical; %workspace_logical has the final logic of all wrench-frasible working space in 3D
 
@@ -143,21 +143,21 @@ centerOfMasspage = mean(workspace_further_adapt(:) .* SP_page(:)) / meanA;
 
 %% Speichern in analysis array
 %Platform Konfig
-analysis(counter_analysis, 1) = b_name;
-%Minimale Seilkraft
-% analysis(counter_analysis, 2) = f_min;
-% %Maximale Seilkraft
-% analysis(counter_analysis, 3) = f_max;
-%Rotation der Plattform
-analysis(counter_analysis, 4) = rot_name;
-%Fläche des Arbeitsraumes Anteilsmäßig aus Anteil 1en
-analysis(counter_analysis, 5) = frac_area_of_1;
-%Schwerpunkt des Arbeitsraumes Row  (x)
-analysis(counter_analysis, 6) = centerOfMassrow;
-%Schwerpunkt des Arbeitsraumes Column (y)
-analysis(counter_analysis, 7) = centerOfMasscolumn;
-%Schwerpunkt des Arbeitsraumes Page (z)
-analysis(counter_analysis, 8) = centerOfMasspage;
+% analysis(counter_analysis, 1) = b_name;
+% %Minimale Seilkraft
+% % analysis(counter_analysis, 2) = f_min;
+% % %Maximale Seilkraft
+% % analysis(counter_analysis, 3) = f_max;
+% %Rotation der Plattform
+% analysis(counter_analysis, 4) = rot_name;
+% %Fläche des Arbeitsraumes Anteilsmäßig aus Anteil 1en
+% analysis(counter_analysis, 5) = frac_area_of_1;
+% %Schwerpunkt des Arbeitsraumes Row  (x)
+% analysis(counter_analysis, 6) = centerOfMassrow;
+% %Schwerpunkt des Arbeitsraumes Column (y)
+% analysis(counter_analysis, 7) = centerOfMasscolumn;
+% %Schwerpunkt des Arbeitsraumes Page (z)
+% analysis(counter_analysis, 8) = centerOfMasspage;
 %Fläche des Arbeitsraumes
 % analysis(counter_analysis, 9) = convexhull_volume;
 
@@ -231,7 +231,7 @@ height_frame = max(a(3,:))-min(a(3,:)); %z-axis
 height_rod = max(b(3,:))-min(b(3,:));
 
 title('Wrench-feasible working space in cable-driven input device')
-txt = ['L= ' int2str(length_frame) ' x W= ' int2str(width_frame) ' x H= ' int2str(height_frame) ' Rod= ' int2str(height_rod) ' [mm] Rotation = ' int2str(rot_name) '° ' 'wp = ' int2str(w_p) ' wpt = ' int2str(w_p_t)];
+txt = ['L= ' int2str(length_frame) ' x W= ' int2str(width_frame) ' x H= ' int2str(height_frame) ' Rod= ' int2str(height_rod) ' [mm] Rotation = ' int2str(rot_name) '° ' 'wp = ' int2str(w_p_x) ' wpt = ' int2str(w_p_t)];
 subtitle(txt)
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate

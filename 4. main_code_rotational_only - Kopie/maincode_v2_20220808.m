@@ -47,32 +47,64 @@ end
 
 [position_bowl_mat, R_x_cell, R_z_cell, position_bowl_360] = ws_position_bowl(); %call the function 
 ws_logical_bowl = cell(1,length(position_bowl_360)); %preallocating for speed
+b_rot_mat = cell(1,360); %preallocating for speed
+POI_offset = [0 0 b(3,5)]'; %first value of endeffector in z-axis (offset to half the rod length)
 
 for bowl_arm = 1:length(position_bowl_360)
     for bowl_index = 1: 30
         ws_position = position_bowl_360{1,bowl_arm}{1,bowl_index};
-        for bowl_rot_z = 1:90 %ACHTUNG INTERVAL [1,31,61,91..331]
-        R_temp = R_x_cell{1,bowl_index};
-        R = R_temp .* R_z_cell{1,bowl_rot_z};
-    
-            %Workspace calculation
-            for f_xy=1 %ACHTUNG NUR 1 !! TO EDIT 
-            f_direction = f_directions(f_xy);
-            
-            [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max,noC, R, w_p_x, w_p_t,  rotation_matrix,  pulley_kin, rad_pulley, R_A, limit, f_direction);
-            counter = counter + 1; %no semicolon, to show the current progression during debugging
+        R_x = R_x_cell{1,bowl_index};
+       
+            R_z = R_z_cell{1,bowl_arm};
+            b_rot = R_z* (R_x * b);
+
+            POI_rot = R_z*(R_x * POI_offset); %the position of the POI after rotation at (0,0,0)
+
+            f_direction = f_directions(1); %ACHTUNG NUR 1 !! TO EDIT 
+            [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max,noC, b_rot, POI_rot, w_p_x, w_p_t,  rotation_matrix, pulley_kin, rad_pulley, R_A, limit, f_direction);
+%         counter = counter + 1 %no semicolon, to show the current progression during debugging
             
                if stop == 0  %no violation of f_min & f_max (fulfil the requirements)(TRUE)
                   ws_logical_bowl{1,bowl_arm}{1,bowl_index} = 1; %write 1 as TRUE
                elseif stop == 1 %if violation exist 
                   ws_logical_bowl{1,bowl_arm}{1,bowl_index} = 0; %write 0 as FALSE 
                end   
-            end
-        end
-    end 
+
+
+
+       
+            
+               if stop == 0  %no violation of f_min & f_max (fulfil the requirements)(TRUE)
+                  ws_logical_bowl{1,bowl_arm}{1,bowl_index} = 1; %write 1 as TRUE
+               elseif stop == 1 %if violation exist 
+                  ws_logical_bowl{1,bowl_arm}{1,bowl_index} = 0; %write 0 as FALSE 
+               end   
+
+     end
 end
 
+
+
+
+
+            %Workspace calculation
+%             for f_xy=1:2 %ACHTUNG NUR 1 !! TO EDIT 
+%             f_direction = f_directions(f_xy);
+%             
+%             [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max,noC, b_rot, w_p_x, w_p_t,  rotation_matrix,R_x,  pulley_kin, rad_pulley, R_A, limit, f_direction);
+            counter = counter + 1 %no semicolon, to show the current progression during debugging
+            
+               if stop == 0  %no violation of f_min & f_max (fulfil the requirements)(TRUE)
+                  ws_logical_bowl{1,bowl_arm}{1,bowl_index} = 1; %write 1 as TRUE
+               elseif stop == 1 %if violation exist 
+                  ws_logical_bowl{1,bowl_arm}{1,bowl_index} = 0; %write 0 as FALSE 
+               end   
+%             end
+%         end
+%     end 
+% end
+
  %finalen Arbeitsraum bestimmen und darstellen
-    %     [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, grid_n, b_name,  w_p_x, w_p_t, f_g, counter_analysis ,rot_name, analysis, coordinate, workspace_logical, R, noC);
+% [workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, w_p_x, w_p_t,rot_name, coordinate, workspace_logical, R, noC);
 
 toc
