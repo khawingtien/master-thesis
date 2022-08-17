@@ -1,5 +1,5 @@
 %% Function berechnungSeilkraftverteilung 
-function [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max,noC, b_rot,  POI_rot, w_p_x, w_p_t,  rotation_matrix, pulley_kin, rad_pulley, R_A, limit, f_direction,ws_bowl_mat)
+function [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max,noC, b_rot,  POI_rot, w_p_x, w_p_t,  rotation_matrix, pulley_kin, rad_pulley, R_A, limit, f_direction,~)
 
 %Define Point of Interest (POI) 
 % POI_offset = [0 0 b(3,5)]'; %first value of endeffector in z-axis (offset to half the rod length)
@@ -84,7 +84,7 @@ A_inv = pinv(A_T); % Moore-Penrose Inverse
 [wrench_p_f, ~] = wrench_khaw2(b,w_p_x,w_p_t,rotation_matrix,f_direction);
 
 f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
-
+einheit_matrix  = A_T*A_inv;
 norm_f_V = norm(f_V, 2)
 if norm_f_V >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
     disp("fail to provide a feasible solution although such a solution exists")
@@ -92,29 +92,30 @@ elseif norm_f_V > limit.upper
    %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
     % if it below the lower limit, the force distribution is feasible
 
-%     Kappa = zeros(1,3);
-% 
-%     k = null(A_T);
-%         for i = 1:size(k,2)
-%             k_col=k(:,i);
-%             if  min(k_col) > 0
-%                 Kappa(i) = min(k_col)/max(k_col);
-%                 
-%             elseif max(k_col) < 0
-%                 Kappa(i) = max(k_col)/min(k_col);
-%                 
-%             else
-%                 Kappa(i) = 0;
-%             end 
-%         end
-%             if any(Kappa)
-%                 stop = 0;
-%             else
-%                 stop = 1;
-%             end
+    Kappa = zeros(1,3);
+
+    k = null(A_T);
+        for i = 1:size(k,2)
+            k_col=k(:,i);
+            if  min(k_col) > 0
+                Kappa(i) = min(k_col)/max(k_col);
+                
+            elseif max(k_col) < 0
+                Kappa(i) = max(k_col)/min(k_col);
+                
+            else
+                Kappa(i) = 0;
+            end 
+        end
+            if any(Kappa)
+                stop = 0;
+            else
+                stop = 1;
+            end
 
 
     stop = 1; %violation exist
+    
      return
 end
 
@@ -130,20 +131,21 @@ A_T_neu = A_T;
 f_neu = f;
 no_reduction = false;
 f_id = noC+1;
+log_array = [true, true, true, true, true, true, true, true];
 
 %Compute the solution by recursively reducing the order until the
 %degree-of-redundancy become r= 0 (Pott book pg 95)
 while r ~= 0 %calculate redundancy
 % for counter_closed_form = 1 : (noC - DOF)
-    f_fail = 0;
-    fail_diff = 0;
+%     f_fail = 0;
+%     fail_diff = 0;
     f_id_old=f_id;
     if any(f_neu<f_min) %condition check if cable force violate the minimum force
         [fail_diff, f_id] = min(f_neu-f_min); %find the maximum difference of the cable force (use min as command as its ans is negative)
-        f_fail=f_neu(f_id);
+%         f_fail=f_neu(f_id);
     elseif any(f_neu>f_max)
         [fail_diff, f_id] = max(f_neu+f_max);
-        f_fail=f_neu(f_id);
+%         f_fail=f_neu(f_id);
     else
         no_reduction=true;
         break
@@ -153,6 +155,7 @@ while r ~= 0 %calculate redundancy
     if fail_diff ~= 0 %tbd Artur: f_fail (static equilibrium is not zero)
                
         A_T_neu(:, f_id) = [];
+         
         A_inv_neu = pinv(A_T_neu);
         w_p_neu = f_min * A_T(:, f_id) + wrench_p_f; %Equation 3.61 Pott's book    
         f_neu = A_inv_neu * (- w_p_neu); %Lösung des Problems Af + w = 0 nach f_neu
@@ -168,22 +171,29 @@ while r ~= 0 %calculate redundancy
 end
 
 if no_reduction == false
-    f(f_id_mat) = f_min; %Subsitute the logic when f==f_fail with 5N, so the f_min range can be fulfilled 
-    f(f~=f_min) = f_neu; %Subsitute the f_neu into the f
+    log_array(f_id_mat) = 0;
+%     f(f_id_mat) = f_min; %Subsitute the logic when f==f_fail with 5N, so the f_min range can be fulfilled 
+    A_T (:,log_array) = A_T_neu; %true situation
+    A_T (:,~log_array) = zeros(6,2-r); %false situation 
+%     A_T_neu (f_id_mat) = zeros(6,1)
+    f(log_array) = f_neu;
+    f(~log_array) = f_min;
+
+    wrench_p_f = w_p_neu;
+%     f(f~=f_min) = f_neu; %Subsitute the f_neu into the f
 end
 
 %% check static equlibrium
 %Force
 sum_f = A_T(1:3,:)* f;
 sum_f = sum_f + wrench_p_f(1:3,:); %% f + [f_x f_y f_z]  Equation 3.5 Pott's book 
-sum_f = round(sum_f, 0); %round to 5 digits %%WARNING TODO
+sum_f = round(sum_f, 5); %round to 5 digits %%WARNING TODO
 stop = 0; %static equilibrium fulfill
 
 if any(sum_f, 'all') %Determine if any array elements are nonzero, test over ALL elements of sum_f with the command 'all'
     stop = 1; %static equilibrium not fulfill
     return
 end
-
 %torque
 sum_torque = A_T(4:6,:) * f;
 sum_torque = sum_torque + wrench_p_f(4:6); 
@@ -206,26 +216,7 @@ elseif find(f < f_min)
        disp("Achtung! Seilkraft unterschreitet den Minimalwert")
   stop = 1;
 
-%wrench-closure workspace 
-Kappa = zeros(1,3);
-k = null(A_T);
-    for i = 1:3
-        k_col=k(:,i);
-        if  min(k_col) > 0
-            Kappa(i) = min(k_col)/max(k_col);
-            
-        elseif max(k_col) < 0
-            Kappa(i) = max(k_col)/min(k_col);
-            
-        else
-            Kappa(i) = 0;
-        end 
-    end
-        if any(Kappa)
-            stop = 0;
-        else
-            stop = 1;
-        end
 end
-end 
+end
+
 

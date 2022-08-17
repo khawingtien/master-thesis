@@ -40,8 +40,8 @@ if w_p_x == 0
 else
 discrete_rot_angle_w_p = linspace(0, 2*pi*(1-1/grid_deg), grid_deg)'; %(x1, 1/8 from the complete 360°, n) n Punkte zwischen x1 und x2 
     for i = 1 : size(discrete_rot_angle_w_p, 1) %K:calculate each of the rotation
-    rotation_matrix.wpx = axang2rotm([1 0 0 0 (discrete_rot_angle_w_p)]); %rotation matrix for f_Y around X-AXIS (IMPORTANT)
-    rotation_matrix.wpy = axang2rotm([0 1 0 0 (discrete_rot_angle_w_p)]); %rotation matrix for f_X around Y-AXIS (IMPORTANT)
+    rotation_matrix.wpx = axang2rotm([1 0 0 (discrete_rot_angle_w_p(i))]); %rotation matrix for f_Y around X-AXIS (IMPORTANT)
+    rotation_matrix.wpy = axang2rotm([0 1 0 (discrete_rot_angle_w_p(i))]); %rotation matrix for f_X around Y-AXIS (IMPORTANT)
     end 
 end
 
@@ -49,6 +49,8 @@ end
 ws_logical_bowl = cell(1,length(position_bowl_360)); %preallocating for speed
 b_rot_mat = cell(1,360); %preallocating for speed
 POI_offset = [0 0 b(3,5)]'; %first value of endeffector in z-axis (offset to half the rod length)
+figure 
+
 
 for bowl_arm = 1:length(position_bowl_360)
     for bowl_index = 1: 30
@@ -56,55 +58,30 @@ for bowl_arm = 1:length(position_bowl_360)
         R_x = R_x_cell{1,bowl_index};
        
             R_z = R_z_cell{1,bowl_arm};
-            b_rot = R_z* (R_x * b);
+            b_rot = R_z* (R_x * b); %endeffector rotation 
 
-            POI_rot = R_z*(R_x * POI_offset); %the position of the POI after rotation at (0,0,0)
+            POI_rot = R_z* (R_x * POI_offset); %the position of the POI after rotation at (0,0,0)
 
             f_direction = f_directions(1); %ACHTUNG NUR 1 !! TO EDIT 
             [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max,noC, b_rot, POI_rot, w_p_x, w_p_t,  rotation_matrix, pulley_kin, rad_pulley, R_A, limit, f_direction);
-%         counter = counter + 1 %no semicolon, to show the current progression during debugging
             
                if stop == 0  %no violation of f_min & f_max (fulfil the requirements)(TRUE)
                   ws_logical_bowl{1,bowl_arm}{1,bowl_index} = 1; %write 1 as TRUE
+                  plot3(position_bowl_360{1,bowl_arm}{1,bowl_index}(1),position_bowl_360{1,bowl_arm}{1,bowl_index}(2),position_bowl_360{1,bowl_arm}{1,bowl_index}(3),'ro','LineWidth',1)  %plot rotation     
+                  hold on 
+
                elseif stop == 1 %if violation exist 
                   ws_logical_bowl{1,bowl_arm}{1,bowl_index} = 0; %write 0 as FALSE 
                end   
-
-
-
-       
-            
-               if stop == 0  %no violation of f_min & f_max (fulfil the requirements)(TRUE)
-                  ws_logical_bowl{1,bowl_arm}{1,bowl_index} = 1; %write 1 as TRUE
-               elseif stop == 1 %if violation exist 
-                  ws_logical_bowl{1,bowl_arm}{1,bowl_index} = 0; %write 0 as FALSE 
-               end   
-
      end
 end
 
+grid on 
+% daspect([1,1,1]) %For equal data unit lengths in all directions
+xlabel('x in mm') %text in x-coordinate
+ylabel('y in mm') %text in y-coordinate
+zlabel('z in mm') %text in z-coordinate
 
 
-
-
-            %Workspace calculation
-%             for f_xy=1:2 %ACHTUNG NUR 1 !! TO EDIT 
-%             f_direction = f_directions(f_xy);
-%             
-%             [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max,noC, b_rot, w_p_x, w_p_t,  rotation_matrix,R_x,  pulley_kin, rad_pulley, R_A, limit, f_direction);
-            counter = counter + 1 %no semicolon, to show the current progression during debugging
-            
-               if stop == 0  %no violation of f_min & f_max (fulfil the requirements)(TRUE)
-                  ws_logical_bowl{1,bowl_arm}{1,bowl_index} = 1; %write 1 as TRUE
-               elseif stop == 1 %if violation exist 
-                  ws_logical_bowl{1,bowl_arm}{1,bowl_index} = 0; %write 0 as FALSE 
-               end   
-%             end
-%         end
-%     end 
-% end
-
- %finalen Arbeitsraum bestimmen und darstellen
-% [workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, w_p_x, w_p_t,rot_name, coordinate, workspace_logical, R, noC);
 
 toc

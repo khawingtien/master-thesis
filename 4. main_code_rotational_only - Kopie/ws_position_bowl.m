@@ -5,7 +5,7 @@ ws_orientation = [];
 position_bowl_mat = [];
 R_x_mat = [];
 R_z_cell = cell(1,360);
-
+% 
 % figure
 % plot3(position(1),position(2),position(3),'bo') % end of end-effector 
 % hold on 
