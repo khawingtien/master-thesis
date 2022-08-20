@@ -22,10 +22,12 @@ R_z_cell = cell(1,360);
         R_x_mat = [R_x_mat, R_x]; %append of rotation matrix 
         R_x_cell{1,i} = R_x;
     end
-
+z_angle_step=1;
+z_angles = 0:z_angle_step:360-z_angle_step;
 %Rotation of all the orientation (0 to 360°) around z-axis
-for angle = 1:360 %%ACHTUNG INTERVAL [with 10° in between 1,11,21...360]
-rotation_z = [0 0 1 deg2rad(angle)]; %rotation at z-axis  
+for angle = 1:length(z_angles) %%ACHTUNG INTERVAL [with 10° in between 1,11,21...360]
+    z_angle=z_angles(angle);
+rotation_z = [0 0 1 deg2rad(z_angle)]; %rotation at z-axis  
 R_z = axang2rotm(rotation_z); 
     for index = 1:30 %rotation for every Kippwinkel 
     position_bowl = R_z* ws_orientation(:,index);

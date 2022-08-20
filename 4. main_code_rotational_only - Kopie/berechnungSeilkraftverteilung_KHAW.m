@@ -83,39 +83,41 @@ A_inv = pinv(A_T); % Moore-Penrose Inverse
 %Implementation of wrench either in x-axis or y-axis 
 [wrench_p_f, ~] = wrench_khaw2(b,w_p_x,w_p_t,rotation_matrix,f_direction);
 
-f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
-einheit_matrix  = A_T*A_inv;
+ f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
+% einheit_matrix  = A_T*A_inv;
+% 
+% w_v = (A_T*A_T')\(-wrench_p_f - A_T*f_M);
+% f_V = A_T'*w_v;
 norm_f_V = norm(f_V, 2)
 if norm_f_V >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
     disp("fail to provide a feasible solution although such a solution exists")
 elseif norm_f_V > limit.upper
    %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
     % if it below the lower limit, the force distribution is feasible
-
-    Kappa = zeros(1,3);
-
-    k = null(A_T);
-        for i = 1:size(k,2)
-            k_col=k(:,i);
-            if  min(k_col) > 0
-                Kappa(i) = min(k_col)/max(k_col);
-                
-            elseif max(k_col) < 0
-                Kappa(i) = max(k_col)/min(k_col);
-                
-            else
-                Kappa(i) = 0;
-            end 
-        end
-            if any(Kappa)
-                stop = 0;
-            else
-                stop = 1;
-            end
+% 
+%     Kappa = zeros(1,3);
+% 
+%     k = null(A_T);
+%         for i = 1:size(k,2)
+%             k_col=k(:,i);
+%             if  min(k_col) > 0
+%                 Kappa(i) = min(k_col)/max(k_col);
+%                 
+%             elseif max(k_col) < 0
+%                 Kappa(i) = max(k_col)/min(k_col);
+%                 
+%             else
+%                 Kappa(i) = 0;
+%             end 
+%         end
+%             if any(Kappa)
+%                 stop = 0;
+%             else
+%                 stop = 1;
+%             end
 
 
     stop = 1; %violation exist
-    
      return
 end
 
