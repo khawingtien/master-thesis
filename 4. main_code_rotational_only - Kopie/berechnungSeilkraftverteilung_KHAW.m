@@ -57,7 +57,7 @@ end
 %Calculate cross product 
 b_cross_u = zeros(3,noC);
 for i=1:noC
-    b_cross_u(:,i) = cross(b(:,i),u(:,i)); %from Artur 3D vector
+    b_cross_u(:,i) = cross(b_rot(:,i),u(:,i)); %from Artur 3D vector
 end
 
 % Strukturmatrix
@@ -81,40 +81,41 @@ f_M = f_M .* ((f_min + f_max) / 2); % f_M = average feasible force (below Eq 3.5
 A_inv = pinv(A_T); % Moore-Penrose Inverse
 
 %Implementation of wrench either in x-axis or y-axis 
-[wrench_p_f, ~] = wrench_khaw2(b,w_p_x,w_p_t,rotation_matrix,f_direction);
-
- f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
+[wrench_p_f, ~] = wrench_khaw2(b_rot,w_p_x,w_p_t,rotation_matrix,f_direction);
+A_T*A_inv
+%  f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
 % einheit_matrix  = A_T*A_inv;
 % 
-% w_v = (A_T*A_T')\(-wrench_p_f - A_T*f_M);
-% f_V = A_T'*w_v;
+w_v = (A_T*A_T')\(-wrench_p_f - A_T*f_M);
+f_V = A_T'*w_v;
 norm_f_V = norm(f_V, 2)
 if norm_f_V >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
     disp("fail to provide a feasible solution although such a solution exists")
 elseif norm_f_V > limit.upper
    %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
     % if it below the lower limit, the force distribution is feasible
+% elseif norm_f_V 
 % 
-%     Kappa = zeros(1,3);
-% 
-%     k = null(A_T);
-%         for i = 1:size(k,2)
-%             k_col=k(:,i);
-%             if  min(k_col) > 0
-%                 Kappa(i) = min(k_col)/max(k_col);
-%                 
-%             elseif max(k_col) < 0
-%                 Kappa(i) = max(k_col)/min(k_col);
-%                 
-%             else
-%                 Kappa(i) = 0;
-%             end 
-%         end
-%             if any(Kappa)
-%                 stop = 0;
-%             else
-%                 stop = 1;
-%             end
+    Kappa = zeros(1,3);
+
+    k = null(A_T);
+        for i = 1:size(k,2)
+            k_col=k(:,i);
+            if  min(k_col) > 0
+                Kappa(i) = min(k_col)/max(k_col);
+                
+            elseif max(k_col) < 0
+                Kappa(i) = max(k_col)/min(k_col);
+                
+            else
+                Kappa(i) = 0;
+            end 
+        end
+            if any(Kappa)
+                stop = 0;
+            else
+                stop = 1;
+            end
 
 
     stop = 1; %violation exist
@@ -189,7 +190,7 @@ end
 %Force
 sum_f = A_T(1:3,:)* f;
 sum_f = sum_f + wrench_p_f(1:3,:); %% f + [f_x f_y f_z]  Equation 3.5 Pott's book 
-sum_f = round(sum_f, 5); %round to 5 digits %%WARNING TODO
+sum_f = round(sum_f, 0); %round to 5 digits %%WARNING TODO
 stop = 0; %static equilibrium fulfill
 
 if any(sum_f, 'all') %Determine if any array elements are nonzero, test over ALL elements of sum_f with the command 'all'

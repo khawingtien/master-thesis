@@ -54,13 +54,13 @@ figure
 
 for bowl_arm = 1:length(position_bowl_360)
     for bowl_index = 1:30
-        ws_position = round(position_bowl_360{1,bowl_arm}{1,bowl_index},0);
+        ws_position = position_bowl_360{1,bowl_arm}{1,bowl_index};
         R_x = R_x_cell{1,bowl_index};
        
             R_z = R_z_cell{1,bowl_arm};
-            b_rot = round(R_z* (R_x * b),0); %endeffector rotation 
+            b_rot = R_z* (R_x * b); %endeffector rotation         
 %             b_rot = round(((R_z*b)'*R_x)',0); %TEST 
-            POI_rot = round(R_z* (R_x * POI_offset),0); %the position of the POI after rotation at (0,0,0)
+            POI_rot = R_z* (R_x * POI_offset); %the position of the POI after rotation at (0,0,0)
 
             f_direction = f_directions(1); %ACHTUNG NUR 1 !! TO EDIT 
             [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max,noC, b_rot, POI_rot, w_p_x, w_p_t,  rotation_matrix, pulley_kin, rad_pulley, R_A, limit, f_direction);
@@ -77,7 +77,7 @@ for bowl_arm = 1:length(position_bowl_360)
 end
 
 grid on 
-daspect([1,1,1]) %For equal data unit lengths in all directions
+%  daspect([1,1,1]) %For equal data unit lengths in all directions
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
