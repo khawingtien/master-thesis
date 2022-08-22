@@ -57,8 +57,17 @@ end
 %Calculate cross product 
 b_cross_u = zeros(3,noC);
 for i=1:noC
-    b_cross_u(:,i) = cross(b_rot(:,i),u(:,i)); %from Artur 3D vector
+    b_cross_u(:,i) = cross(b_rot(:,i),u(:,i));  
 end
+
+%Suppose to be true? to check if the C is perpendicular to the other two
+%(20220822)
+%Perpendicular Check 
+for dott = 1:8
+    C = cross(b_rot(:,dott),u(:,dott));
+  dot(C,b_rot(:,dott))==0 & dot(C,u(:,dott))==0;
+end
+  
 
 % Strukturmatrix
 A_T = [u; b_cross_u];
@@ -82,12 +91,13 @@ A_inv = pinv(A_T); % Moore-Penrose Inverse
 
 %Implementation of wrench either in x-axis or y-axis 
 [wrench_p_f, ~] = wrench_khaw2(b_rot,w_p_x,w_p_t,rotation_matrix,f_direction);
-A_T*A_inv
-%  f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
-% einheit_matrix  = A_T*A_inv;
-% 
-w_v = (A_T*A_T')\(-wrench_p_f - A_T*f_M);
-f_V = A_T'*w_v;
+
+f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
+%  einheit_matrix  = A_T*A_inv;
+
+% w_v = (A_T*A_T')\(-wrench_p_f - A_T*f_M);
+% f_V = A_T'*w_v;
+
 norm_f_V = norm(f_V, 2)
 if norm_f_V >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
     disp("fail to provide a feasible solution although such a solution exists")
@@ -157,10 +167,10 @@ while r ~= 0 %calculate redundancy
     % Wenn eine Kraft die Kraftgrenzen verletzt
     if fail_diff ~= 0 %tbd Artur: f_fail (static equilibrium is not zero)
                
-        A_T_neu(:, f_id) = [];
+        A_T_neu(:, f_id) = []; %remove the index that violate force limit
          
         A_inv_neu = pinv(A_T_neu);
-        w_p_neu = f_min * A_T(:, f_id) + wrench_p_f; %Equation 3.61 Pott's book    
+        w_p_neu = f_min * A_T(:, f_id) + wrench_p_f; %Equation 3.61 Pott's book  TO CHECK (WARUM NUR EINE SPALTEN)? 22.08.2022
         f_neu = A_inv_neu * (- w_p_neu); %Lösung des Problems Af + w = 0 nach f_neu
         r = length(f_neu) - DOF; %r = m-n
 
@@ -177,8 +187,7 @@ if no_reduction == false
     log_array(f_id_mat) = 0;
 %     f(f_id_mat) = f_min; %Subsitute the logic when f==f_fail with 5N, so the f_min range can be fulfilled 
     A_T (:,log_array) = A_T_neu; %true situation
-    A_T (:,~log_array) = zeros(6,2-r); %false situation 
-%     A_T_neu (f_id_mat) = zeros(6,1)
+    A_T (:,~log_array) = zeros(6,2-r); %false situation, subsitute with zeros
     f(log_array) = f_neu;
     f(~log_array) = f_min;
 

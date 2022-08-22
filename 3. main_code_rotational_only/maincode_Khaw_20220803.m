@@ -123,7 +123,7 @@ grid.z_max = 0;
 
 grid.x_min = -300; %mm %smallest length in x direction
 grid.y_min = -300;
-grid.z_min = -620;
+grid.z_min = -550;
 
 % grid_n = 20;  %Anzahl der Unterteilungen in X-Richtung
 grid_n = 20;  %Anzahl der Unterteilungen in X-Richtung
@@ -138,7 +138,7 @@ b_cell = endeffektor2();
 
 %% Definiere zu untersuchende Rotationen des Endeffektors um die z-Achse
 %  rotation_array_values = [-45;-40;-35;-30;-25;-20;-15;-10;-8;-6;-4;-2;0]; %13 times rotation angle
-rotation_array_values = [0];
+rotation_array_values = [1];
 rotation_array = zeros(length(rotation_array_values),4); %preallocationg for speed
 
 % rotation_array_values = [0;20;40;60;80];

@@ -82,6 +82,4 @@ xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
 
-
-
 toc

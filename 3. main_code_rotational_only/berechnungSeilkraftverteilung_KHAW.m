@@ -51,8 +51,13 @@ end
 
 b_cross_u = zeros(3,noC);
 for i=1:noC
-    b_cross_u(:,i) = cross(b(:,i),u(:,i)); %from Artur 3D vector
+    b_cross_u(:,i) = cross(b_rot(:,i),u(:,i)); %from Artur 3D vector
 end
+
+% for dott = 1:8
+%     C = cross(b_rot(:,dott),u(:,dott));
+%   dot(C,b_rot(:,dott))==0 & dot(C,u(:,dott))==0
+% end
 
 % Strukturmatrix
 A_T = [u; b_cross_u];
@@ -60,7 +65,7 @@ A_T = [u; b_cross_u];
 % 2.Check if robot is in a nonsingular posn --> A_T full row rank
 rank_A_T = size(orth(A_T.').', 1); %Orthonormal basis for range of matrix (Pott page 93)
     %nonsingular posn
-if rank_A_T == size(A_T, 1)%%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!1
+if rank_A_T == size(A_T, 1) %%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!1
     %disp('non singular posn')
 else
     %sigular posn
@@ -80,7 +85,7 @@ A_inv = pinv(A_T); % Moore-Penrose Inverse
 f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
 
 if norm(f_V, 2) >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
-    %disp("fail to provide a feasible solution although such a solution exists")
+    disp("fail to provide a feasible solution although such a solution exists")
 elseif norm(f_V, 2) > limit.upper
     test = norm(f_V, 2)    %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
     % if it below the lower limit, the force distribution is feasible
