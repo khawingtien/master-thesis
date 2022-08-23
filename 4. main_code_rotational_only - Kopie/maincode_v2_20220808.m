@@ -77,7 +77,7 @@ for bowl_arm = 1:length(position_bowl_360)
 end
 
 grid on 
-%  daspect([1,1,1]) %For equal data unit lengths in all directions
+daspect([1,1,1]) %For equal data unit lengths in all directions
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
