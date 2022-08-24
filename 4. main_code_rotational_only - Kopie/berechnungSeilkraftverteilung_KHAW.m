@@ -8,7 +8,8 @@ ws_position = repmat(ws_position, 1, noC); %ws_position for workspace position, 
 
     if pulley_kin == 'no'
         % Schließbedingung Vektoren (Closure constrain v_i) Equation 3.1 & 3.2 in Pott's Book 
-        l = a - ws_position - b_rot; 
+%         l = a - ws_position - b_rot; 
+    l = a - b_rot; %cause ws_position = [0,0,0]
     elseif pulley_kin == 'yes'
         for i = 1 : noC
             b_A(:, i) = R_A(:, :, i) \ (ws_position(:, i) + b_rot(:, i) - a(:, i));
@@ -76,7 +77,7 @@ f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
 % w_v = (A_T*A_T')\(-wrench_p_f - A_T*f_M);
 % f_V = A_T'*w_v;
 
-norm_f_V = norm(f_V, 2)
+norm_f_V = norm(f_V,2)
 if norm_f_V >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
     disp("fail to provide a feasible solution although such a solution exists")
 elseif norm_f_V > limit.upper
@@ -127,13 +128,15 @@ while r ~= 0 %calculate redundancy
         [fail_diff, f_id] = min(f-f_min); %find the maximum difference of the cable force (use min as command as its ans is negative)
     elseif any(f(log_array)>f_max)
         [fail_diff, f_id] = max(f+f_max);
+    else 
+        break
     end
 
     % Wenn eine Kraft die Kraftgrenzen verletzt
         log_array(f_id) = false;
         A_inv_neu = pinv(A_T(:,log_array));
         w_p_neu = f_min * A_T(:, f_id) + wrench_p_f; %Equation 3.61 Pott's book  TO CHECK (WARUM NUR EINE SPALTEN)? 22.08.2022
-        f(log_array) = A_inv_neu * (- w_p_neu); %Lösung des Problems Af + w = 0 nach f_neu
+        f-(log_array) = A_inv_neu * (- w_p_neu); %Lösung des Problems Af + w = 0 nach f_neu
         r = length(f(log_array)) - DOF; %r = m-n
 
 %Update the new values

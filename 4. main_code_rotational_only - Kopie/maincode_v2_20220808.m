@@ -33,7 +33,7 @@ w_p_x = 0;
 w_p_t = 0;
 grid_deg = 8;
 
-% %calculate rotation matrix for wrench 
+%%calculate rotation matrix for wrench 
 if w_p_x == 0
     rotation_matrix.wpx = axang2rotm([1 0 0 0]); %Euler Winkel (x,y,z, Winkel), a rotation of 0 radians around the y-axis
     rotation_matrix.wpy = axang2rotm([0 1 0 0]);
@@ -45,20 +45,22 @@ discrete_rot_angle_w_p = linspace(0, 2*pi*(1-1/grid_deg), grid_deg)'; %(x1, 1/8 
     end 
 end
 
-[position_bowl_mat, R_x_cell, R_z_cell, position_bowl_360] = ws_position_bowl(); %call the function 
+[R_x_cell, R_z_cell, position_bowl_360] = ws_position_bowl(); %call the function 
+
+%%Define parameter 
 ws_logical_bowl = cell(1,length(position_bowl_360)); %preallocating for speed
 b_rot_mat = cell(1,360); %preallocating for speed
 POI_offset = [0 0 b(3,5)]'; %first value of endeffector in z-axis (offset to half the rod length)
-figure 
+figure %create a figure 
 
 
 for bowl_arm = 1:length(position_bowl_360)
     for bowl_index = 1:30
-        ws_position = position_bowl_360{1,bowl_arm}{1,bowl_index};
+        ws_position = round(position_bowl_360{1,bowl_arm}{1,bowl_index},2); %the coordinate of the bowl, one by one 
         R_x = R_x_cell{1,bowl_index};
        
             R_z = R_z_cell{1,bowl_arm};
-            b_rot = R_z* (R_x * b); %endeffector rotation         
+            b_rot = R_z* (R_x * b); %endeffector rotation at (0,0,0)       
 %             b_rot = round(((R_z*b)'*R_x)',0); %TEST 
             POI_rot = R_z* (R_x * POI_offset); %the position of the POI after rotation at (0,0,0)
 
