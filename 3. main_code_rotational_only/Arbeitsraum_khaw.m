@@ -21,7 +21,6 @@ rotation_matrix.wpy = axang2rotm(rotation_w_p.y); %rotation matrix for f_X aroun
            for k = 1:length(coordinate.z)
              workspace_position = [coordinate.x(i) coordinate.y(j) coordinate.z(k)]'; %workspace_position in a column vector 
              workspace_position = workspace_position - POI_rot;
-
         %berechne die Seilkraftverteilung an dieser Position 
        
         [stop, R ] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, b, f_min, f_max,noC, R, w_p_x, w_p_t, rotation_matrix, pulley_kin, rad_pulley, R_A, rot_angle_A, limit, f_direction, POI_rot); %hier erstmal nur stop von Interesse tbd
