@@ -136,7 +136,7 @@ while r ~= 0 %calculate redundancy
         log_array(f_id) = false;
         A_inv_neu = pinv(A_T(:,log_array));
         w_p_neu = f_min * A_T(:, f_id) + wrench_p_f; %Equation 3.61 Pott's book  TO CHECK (WARUM NUR EINE SPALTEN)? 22.08.2022
-        f-(log_array) = A_inv_neu * (- w_p_neu); %Lösung des Problems Af + w = 0 nach f_neu
+        f(log_array) = A_inv_neu * (- w_p_neu); %Lösung des Problems Af + w = 0 nach f_neu
         r = length(f(log_array)) - DOF; %r = m-n
 
 %Update the new values
