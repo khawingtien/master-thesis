@@ -1,5 +1,5 @@
 %% Function Arbeitsraum_Verarbeitung
-function [analysis, workspace_logical, workspace_adapt_pointwise] = Arbeitsraum_Verarbeitung_KHAW(a, b, ~, b_name,  w_p, w_p_t, f_g, counter_analysis ,rot_name, analysis, coordinate, workspace_logical, R, noC, POI_rot)
+function [analysis, workspace_logical, workspace_adapt_pointwise_trans] = Arbeitsraum_Verarbeitung_KHAW(a, b, ~, b_name,  w_p, w_p_t, f_g, counter_analysis ,rot_name, analysis, coordinate, workspace_logical, R, noC, POI_rot)
 %% AUSWERTUNG Arbeitsraum
 workspace_adapt = workspace_logical; %workspace_logical has the final logic of all wrench-frasible working space in 3D
 
@@ -49,7 +49,7 @@ for i = 1 : length(coordinate.x) %for coordinate x
     end
 end
 
-
+%{
 %To choose the bigger area if there are two point cloud area exist at the same time
 workspace_further_adapt_struct = bwconncomp(workspace_adapt); %Find and count connected components in binary image, default connectivity is 8.
 workspace_further_adapt_cell = struct2cell(workspace_further_adapt_struct);
@@ -69,21 +69,25 @@ else
     workspace_further_adapt = zeros(length(coordinate.x), length(coordinate.y), length(coordinate.z));  %preallocation for speed
     workspace_further_adapt(workspace_further_adapt_temp) = 1; %go thorugh the matrix with position of connected components, then change them to one
 end
-
+%}
 
 %% Fläche berechnen, speichern
 %transform adapted workspace array to pointwise indices
 sz = [length(coordinate.x), length(coordinate.y), length(coordinate.z)]; %define the size of matrix for command ind2sub 
-index_convexhull_point = find(workspace_further_adapt == 1); 
+% index_convexhull_point = find(workspace_further_adapt == 1); 
+index_convexhull_point = find(workspace_adapt == 1); 
 
+if isempty(index_convexhull_point)
+    disp('No point exist')
+else
 %Go through the index of convexhull point, then find the coordinate in x,y and z 
-for j = 1 : length(index_convexhull_point)
-    [id_x, id_y, id_z] = ind2sub(sz, index_convexhull_point(j)); %Convert linear indices to subscripts with dimension of grid_size(67)
-    workspace_adapt_pointwise(j, 1) = coordinate.x(id_x); %select x-coordinate from workspace 
-    workspace_adapt_pointwise(j, 2) = coordinate.y(id_y); %select y-coordinate from workspace 
-    workspace_adapt_pointwise(j, 3) = coordinate.z(id_z); %select z-coordinate from workspace 
+    for j = 1 : length(index_convexhull_point)
+        [id_x, id_y, id_z] = ind2sub(sz, index_convexhull_point(j)); %Convert linear indices to subscripts with dimension of grid_size(67)
+        workspace_adapt_pointwise(j, 1) = coordinate.x(id_x); %select x-coordinate from workspace 
+        workspace_adapt_pointwise(j, 2) = coordinate.y(id_y); %select y-coordinate from workspace 
+        workspace_adapt_pointwise(j, 3) = coordinate.z(id_z); %select z-coordinate from workspace 
+    end
 end
-
 %% get convex hull of current working space in extra figure
 %{
 [k, convexhull_volume] = convhull(workspace_adapt_pointwise,'Simplify',true);
@@ -118,68 +122,19 @@ ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
 %}
 
-%% 
-frac_area_of_1 = sum(workspace_further_adapt(:)); %define the 'workspace_further_adapt' into a spaltenvektor (Dimension: 4489x1) %./numel(workspace_adapt_pointwise);
-
-%% Schwerpunkt berechnen, speichern 
-% Method 1, using mean
-% 
-sp_row = 1 : size(workspace_further_adapt, 1);  %Schwerpunkt row
-sp_column = 1 : size(workspace_further_adapt, 2); %Schwerpunkt column 
-sp_page = 1: size(workspace_further_adapt, 3); %Schwerpunkt page
-[SP_row, SP_column, SP_page] =meshgrid(sp_column, sp_row, sp_page); %generate SP_column (67x67) in x-coordinate & SP_row (67x67) in y-coordinate
-meanA = mean(workspace_further_adapt(:)); 
-centerOfMasscolumn = mean(workspace_further_adapt(:) .* SP_column(:)) / meanA;
-centerOfMassrow = mean(workspace_further_adapt(:) .* SP_row(:)) / meanA;
-centerOfMasspage = mean(workspace_further_adapt(:) .* SP_page(:)) / meanA;
-
-%%Calculate the Volume of the frame
-% length_frame = max(a(1,:))-min(a(1,:)); %x-axis, use long insted of length cause length has been used before
-% width_frame = max(a(2,:))-min(a(2,:)); %y-axis
-%height_frame = max(a(3,:))-min(a(3,:)); %z-axis 
-% height_rod = max(b(3,:))-min(b(3,:)); %length of the rod in total
-% Volume_frame = length_frame*width_frame*height_rod*1e-9; 
-
-
-%% Speichern in analysis array
-%Platform Konfig
-analysis(counter_analysis, 1) = b_name;
-%Minimale Seilkraft
-% analysis(counter_analysis, 2) = f_min;
-% %Maximale Seilkraft
-% analysis(counter_analysis, 3) = f_max;
-%Rotation der Plattform
-analysis(counter_analysis, 4) = rot_name;
-%Fläche des Arbeitsraumes Anteilsmäßig aus Anteil 1en
-analysis(counter_analysis, 5) = frac_area_of_1;
-%Schwerpunkt des Arbeitsraumes Row  (x)
-analysis(counter_analysis, 6) = centerOfMassrow;
-%Schwerpunkt des Arbeitsraumes Column (y)
-analysis(counter_analysis, 7) = centerOfMasscolumn;
-%Schwerpunkt des Arbeitsraumes Page (z)
-analysis(counter_analysis, 8) = centerOfMasspage;
-%Fläche des Arbeitsraumes
-% analysis(counter_analysis, 9) = convexhull_volume;
-
-%Volume of the frame 
-% analysis(counter_analysis,10) = Volume_frame;
-
-%current Workspace
-% analysis(counter_analysis,11) = current_ws;
-
-%Ratio of Volume to total Workspace
-% analysis(counter_analysis,12) = Volume_frame./current_ws;
-
-
 
 %% Plots Working space
-workspace_adapt_pointwise = workspace_adapt_pointwise + POI_rot'; %translation of the results to POI
-plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.g','LineWidth',8); %Plot x- and y & z-coordinate
+plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.r','LineWidth',8); %original at trocar point
+hold on 
+workspace_adapt_pointwise_trans = workspace_adapt_pointwise + POI_rot'; %translation of the results to POI
+hold on 
+plot3(workspace_adapt_pointwise_trans(:,1), workspace_adapt_pointwise_trans(:,2),workspace_adapt_pointwise_trans(:,3), '.g','LineWidth',8); %ws at POI (end of the rod)
 hold on 
 grid on
 grid minor
+% daspect([1,1,1]) %For equal data unit lengths in all directions
 
-%%Plot Trocar point at Origin
+%% Plot Trocar point at Origin
 plot3(0,0,0,'bo','LineWidth',5)
 hold on 
 
@@ -207,18 +162,18 @@ b_10 = b_figure(:,5); %so that it close up the endeffector lower side
 b_middle_top = R* [[0;0;b(3,1)], [0; 0; b(3,5)]]; %rotation of the center line through trocar point
 
 b_figure_new = [b_figure(:,1:4), b_5, b_figure(:,5:8), b_10];
-plot3(b_middle_top(1,:),b_middle_top(2,:),b_middle_top(3,:) ,'b','LineWidth',2) %plot middle line through trocar point
-plot3(b_figure_new(1, 1:5), b_figure_new(2, 1:5),b_figure_new(3, 1:5), 'x-k','LineWidth',2); %plot the frame of end-effector only top 
-plot3(b_figure_new(1, 6:10), b_figure_new(2, 6:10),b_figure_new(3, 6:10), 'x-k','LineWidth',2); %plot the frame of end-effector only bottom
+plot3(b_middle_top(1,:),b_middle_top(2,:),b_middle_top(3,:) ,'b') %plot middle line through trocar point
+plot3(b_figure_new(1, 1:5), b_figure_new(2, 1:5),b_figure_new(3, 1:5), 'x-k'); %plot the frame of end-effector only top 
+plot3(b_figure_new(1, 6:10), b_figure_new(2, 6:10),b_figure_new(3, 6:10), 'x-k'); %,'LineWidth',2); %plot the frame of end-effector only bottom
 
 
-%plot Seile
-str = ["w1" "w2" "w3" "w4" "w5" "w6" "w7" "w8"]; 
-for i = 1 : noC
-    plot3([a_adapt(1, i) b_figure(1, i)], [a_adapt(2, i) b_figure(2, i)], [a_adapt(3, i) b_figure(3, i)],'--r');
-    text(a_adapt(1, i), a_adapt(2,i), a_adapt(3,i), str(i)); %add the label on each cable 
-end
-daspect([1,1,1]) %For equal data unit lengths in all directions
+%plot Seile (TEMPORARY REMOVE)
+% str = ["w1" "w2" "w3" "w4" "w5" "w6" "w7" "w8"]; 
+% for i = 1 : noC
+%     plot3([a_adapt(1, i) b_figure(1, i)], [a_adapt(2, i) b_figure(2, i)], [a_adapt(3, i) b_figure(3, i)],'--r');
+%     text(a_adapt(1, i), a_adapt(2,i), a_adapt(3,i), str(i)); %add the label on each cable 
+% end
+
 
 % axis([-400 400 -400 400]) %axis in x_min, x_max and y_min, y_max 
 % xticks([-350 0 350]) %label of x-coordinate
@@ -236,37 +191,5 @@ xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
 
-
-% %%Save 3d figure to file 
-% folder = 'D:\Masterarbeit\11_MATLAB_GIT\Figure';
-%   baseFileName = "Feasible_Workspace_%d_%d";
-%   path = sprintf(baseFileName, b_name, height_rod); %current working directory 
-%   saveas(figure(counter_analysis), path, 'png'); %save as (filename,variable,format)
-%   close(figure(counter_analysis))
-
-%   %%Save projection figure
-%   baseFileName = "Feasible_Workspace_projection_%d_%d";
-%   path = sprintf(baseFileName, b_name, height_rod); %current working directory 
-%   saveas(figure(counter_analysis_proj), path, 'png'); %save as (filename,variable,format)
-%   close(figure(counter_analysis_proj))
-
-
- % fullFileName = fullfile(folder,baseFileName);
-% saveas(figure(counter_analysis),[pwd '/Figure/myFig.fig']);
-
-%% Speichern
-% filename_excel = "Workspace_analysis.xlsx";
-% path_excel = sprintf(filename_excel);
-
-% %Sheet : analysis
-% excel_save = "Rahmen1_%d_%d_%d_%d_%d_%d_%d_%d.xlsx";
-% excel_name = sprintf(excel_save, b_name, f_min, f_max, rot_name, w_p, f_g, grid_n, grid_deg);
-% writematrix(analysis, excel_name);
-
-
-% SAVE WORKSPACE
-% filename_save = "1R2T_Rahmen1_%d_%d_%d_%d.mat";
-% path_save = sprintf(filename_save, b_name, rot_name, w_p, w_p_t);
-% save(path_save);
 end 
 

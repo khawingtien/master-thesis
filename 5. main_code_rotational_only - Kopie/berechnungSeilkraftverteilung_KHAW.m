@@ -1,15 +1,15 @@
 %% Function berechnungSeilkraftverteilung 
-function [stop,R] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max,noC, R, w_p_x, w_p_t,  rotation_matrix,  pulley_kin, rad_pulley, R_A, rot_angle_A, limit, f_direction,POI_rot)
+function [stop,b_rot] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max, noC, b_rot,b_rot_xz, w_p_x, w_p_t,  rotation_matrix,  pulley_kin, rad_pulley, R_A, rot_angle_A, limit, f_direction,POI_rot)
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
-
 % Basispunkte Roboter
 ws_position = repmat(ws_position, 1, noC); %ws_position for workspace position, in order to achieve the dimension (1,noC) 
-% R = axang2rotm(rotation); %axis angle to rotation matrix [0 0 1 angle] to Matrix Dimension=(3,3)
-b_rot = R * b;
 
 if pulley_kin == 'no'
     % Schließbedingung Vektoren (Closure constrain v_i) Equation 3.1 & 3.2 in Pott's Book 
-    l = a - ws_position - b_rot; 
+%     l = a - ws_position - b_rot; 
+% ws_position = zeros(3,8);
+    l = a - ws_position - b_rot_xz;
+
 elseif pulley_kin == 'yes'
     %calculate bx, by 
     %r_0_A = a;
@@ -54,11 +54,6 @@ for i=1:noC
     b_cross_u(:,i) = cross(b_rot(:,i),u(:,i)); %from Artur 3D vector
 end
 
-% for dott = 1:8
-%     C = cross(b_rot(:,dott),u(:,dott));
-%   dot(C,b_rot(:,dott))==0 & dot(C,u(:,dott))==0
-% end
-
 % Strukturmatrix
 A_T = [u; b_cross_u];
                            
@@ -85,32 +80,32 @@ A_inv = pinv(A_T); % Moore-Penrose Inverse
 f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
 norm_f_V = norm(f_V, 2)
 if norm_f_V  >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
-    disp("fail to provide a feasible solution although such a solution exists")
+%    disp("fail to provide a feasible solution although such a solution exists")
 elseif norm_f_V > limit.upper
    %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
     % if it below the lower limit, the force distribution is feasible
     stop = 1;
-%             Kappa = zeros(1,3);
-%             k = null(A_T); %nullspace of A_T (one-Dimensional Kernel) so that A_T*k = 0 (Pott pg167) eq 5.7
-%             
-%             for i = 1:size(k,2)
-%                 k_col=k(:,i);
-%                 if  min(k_col) > 0 %eq 5.8
-%                     Kappa(i) = min(k_col)/max(k_col); 
-%                     
-%                 elseif max(k_col) < 0
-%                     Kappa(i) = max(k_col)/min(k_col);
-%                     
-%                 else
-%                     Kappa(i) = 0;
-%                 end 
-%             end
-%             
-%                 if any(Kappa)
-%                     stop = 0;
-%                 else
-%                     stop = 1;
-%                 end
+            Kappa = zeros(1,3);
+            k = null(A_T); %nullspace of A_T (one-Dimensional Kernel) so that A_T*k = 0 (Pott pg167) eq 5.7
+            
+            for i = 1:size(k,2)
+                k_col=k(:,i);
+                if  min(k_col) > 0 %eq 5.8
+                    Kappa(i) = min(k_col)/max(k_col); 
+                    
+                elseif max(k_col) < 0
+                    Kappa(i) = max(k_col)/min(k_col);
+                    
+                else
+                    Kappa(i) = 0;
+                end 
+            end
+            
+                if any(Kappa)
+                    stop = 0;
+                else
+                    stop = 1;
+                end
     return
 end
 
@@ -208,6 +203,5 @@ elseif find(f < f_min)
 %     stop = 1;
 % end
 % 
-
 
 end
