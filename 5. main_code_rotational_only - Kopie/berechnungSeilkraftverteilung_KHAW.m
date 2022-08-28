@@ -1,31 +1,12 @@
 %% Function berechnungSeilkraftverteilung 
-function [stop,b_rot] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max, noC, b_rot,b_rot_xz, w_p_x, w_p_t,  rotation_matrix,  pulley_kin, rad_pulley, R_A, rot_angle_A, limit, f_direction,POI_rot)
+function [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max, noC,b_rot, b_rot_xz, w_p_x, w_p_t,  rotation_matrix,  limit, f_direction,POI_rot)
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
 % Basispunkte Roboter
 ws_position = repmat(ws_position, 1, noC); %ws_position for workspace position, in order to achieve the dimension (1,noC) 
 
-if pulley_kin == 'no'
-    % Schließbedingung Vektoren (Closure constrain v_i) Equation 3.1 & 3.2 in Pott's Book 
+% Schließbedingung Vektoren (Closure constrain v_i) Equation 3.1 & 3.2 in Pott's Book 
 %     l = a - ws_position - b_rot; 
-% ws_position = zeros(3,8);
     l = a - ws_position - b_rot_xz;
-
-elseif pulley_kin == 'yes'
-    %calculate bx, by 
-    %r_0_A = a;
-    %R_A * b_A + a = ws_position + b_rot;
-    for i = 1 : noC
-        b_A(:, i) = R_A(:, :, i) \ (ws_position(:, i) + b_rot(:, i) - a(:, i));
-    end 
-    b_x_A = b_A(1, :);
-    b_y_A = b_A(2, :);
-    %calculate cable length 
-    for i = 1 : noC
-        l(i) = (acos((sqrt(b_x_A(1, i)^2 - 2*b_x_A(1, i)*rad_pulley + b_y_A(1, i)^2)) / (sqrt((b_x_A(1, i) - rad_pulley)^2 + b_y_A(1, i)^2))) + acos(b_y_A(1, i) / (sqrt((b_x_A(1, i) - rad_pulley)^2 + b_y_A(1, i)^2)))) * rad_pulley + sqrt(b_x_A(1, i)^2 - 2*b_x_A(1, i)*rad_pulley + b_y_A(1, i)^2);
-    end
-end 
-    
-
 
 %1st Check: für Arbeitsraum Berechnung: check ob length = 0 --> leads to NaN in u(unit vector)
 for check_l = 1 : noC
@@ -39,19 +20,14 @@ end
 
 %Define Einheitsvektoren (Unit vector) 
 u = zeros(3,noC);
-if pulley_kin == 'no'
-    for i=1:noC
-        u(:,i) = l(:,i) / norm(l(:,i)); %Equation 3.3 Pott's book 
-    end
-elseif pulley_kin == 'yes'
-    for i = 1 : noC
-        u(:, i) = R_A(:, :, i) * [-sind(rot_angle_A(:, i)); cosd(rot_angle_A(:, i))]; %Cosine of argument in degrees
-    end 
-end 
+for i=1:noC
+    u(:,i) = l(:,i) / norm(l(:,i)); %Equation 3.3 Pott's book 
+end
+
 
 b_cross_u = zeros(3,noC);
 for i=1:noC
-    b_cross_u(:,i) = cross(b_rot(:,i),u(:,i)); %from Artur 3D vector
+    b_cross_u(:,i) = cross(b_rot_xz(:,i),u(:,i)); %ACHTUNG: b_rot or b_rot_xz???!!!
 end
 
 % Strukturmatrix
@@ -70,21 +46,21 @@ else
 end
     
 % Closed-form method
-f_M = ones(noC(1),1); 
+f_M = ones(noC,1); %preallocating for speed
 f_M = f_M .* ((f_min + f_max) / 2); % f_M = average feasible force (below Eq 3.53 Pott Book)
 A_inv = pinv(A_T); % Moore-Penrose Inverse
 
 %Implementation of wrench either in x-axis or y-axis 
-[wrench_p_f, level_arm_mat] = wrench_khaw2(b,w_p_x,w_p_t,rotation_matrix,f_direction,POI_rot);
+[wrench_p_f, ~] = wrench_khaw2(b,w_p_x,w_p_t,rotation_matrix,f_direction,POI_rot);
 
 f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
-norm_f_V = norm(f_V, 2)
+norm_f_V = norm(f_V, 2);
 if norm_f_V  >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
 %    disp("fail to provide a feasible solution although such a solution exists")
 elseif norm_f_V > limit.upper
    %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
     % if it below the lower limit, the force distribution is feasible
-    stop = 1;
+%     stop = 1;
             Kappa = zeros(1,3);
             k = null(A_T); %nullspace of A_T (one-Dimensional Kernel) so that A_T*k = 0 (Pott pg167) eq 5.7
             
@@ -179,7 +155,7 @@ if find(f > f_max)
 
 
 elseif find(f < f_min)
-       disp("Achtung! Seilkraft unterschreitet den Minimalwert")
+%        disp("Achtung! Seilkraft unterschreitet den Minimalwert")
   stop = 1;
 
 %wrench-closure workspace 

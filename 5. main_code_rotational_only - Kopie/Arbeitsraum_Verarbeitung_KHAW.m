@@ -1,5 +1,5 @@
 %% Function Arbeitsraum_Verarbeitung
-function [analysis, workspace_logical, workspace_adapt_pointwise_trans] = Arbeitsraum_Verarbeitung_KHAW(a, b, ~, b_name,  w_p, w_p_t, f_g, counter_analysis ,rot_name, analysis, coordinate, workspace_logical, R, noC, POI_rot)
+function [workspace_logical, workspace_adapt_pointwise_trans] = Arbeitsraum_Verarbeitung_KHAW(a, b, ~,  w_p, w_p_t, f_g, counter_analysis ,rot_name, coordinate, workspace_logical,  b_rot_xz, noC, POI_rot,middle_rod)
 %% AUSWERTUNG Arbeitsraum
 workspace_adapt = workspace_logical; %workspace_logical has the final logic of all wrench-frasible working space in 3D
 
@@ -41,16 +41,15 @@ for i = 1 : length(coordinate.x) %for coordinate x
                 end
             
             %if all neighbors 0 (all 26 points),then the position in workspace_adapt is Zero. 
-                if all(workspace_neighbor == 0) 
-                     workspace_adapt(i, j, k) = 0; %remove element from workspace, bc not reachable
-                end
+%                 if all(workspace_neighbor == 0) 
+%                      workspace_adapt(i, j, k) = 0; %remove element from workspace, bc not reachable
+%                 end
             end
         end
     end
 end
 
-%{
-%To choose the bigger area if there are two point cloud area exist at the same time
+%% To choose the bigger area if there are two point cloud area exist at the same time
 workspace_further_adapt_struct = bwconncomp(workspace_adapt); %Find and count connected components in binary image, default connectivity is 8.
 workspace_further_adapt_cell = struct2cell(workspace_further_adapt_struct);
 % pixel = workspace_further_adapt_struct.PixelIdxList{1, 1};
@@ -60,7 +59,7 @@ max_object = max(nrows); %max nrow =3113
 max_object = find(nrows == max_object); %find the nrows exactly as 3113, which is one. 
 
 if isempty(max_object) %Determine whether array is empty, returns logical 1 (true) if A is empty, and logical 0 (false) otherwise
-disp('Fehler')
+% disp('Fehler')
     workspace_further_adapt = zeros(length(coordinate.x), length(coordinate.y), length(coordinate.z)); %assign all to zeros
     workspace_adapt_pointwise = [0 0 0]; %random point, to plot in the middle 
 else
@@ -69,18 +68,16 @@ else
     workspace_further_adapt = zeros(length(coordinate.x), length(coordinate.y), length(coordinate.z));  %preallocation for speed
     workspace_further_adapt(workspace_further_adapt_temp) = 1; %go thorugh the matrix with position of connected components, then change them to one
 end
-%}
 
 %% Fläche berechnen, speichern
 %transform adapted workspace array to pointwise indices
-sz = [length(coordinate.x), length(coordinate.y), length(coordinate.z)]; %define the size of matrix for command ind2sub 
-% index_convexhull_point = find(workspace_further_adapt == 1); 
-index_convexhull_point = find(workspace_adapt == 1); 
+sz = [length(coordinate.x), length(coordinate.y), length(coordinate.z)]; %define the size of matrix for command ind2sub  
+index_convexhull_point = find(workspace_further_adapt == 1); 
 
 if isempty(index_convexhull_point)
-    disp('No point exist')
-else
-%Go through the index of convexhull point, then find the coordinate in x,y and z 
+%      disp('No ws_point exist')
+%    return
+else %Go through the index of convexhull point, then find the coordinate in x,y and z 
     for j = 1 : length(index_convexhull_point)
         [id_x, id_y, id_z] = ind2sub(sz, index_convexhull_point(j)); %Convert linear indices to subscripts with dimension of grid_size(67)
         workspace_adapt_pointwise(j, 1) = coordinate.x(id_x); %select x-coordinate from workspace 
@@ -125,14 +122,12 @@ zlabel('z in mm') %text in z-coordinate
 
 %% Plots Working space
 plot3(workspace_adapt_pointwise(:,1), workspace_adapt_pointwise(:,2),workspace_adapt_pointwise(:,3), '.r','LineWidth',8); %original at trocar point
+grid minor
 hold on 
 workspace_adapt_pointwise_trans = workspace_adapt_pointwise + POI_rot'; %translation of the results to POI
-hold on 
 plot3(workspace_adapt_pointwise_trans(:,1), workspace_adapt_pointwise_trans(:,2),workspace_adapt_pointwise_trans(:,3), '.g','LineWidth',8); %ws at POI (end of the rod)
 hold on 
-grid on
-grid minor
-% daspect([1,1,1]) %For equal data unit lengths in all directions
+ daspect([1,1,1]) %For equal data unit lengths in all directions
 
 %% Plot Trocar point at Origin
 plot3(0,0,0,'bo','LineWidth',5)
@@ -140,31 +135,29 @@ hold on
 
 
 %%Plot Region of Interest (ROI)
-% r = 150; %radius in mm 
-% [X,Y,Z] = cylinder(r);
-% % X = X+90;
-% % Y = Y+100;
-% h = 200; %height in mm
-% Z = (Z*h)-400; %minus 100 so that its from -100 to 100 in Z-axis
-% surf(X,Y,Z,'FaceColor','r','FaceAlpha','0.3')
-% hold on 
+r = 150; %radius in mm 
+[X,Y,Z] = cylinder(r);
+X = X-0;
+Y = Y-0;
+h = 200; %height in mm
+Z = (Z*h)-400; %minus 100 so that its from -100 to 100 in Z-axis
+surf(X,Y,Z,'FaceColor','w','FaceAlpha','0.3')
+hold on 
 
 %plot Rahmen
-a_adapt = a;
-%  a_adapt(1:3, noC+1) = a(1:3,1); %extend to next column (so that the rectangle close up)
+% a_adapt = a;
+% a_adapt(1:3, noC+1) = a(1:3,1); %extend to next column (so that the rectangle close up)
 
 
 %plot Endeffektor
-hold on
-b_figure = R * b; %Rotation * base(end-effector) means the position of endeffector after certain degree rotation
+b_figure = b_rot_xz ; %Rotation * base(end-effector) means the position of endeffector after certain degree rotation
 b_5 = b_figure(:,1); %so that it close up the endeffector upper side
 b_10 = b_figure(:,5); %so that it close up the endeffector lower side
-b_middle_top = R* [[0;0;b(3,1)], [0; 0; b(3,5)]]; %rotation of the center line through trocar point
 
 b_figure_new = [b_figure(:,1:4), b_5, b_figure(:,5:8), b_10];
-plot3(b_middle_top(1,:),b_middle_top(2,:),b_middle_top(3,:) ,'b') %plot middle line through trocar point
-plot3(b_figure_new(1, 1:5), b_figure_new(2, 1:5),b_figure_new(3, 1:5), 'x-k'); %plot the frame of end-effector only top 
-plot3(b_figure_new(1, 6:10), b_figure_new(2, 6:10),b_figure_new(3, 6:10), 'x-k'); %,'LineWidth',2); %plot the frame of end-effector only bottom
+ plot3(middle_rod(1,:),middle_rod(2,:),middle_rod(3,:) ,'b') %plot middle line through trocar point
+% plot3(b_figure_new(1, 1:5), b_figure_new(2, 1:5),b_figure_new(3, 1:5), 'x-k'); %plot the frame of end-effector only top 
+% plot3(b_figure_new(1, 6:10), b_figure_new(2, 6:10),b_figure_new(3, 6:10), 'x-k'); %,'LineWidth',2); %plot the frame of end-effector only bottom
 
 
 %plot Seile (TEMPORARY REMOVE)
@@ -184,12 +177,20 @@ width_frame = max(a(2,:))-min(a(2,:)); %y-axis
 height_frame = max(a(3,:))-min(a(3,:)); %z-axis 
 height_rod = max(b(3,:))-min(b(3,:));
 
-title('Wrench-feasible working space in cable-driven input device')
+%% Speichern in analysis array
+%Platform Konfig
+% analysis(counter_analysis, 1) = b_name;
+%Rotation der Plattform
+% analysis(counter_analysis, 2) = rot_name;
+
+title('Wrench-feasible workspace in Cable-Driven Haptic Device')
 txt = ['L= ' int2str(length_frame) ' x W= ' int2str(width_frame) ' x H= ' int2str(height_frame) ' Rod= ' int2str(height_rod) ' [mm] Rotation = ' int2str(rot_name) '° ' 'wp = ' int2str(w_p) ' wpt = ' int2str(w_p_t)];
 subtitle(txt)
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
+
+
 
 end 
 
