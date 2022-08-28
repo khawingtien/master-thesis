@@ -1,5 +1,5 @@
 %% Function Arbeitsraum
-function [workspace_logical,  b_rot_xz, POI_rot, middle_rod] = Arbeitsraum_khaw(a, b, f_min, f_max,noC, rotation_x,rotation_z, rot_axis, rot_name, w_p_x, w_p_t, rotation_w_p, workspace_logical, pulley_kin, R_A, rot_angle_A, coordinate, limit, f_direction)
+function [workspace_logical,  b_rot_xz, POI_rot, middle_rod] = Arbeitsraum_khaw(a, b, f_min, f_max,noC, rot_axis, rot_name, w_p_x, w_p_t, rotation_w_p, workspace_logical, pulley_kin, R_A, rot_angle_A, coordinate, limit, f_direction)
 counter = 1; %predefine counter = 1
 % workspace_logical_temp = ones(length(coordinate.x), length(coordinate.y), length(coordinate.z));
 
@@ -27,14 +27,12 @@ rotation_matrix.wpy = axang2rotm(rotation_w_p.y); %rotation matrix for f_X aroun
        for i = 1 :length(coordinate.x)
          for j = 1 :length(coordinate.y)
            for k = 1:length(coordinate.z)
-             workspace_position = [coordinate.x(i) coordinate.y(j) coordinate.z(k)]'; %workspace_position in a column vector 
-%              workspace_position = workspace_position - POI_rot;
-%              %ACHTUNG:TEMPORARY REMOVE 
+             workspace_position = [coordinate.x(i) coordinate.y(j) coordinate.z(k)]'; %workspace_position in a column vector  
 
         %berechne die Seilkraftverteilung an dieser Position        
         [stop] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, b, f_min, f_max,noC, b_rot,b_rot_xz, w_p_x, w_p_t, rotation_matrix,  limit, f_direction, POI_rot); %hier erstmal nur stop von Interesse tbd
         counter = counter + 1; %no semicolon, to show the current progression during debugging
-        workspace_logical_temp (i,j,k) = ~stop;
+        workspace_logical(i,j,k) = ~stop;
 %         write the value (True or false) into the workspace logical matrix  
 %             if stop == 0  %no violation of f_min & f_max (fulfil the requirements)(TRUE)
 %               workspace_logical_temp (i,j,k) = 1; %write 1 as TRUE
@@ -45,7 +43,4 @@ rotation_matrix.wpy = axang2rotm(rotation_w_p.y); %rotation matrix for f_X aroun
          end
        end
      
-%Alt: Fülle 1. Dimension mit gemeinsamer Menge aus 1. und 2. Dimension
-%Neu: Compare ws_logical_Temporary und final workspace
-workspace_logical = workspace_logical_temp; %Find logical (AND) between ws_logical_temp and the page before
 end
