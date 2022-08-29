@@ -1,4 +1,4 @@
-function [workspace_pointwise_trans] = Arbeitsraum_Plot_Khaw(workspace_logical,coordinate,POI_rot,a,b)
+function [workspace_pointwise_trans] = ws_translation_Khaw(workspace_logical,coordinate,POI_rot,a,b)
 %Plot the feasible workspace here
 
 %   Detailed explanation goes here
@@ -6,7 +6,6 @@ sz = [length(coordinate.x), length(coordinate.y), length(coordinate.z)]; %define
 index_convexhull_point = find(workspace_logical == 1);
 
 if isempty(index_convexhull_point)
-%     disp('No ws_point exist')
     workspace_pointwise = [NaN NaN NaN]; %select x-coordinate from workspace 
 else
      for j = 1 : length(index_convexhull_point)
@@ -22,10 +21,11 @@ workspace_pointwise_trans = workspace_pointwise + POI_rot'; %translation of the 
 
 % plot3(workspace_pointwise(:,1), workspace_pointwise(:,2),workspace_pointwise(:,3), '.r','LineWidth',8); %original at trocar point
 % hold on 
-plot3(workspace_pointwise_trans(:,1), workspace_pointwise_trans(:,2),workspace_pointwise_trans(:,3), '.g','LineWidth',8); %ws at POI (end of the rod)
-hold on 
-daspect([1,1,1]) %For equal data unit lengths in all directions
+% plot3(workspace_pointwise_trans(:,1), workspace_pointwise_trans(:,2),workspace_pointwise_trans(:,3), '.g','LineWidth',8); %ws at POI (end of the rod)
+% hold on 
+% daspect([1,1,1]) %For equal data unit lengths in all directions
 
+%{
 %% Plot Trocar point at Origin
 plot3(0,0,0,'bo','LineWidth',5)
 hold on 
@@ -51,5 +51,5 @@ subtitle(txt)
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
-
+%}
 end

@@ -2,13 +2,13 @@
 clear 
 clc
 tic %start Stopwatch timer
-    figure %open a figure before the for-loop, so that x- and y-plane can be plotted on the same figure 
+%     figure %open a figure before the for-loop, so that x- and y-plane can be plotted on the same figure 
 
  %% pulley
 pulley_kin = 'no';
-ax = 0.230;
-ay = 0.230; 
-az = 0.102;
+ax = 0.230; %in m 
+ay = 0.230; %in m 
+az = 0.05; %in m 
 [a] = SetupParameter(ax,ay,az);
 
 %% Standardparameter
@@ -17,11 +17,7 @@ R_A = 1; %just for input, is not in use
 rot_angle_A = 1; %just for input, is not in use  
     
 %Define max and min of grid in all direction
-grid.x_max = 300; %mm %largest length in x direction
-grid.y_max = 300;
 grid.z_max = 150;
-grid.x_min = -300; %mm %smallest length in x direction
-grid.y_min = -300;
 grid.z_min = -650;
 
 %Definiere Grid    
@@ -34,9 +30,8 @@ b = b_cell{1, 1};
 
 %% Definition of rotation axis 
 %Define rotation value 
-% rotation_angles_z =[0:5:90]; %rotation pro quadrant 
+% rotation_angles_z =[0:5:360]; %rotation 360 grad
 rotation_angles_z =[0:5:360]; %rotation pro quadrant 
-%  rotation_angles_3Daxis = [30:-5:0];%negative %C-Bogen 
 rotation_angles_3Daxis = [0:2:30]; %positive %C-bogen 
 
 %preallocationg for speed 
@@ -86,7 +81,6 @@ coordinate.z = (grid.z_min : grid_delta: grid.z_max)'; %step size in z-direction
 f_directions = ["x","y"]; %define the f_x and f_y wrench direction. 
 workspace_logical = ~ones(length(coordinate.x), length(coordinate.y), length(coordinate.z)); %preallocating the variable for speed (logical)
 workspace_logical_temp = ~ones(length(coordinate.x), length(coordinate.y), length(coordinate.z)); %preallocating the variable for speed (logical)
-% workspace_pointwise_trans_mat = [];
 workspace_trans_mat = [];
 workspace_trans_mat_total = [];
 
@@ -94,7 +88,7 @@ for f_xy=1:2 %x and y direction for wrench
 f_direction = f_directions(f_xy);
 
         for counter_3Daxis = 1 : length(rotation_angles_3Daxis)
-            rot_angle = rotation_angles_3Daxis(counter_3Daxis); %necessary to save the path name for figure automatically  
+            rot_angle = rotation_angles_3Daxis(counter_3Daxis); 
 
             for counter_angles_z = 1: length(rotation_angles_z) 
                 rotation_axis = rot_axis(counter_angles_z,:);
@@ -115,26 +109,20 @@ f_direction = f_directions(f_xy);
 
         %finalen Arbeitsraum bestimmen und darstellen
         counter_analysis = counter_analysis + 1;
-        [workspace_pointwise_trans] = Arbeitsraum_Plot_Khaw(workspace_logical,coordinate,POI_rot,a,b);
-%          workspace_pointwise_trans_mat{counter_angles_z} = workspace_pointwise_trans;
+        [workspace_pointwise_trans] = ws_translation_khaw(workspace_logical,coordinate,POI_rot);
          workspace_trans_mat = [workspace_trans_mat; workspace_pointwise_trans];
             end
-%             workspace_pointwise_trans_total{counter_3Daxis} =  workspace_pointwise_trans_mat;
+
             workspace_trans_mat_total = [workspace_trans_mat_total; workspace_trans_mat];
 
         end
 end
 
-% figure
-% for i= 2:length(workspace_pointwise_trans_total)
-%     for j = 1:length(workspace_pointwise_trans_mat)
-%     x = workspace_pointwise_trans_total{1,i}{1,j}(:,1);
-%     y = workspace_pointwise_trans_total{1,i}{1,j}(:,2);
-%     z = workspace_pointwise_trans_total{1,i}{1,j}(:,3);
-%     plot3(x,y,z,'.g','LineWidth',8)
-%     hold on 
-%     end 
-% end 
+[r] = ws_plot_khaw(workspace_trans_mat_total,a,b,noC);
+
+
+
+
 toc
 
 

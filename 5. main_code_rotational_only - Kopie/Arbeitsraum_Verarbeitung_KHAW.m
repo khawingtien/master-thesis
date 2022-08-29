@@ -161,11 +161,11 @@ b_figure_new = [b_figure(:,1:4), b_5, b_figure(:,5:8), b_10];
 
 
 %plot Seile (TEMPORARY REMOVE)
-% str = ["w1" "w2" "w3" "w4" "w5" "w6" "w7" "w8"]; 
-% for i = 1 : noC
-%     plot3([a_adapt(1, i) b_figure(1, i)], [a_adapt(2, i) b_figure(2, i)], [a_adapt(3, i) b_figure(3, i)],'--r');
-%     text(a_adapt(1, i), a_adapt(2,i), a_adapt(3,i), str(i)); %add the label on each cable 
-% end
+str = ["w1" "w2" "w3" "w4" "w5" "w6" "w7" "w8"]; 
+for i = 1 : noC
+    plot3([a_adapt(1, i) b_figure(1, i)], [a_adapt(2, i) b_figure(2, i)], [a_adapt(3, i) b_figure(3, i)],'--r');
+    text(a_adapt(1, i), a_adapt(2,i), a_adapt(3,i), str(i)); %add the label on each cable 
+end
 
 
 % axis([-400 400 -400 400]) %axis in x_min, x_max and y_min, y_max 

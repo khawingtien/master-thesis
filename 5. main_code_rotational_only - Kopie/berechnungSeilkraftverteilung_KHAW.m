@@ -1,19 +1,17 @@
 %% Function berechnungSeilkraftverteilung 
 function [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max, noC, b_rot_xy, w_p_x, w_p_t,  rotation_matrix,  limit, f_direction,POI_rot)
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
+
 % Basispunkte Roboter
 ws_position = repmat(ws_position, 1, noC); %ws_position for workspace position, in order to achieve the dimension (1,noC) 
 
 % Schließbedingung Vektoren (Closure constrain v_i) Equation 3.1 & 3.2 in Pott's Book 
-%     l = a - ws_position - b_rot; 
     l = a - ws_position - b_rot_xy;
 
 %1st Check: für Arbeitsraum Berechnung: check ob length = 0 --> leads to NaN in u(unit vector)
 for check_l = 1 : noC
     if l(:, check_l) == zeros(3,1)
         stop = 1; %violation exist 
-        %     f_closedform = 0; %tbd
-        %     f = 0; %tbd weil hier noch nicht definiert, daher kein output möglich
         return %Return control to invoking script or function            
     end
 end
@@ -60,29 +58,30 @@ if norm_f_V  >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-nor
 elseif norm_f_V > limit.upper
    %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
     % if it below the lower limit, the force distribution is feasible
-%     stop = 1;
-            Kappa = zeros(1,3);
-            k = null(A_T); %nullspace of A_T (one-Dimensional Kernel) so that A_T*k = 0 (Pott pg167) eq 5.7
-            
-            for i = 1:size(k,2)
-                k_col=k(:,i);
-                if  min(k_col) > 0 %eq 5.8
-                    Kappa(i) = min(k_col)/max(k_col); 
-                    
-                elseif max(k_col) < 0
-                    Kappa(i) = max(k_col)/min(k_col);
-                    
-                else
-                    Kappa(i) = 0;
-                end 
-            end
-            
-                if any(Kappa)
-                    stop = 0;
-                else
-                    stop = 1;
-                end
-    return
+     stop = 1;
+     return 
+%             Kappa = zeros(1,3);
+%             k = null(A_T); %nullspace of A_T (one-Dimensional Kernel) so that A_T*k = 0 (Pott pg167) eq 5.7
+%             
+%             for i = 1:size(k,2)
+%                 k_col=k(:,i);
+%                 if  min(k_col) > 0 %eq 5.8
+%                     Kappa(i) = min(k_col)/max(k_col); 
+%                     
+%                 elseif max(k_col) < 0
+%                     Kappa(i) = max(k_col)/min(k_col);
+%                     
+%                 else
+%                     Kappa(i) = 0;
+%                 end 
+%             end
+%             
+%                 if any(Kappa)
+%                     stop = 0;
+%                 else
+%                     stop = 1;
+%                 end
+%     return
 end
 
 f = f_M + f_V; %Eq 3.53 Pott Book (feasible force + arbitrary force vector)
@@ -152,7 +151,6 @@ if find(f > f_max)
 %        disp("Achtung! Seilkraft ueberschreitet den Maximalwert");
     stop = 1;
     return
-
 
 elseif find(f < f_min)
 %        disp("Achtung! Seilkraft unterschreitet den Minimalwert")
