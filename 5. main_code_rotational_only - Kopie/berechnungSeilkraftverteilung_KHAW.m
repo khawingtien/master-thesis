@@ -1,12 +1,12 @@
 %% Function berechnungSeilkraftverteilung 
-function [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max, noC,b_rot, b_rot_xz, w_p_x, w_p_t,  rotation_matrix,  limit, f_direction,POI_rot)
+function [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max, noC, b_rot_xy, w_p_x, w_p_t,  rotation_matrix,  limit, f_direction,POI_rot)
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
 % Basispunkte Roboter
 ws_position = repmat(ws_position, 1, noC); %ws_position for workspace position, in order to achieve the dimension (1,noC) 
 
 % Schließbedingung Vektoren (Closure constrain v_i) Equation 3.1 & 3.2 in Pott's Book 
 %     l = a - ws_position - b_rot; 
-    l = a - ws_position - b_rot_xz;
+    l = a - ws_position - b_rot_xy;
 
 %1st Check: für Arbeitsraum Berechnung: check ob length = 0 --> leads to NaN in u(unit vector)
 for check_l = 1 : noC
@@ -27,7 +27,7 @@ end
 
 b_cross_u = zeros(3,noC);
 for i=1:noC
-    b_cross_u(:,i) = cross(b_rot_xz(:,i),u(:,i)); %ACHTUNG: b_rot or b_rot_xz???!!!
+    b_cross_u(:,i) = cross(b_rot_xy(:,i),u(:,i)); 
 end
 
 % Strukturmatrix
