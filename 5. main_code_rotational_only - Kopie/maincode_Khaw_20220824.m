@@ -31,8 +31,8 @@ b = b_cell{1, 1};
 %% Definition of rotation axis 
 %Define rotation value 
 % rotation_angles_z =[0:5:360]; %rotation 360 grad
-rotation_angles_z =[0:5:360]; %rotation pro quadrant 
-rotation_angles_3Daxis = [0:2:30]; %positive %C-bogen 
+rotation_angles_z =[0:5:90]; %rotation pro quadrant 
+rotation_angles_3Daxis = [0:5:30]; %positive %C-bogen 
 
 %preallocationg for speed 
 rotation_array_xy = zeros(length(rotation_angles_z),4); 

@@ -61,7 +61,7 @@ width_frame = max(a(2,:))-min(a(2,:)); %y-axis
 height_frame = max(a(3,:))-min(a(3,:)); %z-axis 
 height_rod = max(b(3,:))-min(b(3,:));
 
-title('Wrench-feasible workspace in Cable-Driven Haptic Device')
+title('Rotational workspace in Cable-Driven Haptic Device')
 txt = ['L= ' int2str(length_frame) ' x W= ' int2str(width_frame) ' x H= ' int2str(height_frame) ' Rod= ' int2str(height_rod) ' [mm]'];
 subtitle(txt)
 xlabel('x in mm') %text in x-coordinate
