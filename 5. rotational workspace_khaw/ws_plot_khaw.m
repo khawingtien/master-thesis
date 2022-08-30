@@ -2,14 +2,13 @@ function [r] = ws_plot_khaw(workspace_trans_mat_total,a,b,noC)
 %plot workspace (rotation x-y axis and translation in z-axis) 
 
 figure 
-
 %% Plot Trocar point at Origin
 plot3(0,0,0,'bo','LineWidth',5)
 hold on 
 
 %plot Rod 
-Rod_top = [0 0 300];
-Rod_bottom = [0 0 -300];
+Rod_top = [0 0 b(3,1)];
+Rod_bottom = [0 0 b(3,5)];
 Rod = [Rod_top; Rod_bottom]';
 plot3(Rod(1,:), Rod(2,:), Rod(3,:),'b','LineWidth',2)
 hold on 
@@ -54,6 +53,7 @@ patch(xc(idx), yc(idx), zc(idx), 'w', 'facealpha', 0.1);
 %% Plot WORKSPACE_TRANSLATION
 plot3(workspace_trans_mat_total(:,1),workspace_trans_mat_total(:,2),workspace_trans_mat_total(:,3),'.g')
 daspect([1,1,1]) %For equal data unit lengths in all directions
+grid minor 
 
 %% Title of plot
 length_frame = max(a(1,:))-min(a(1,:)); %x-axis
