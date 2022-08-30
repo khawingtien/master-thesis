@@ -1,5 +1,5 @@
 %% Function Arbeitsraum
-function [workspace_logical,  b_rot_xy, POI_rot] = Arbeitsraum_khaw(a, b, f_min, f_max,noC, rot_axis, rot_angle, w_p_x, w_p_t, rotation_w_p, workspace_logical, coordinate, limit, f_direction)
+function [workspace_logical,  b_rot_xy, POI_rot] = Arbeitsraum_khaw(a, b, f_min, f_max,noC, rot_axis, rot_angle, w_p, w_p_t, workspace_logical, coordinate, limit)
 counter = 1; %predefine counter = 1
 
 %Define Point of Interest (POI) 
@@ -12,27 +12,18 @@ b_rot_xy = R*b; %Rotation of endeffector
 
 POI_rot = R *POI_offset; %Rotation of point of interest (the end of endeffector) 
 
-middle_rod = R *([-POI_offset, POI_offset]); 
+% middle_rod = R *([-POI_offset, POI_offset]); 
 
-%calculate rotation matrix for wrench 
-rotation_matrix.wpx = axang2rotm(rotation_w_p.x); %rotation matrix for f_Y around X-AXIS (IMPORTANT)
-rotation_matrix.wpy = axang2rotm(rotation_w_p.y); %rotation matrix for f_X around Y-AXIS (IMPORTANT)
+[wrench] = wrench_calculation_khaw(POI_rot,w_p,w_p_t,R);
 
-%Go through all the coordinate combination of the x_row, y_column, z_page, and save them in variable workspace_position 
-% 
-%        for i = 1 :length(coordinate.x)
-%          for j = 1 :length(coordinate.y)
+%Go through all the coordinate of z-axis, and save them in variable workspace_position 
            for k = 1:length(coordinate.z)
-%              workspace_position = [coordinate.x(i) coordinate.y(j) coordinate.z(k)]'; %workspace_position in a column vector  
-             workspace_position = [coordinate.x coordinate.y coordinate.z(k)]'; %workspace_position in a column vector  
+               workspace_position = [coordinate.x coordinate.y coordinate.z(k)]'; %workspace_position in a column vector  
 
-        %berechne die Seilkraftverteilung an dieser Position        
-        [stop] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, b, f_min, f_max,noC,b_rot_xy, w_p_x, w_p_t, rotation_matrix,  limit, f_direction, POI_rot); %hier erstmal nur stop von Interesse tbd
-        counter = counter + 1; %no semicolon, to show the current progression during debugging
-%         workspace_logical(i,j,k) = ~stop; %write the logical for 1 if stop = 0 (no violation exist) & 0 for stop = 1 (violation exist) 
-        workspace_logical(1,1,k) = ~stop;
+                %Calculate the force distribution at this position         
+                [stop] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, f_min, f_max,noC,b_rot_xy, wrench,  limit); %hier erstmal nur stop von Interesse tbd
+                counter = counter + 1; %no semicolon, to show the current progression during debugging
+                workspace_logical(1,1,k) = ~stop; %write the logical for 1 if stop = 0 (no violation exist) & 0 for stop = 1 (violation exist)
            end
-%          end
-%        end
      
 end

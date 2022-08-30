@@ -1,4 +1,4 @@
-function [convexhull_volume, workspace_trans_mat_total] = convexhull_khaw(workspace_trans_mat_total)
+function [convexhull_volume, workspace_trans_mat_total, indices] = convexhull_khaw(workspace_trans_mat_total)
 %UNTITLED2 Summary of this function goes here
 
 %% Change the values of NaN to 0 (so that convhull function is applicable) 

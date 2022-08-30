@@ -1,7 +1,7 @@
-function [r] = ws_plot_khaw(workspace_trans_mat_total,a,b,noC)
+function [r] = ws_plot_khaw(workspace_trans_mat_total,a,b,noC,w_p, w_p_t)
 %plot workspace (rotation x-y axis and translation in z-axis) 
 
-figure 
+% figure 
 %% Plot Trocar point at Origin
 plot3(0,0,0,'bo','LineWidth',5)
 hold on 
@@ -23,7 +23,6 @@ Z = (Z*h)-400; %minus 100 so that its from -100 to 100 in Z-axis
 surf(X,Y,Z,'FaceColor','w','FaceAlpha','0.3')
 
 %% Plot Seile 
-% a_adapt = a;
 a_figure = [a(:,1:4) a(:,8) a(:,5:8) a(:,5)]; %focus column 5 and column 10 
 b_figure = [b(:,1:4) b(:,8) b(:,5:8) b(:,5)];
 
@@ -62,7 +61,7 @@ height_frame = max(a(3,:))-min(a(3,:)); %z-axis
 height_rod = max(b(3,:))-min(b(3,:));
 
 title('Rotational workspace in Cable-Driven Haptic Device')
-txt = ['L= ' int2str(length_frame) ' x W= ' int2str(width_frame) ' x H= ' int2str(height_frame) ' Rod= ' int2str(height_rod) ' [mm]'];
+txt = ['L= ' int2str(length_frame) ' W= ' int2str(width_frame) ' H= ' int2str(height_frame) ' Rod= ' int2str(height_rod) ' [mm] wp= ' int2str(w_p) ' wpt = ' int2str(w_p_t)  ' [N]'];
 subtitle(txt)
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate

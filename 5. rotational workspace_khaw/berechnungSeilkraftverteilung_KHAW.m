@@ -1,5 +1,5 @@
 %% Function berechnungSeilkraftverteilung 
-function [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, b, f_min, f_max, noC, b_rot_xy, w_p_x, w_p_t,  rotation_matrix,  limit, f_direction,POI_rot)
+function [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, f_min, f_max, noC, b_rot_xy, wrench,  limit)
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
 
 % Basispunkte Roboter
@@ -25,7 +25,7 @@ end
 
 b_cross_u = zeros(3,noC);
 for i=1:noC
-    b_cross_u(:,i) = cross(b_rot_xy(:,i),u(:,i)); 
+    b_cross_u(:,i) = cross(b_rot_xy(:,i),u(:,i)); %%b_rot_xy
 end
 
 % Strukturmatrix
@@ -48,10 +48,7 @@ f_M = ones(noC,1); %preallocating for speed
 f_M = f_M .* ((f_min + f_max) / 2); % f_M = average feasible force (below Eq 3.53 Pott Book)
 A_inv = pinv(A_T); % Moore-Penrose Inverse
 
-%Implementation of wrench either in x-axis or y-axis 
-[wrench_p_f, ~] = wrench_khaw2(b,w_p_x,w_p_t,rotation_matrix,f_direction,POI_rot);
-
-f_V = -A_inv * (wrench_p_f + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
+f_V = -A_inv * (wrench + A_T * f_M); %Gleichung 3.55 & 3.59 Pott Buch
 norm_f_V = norm(f_V, 2);
 if norm_f_V  >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-norm of a vector =2, gives the vector magnitude or Euclidean length of the vector Equation 3.6 Pott's book 
 %    disp("fail to provide a feasible solution although such a solution exists")
@@ -108,7 +105,7 @@ while r ~= 0 %calculate redundancy
     % Wenn eine Kraft die Kraftgrenzen verletzt
         log_array(f_id) = false;
         A_inv_neu = pinv(A_T(:,log_array));
-        w_p_neu = f_min * A_T(:, f_id) + wrench_p_f; %Equation 3.61 Pott's book  TO CHECK (WARUM NUR EINE SPALTEN)? 22.08.2022
+        w_p_neu = f_min * A_T(:, f_id) + wrench; %Equation 3.61 Pott's book  TO CHECK (WARUM NUR EINE SPALTEN)? 22.08.2022
         f(log_array) = A_inv_neu * (- w_p_neu); %Lösung des Problems Af + w = 0 nach f_neu
         r = length(f(log_array)) - DOF; %r = m-n
 
@@ -119,16 +116,16 @@ while r ~= 0 %calculate redundancy
         f(f_id) = f_min; 
     else 
         f(f_id) = f_max;
-        wrench_p_f = w_p_neu;
+        wrench = w_p_neu;
     end
 end
 
 %% check static equlibrium
 %Force
 sum_f = A_T(1:3,:)* f;
-sum_f = sum_f + wrench_p_f(1:3,:); %% f + [f_x f_y f_z]  Equation 3.5 Pott's book 
+sum_f = sum_f + wrench(1:3,:); %% f + [f_x f_y f_z]  Equation 3.5 Pott's book 
 sum_f = round(sum_f, 0); %round to 5 digits %%WARNING TODO
-stop = 0; %static equilibrium fulfill
+% stop = 0; %static equilibrium fulfill
 
 if any(sum_f, 'all') %Determine if any array elements are nonzero, test over ALL elements of sum_f with the command 'all'
     stop = 1; %static equilibrium not fulfill
@@ -137,7 +134,7 @@ end
 
 %torque
 sum_torque = A_T(4:6,:) * f;
-sum_torque = sum_torque + wrench_p_f(4:6); 
+sum_torque = sum_torque + wrench(4:6); 
 sum_torque = round(sum_torque, 0); %%WARNING TODO
 stop = 0; %static equilibrium fulfill, no violation of force distribution 
 
