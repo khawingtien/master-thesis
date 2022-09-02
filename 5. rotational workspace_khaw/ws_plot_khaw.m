@@ -1,4 +1,4 @@
-function [r] = ws_plot_khaw(workspace_trans_mat_total,a,b,noC,w_p, w_p_t)
+function [w_p] = ws_plot_khaw(workspace_trans_mat_total,a,b,w_p, noC,w_p_t)
 %plot workspace (rotation x-y axis and translation in z-axis) 
 
 % figure 
@@ -14,13 +14,13 @@ plot3(Rod(1,:), Rod(2,:), Rod(3,:),'b','LineWidth',2)
 hold on 
 
 %% Plot Region of Interest (ROI)
-r = 150; %radius in mm 
-[X,Y,Z] = cylinder(r);
-X = X-0;
-Y = Y-0;
-h = 200; %height in mm
-Z = (Z*h)-400; %minus 100 so that its from -100 to 100 in Z-axis
-surf(X,Y,Z,'FaceColor','w','FaceAlpha','0.3')
+% r = 150; %radius in mm 
+% [X,Y,Z] = cylinder(r);
+% X = X-0;
+% Y = Y-0;
+% h = 200; %height in mm
+% Z = (Z*h)-400; %minus 100 so that its from -100 to 100 in Z-axis
+% surf(X,Y,Z,'FaceColor','w','FaceAlpha','0.3')
 
 %% Plot Seile 
 a_figure = [a(:,1:4) a(:,8) a(:,5:8) a(:,5)]; %focus column 5 and column 10 

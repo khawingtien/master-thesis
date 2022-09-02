@@ -18,5 +18,4 @@ else
 end
 
 workspace_pointwise_trans = workspace_pointwise + POI_rot'; %translation of the results to POI
-
 end

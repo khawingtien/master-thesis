@@ -29,7 +29,7 @@ for i=1:noC
 end
 
 % Strukturmatrix
-A_T = [u; b_cross_u];
+A_T = [u; b_cross_u]; %Jacobian matrix
                            
 % 2.Check if robot is in a nonsingular posn --> A_T full row rank
 rank_A_T = size(orth(A_T.').', 1); %Orthonormal basis for range of matrix (Pott page 93)
@@ -55,30 +55,30 @@ if norm_f_V  >= limit.lower && norm(f_V, 2) <= limit.upper %norm(f_V,2) as p-nor
 elseif norm_f_V > limit.upper
    %disp("No solution exists") %if norm(f_V,2) violates the upper limit, no solution exist. 
     % if it below the lower limit, the force distribution is feasible
-     stop = 1;
-     return 
-%             Kappa = zeros(1,3);
-%             k = null(A_T); %nullspace of A_T (one-Dimensional Kernel) so that A_T*k = 0 (Pott pg167) eq 5.7
-%             
-%             for i = 1:size(k,2)
-%                 k_col=k(:,i);
-%                 if  min(k_col) > 0 %eq 5.8
-%                     Kappa(i) = min(k_col)/max(k_col); 
-%                     
-%                 elseif max(k_col) < 0
-%                     Kappa(i) = max(k_col)/min(k_col);
-%                     
-%                 else
-%                     Kappa(i) = 0;
-%                 end 
-%             end
-%             
-%                 if any(Kappa)
-%                     stop = 0;
-%                 else
-%                     stop = 1;
-%                 end
-%     return
+%      stop = 1;
+%      return 
+            Kappa = zeros(1,3);
+            k = null(A_T); %nullspace of A_T (one-Dimensional Kernel) so that A_T*k = 0 (Pott pg167) eq 5.7
+            
+            for i = 1:size(k,2)
+                k_col=k(:,i);
+                if  min(k_col) > 0 %eq 5.8
+                    Kappa(i) = min(k_col)/max(k_col); 
+                    
+                elseif max(k_col) < 0
+                    Kappa(i) = max(k_col)/min(k_col);
+                    
+                else
+                    Kappa(i) = 0;
+                end 
+            end
+            
+                if any(Kappa)
+                    stop = 0;
+                else
+                    stop = 1;
+                end
+    return
 end
 
 f = f_M + f_V; %Eq 3.53 Pott Book (feasible force + arbitrary force vector)

@@ -18,7 +18,7 @@ grid.z_max = 150;
 grid.z_min = -650;
 
 %Definiere Grid    
-grid_n = 20;  %Anzahl der Unterteilungen in X-Richtung
+grid_n = 40;  %Anzahl der Unterteilungen in X-Richtung
 grid_delta = (grid.z_max - grid.z_min) / grid_n;  %step size in x-direction in mm %Gitterabstand von X-Richtung (Y- & Z-Richtung auch in diesem Abstand)
 
 %% Endeffector parameter 
@@ -27,8 +27,8 @@ b = b_cell{1, 1};
 
 %% Definition of rotation axis 
 % Define rotation value 
-rotation_angles_z = 0:5:360; %rotation pro quadrant  (0:90)
-rotation_angles_3Daxis = 1:2:30; %positive %C-bogen 
+rotation_angles_z = 0:5:90; %rotation pro quadrant  (0:90)
+rotation_angles_3Daxis = 1:3:40; %positive %C-bogen 
 
 % Preallocationg for speed 
 rotation_array_xy = zeros(length(rotation_angles_z),4); 
@@ -56,10 +56,8 @@ coordinate.y = 0; %step size in y-direction
 coordinate.z = (grid.z_min : grid_delta: grid.z_max)'; %step size in z-direction
 
 workspace_logical = ~ones(length(coordinate.x), length(coordinate.y), length(coordinate.z)); %preallocating the variable for speed (logical)
-workspace_trans_mat = [];
-workspace_trans_mat_total = [];
 
-total_counter=0;
+total_counter = 0;
 workspace_cell= cell(length(rotation_angles_3Daxis)*length(rotation_angles_z),1);
 %% Maincode
 for counter_3Daxis = 1 : length(rotation_angles_3Daxis) %C-Bogen 0:30°
@@ -67,22 +65,24 @@ for counter_3Daxis = 1 : length(rotation_angles_3Daxis) %C-Bogen 0:30°
 
     for counter_angles_z = 1: length(rotation_angles_z) %0:360° rotate at xy-axis (4 Quadrant) 
         rotation_axis = rot_axis(counter_angles_z,:); %rotation axis for each rotation at xy-axis 
-    
+        
+        %calculate the points that are within the workspace 
         [workspace_logical,  b_rot_xz, POI_rot] = Arbeitsraum_khaw(a, b, f_min, f_max, noC,  rotation_axis, rot_angle, w_p, w_p_t, workspace_logical, coordinate, limit);
 
-%finalen Arbeitsraum bestimmen und darstellen
-[workspace_pointwise_trans] = ws_translation_khaw(workspace_logical,coordinate,POI_rot);
-total_counter = total_counter+1;
-workspace_cell{total_counter} = workspace_pointwise_trans;
-%  workspace_trans_mat = [workspace_trans_mat; workspace_pointwise_trans];
+        %convert the workspace point to the POI (at the end of endeffector)
+        [workspace_pointwise_trans] = ws_translation_khaw(workspace_logical,coordinate,POI_rot);
+        total_counter = total_counter+1;
+        workspace_cell{total_counter} = workspace_pointwise_trans; %save the ws points with translation in a cell array 
     end
-
 end
-workspace_trans_mat = cat(1,workspace_cell{:});
 
-[r] = ws_plot_khaw(workspace_trans_mat,a,b,noC,w_p, w_p_t);
+workspace_trans_mat = cat(1,workspace_cell{:}); %concatenate array into matrix 
 
-[convexhull_volume, workspace_trans_mat,indices] = convexhull_khaw(workspace_trans_mat);
+% plot the workspace 
+[w_p] = ws_plot_khaw(workspace_trans_mat,a,b,w_p,noC, w_p_t);
+
+% plot the convexhull area and Volume of convex hull 
+% [convexhull_volume, workspace_trans_mat,indices] = convexhull_khaw(workspace_trans_mat);
 
 toc
 
