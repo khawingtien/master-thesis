@@ -2,8 +2,9 @@ function [convexhull_volume, workspace_trans_mat_total, indices] = convexhull_kh
 %UNTITLED2 Summary of this function goes here
 
 %% Change the values of NaN to 0 (so that convhull function is applicable) 
-indices = isnan(workspace_trans_mat_total) == 1;
-workspace_trans_mat_total(indices) = 0; 
+indices = isnan(workspace_trans_mat_total(:,1));
+indices = find(indices ==1);
+workspace_trans_mat_total(indices,:) = []; 
 
 [k, convexhull_volume] = convhull(workspace_trans_mat_total,'Simplify',true);
 

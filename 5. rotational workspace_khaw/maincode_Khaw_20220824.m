@@ -14,7 +14,7 @@ az = 0.05; %in m
 noC = length(a);
     
 %Define max and min of grid in z-direction
-grid.z_max = 150;
+grid.z_max = 50;
 grid.z_min = -650;
 
 %Definiere Grid    
@@ -27,8 +27,8 @@ b = b_cell{1, 1};
 
 %% Definition of rotation axis 
 % Define rotation value 
-rotation_angles_z = 0:5:90; %rotation pro quadrant  (0:90)
-rotation_angles_3Daxis = 1:3:40; %positive %C-bogen 
+rotation_angles_z = 0:10:350; %rotation pro quadrant  (0:90)
+rotation_angles_3Daxis = 1:5:90; %positive %C-bogen 
 
 % Preallocationg for speed 
 rotation_array_xy = zeros(length(rotation_angles_z),4); 
@@ -42,8 +42,8 @@ for z = 1 : length(rotation_angles_z)
 end
 
 %% Definiere zu untersuchende Lasten in bestimmte Raumrichtungen definiert durch rotation_w_p
-w_p = 5; %wrench in x-y-z direction 
-w_p_t = 5; %wrench in Torque in x-y-z direction (Feedback Kraft in Rotation)
+w_p = 5; %N wrench in x-y-z direction 
+w_p_t = 5; %N wrench in Torque in x-y-z direction (Feedback Kraft in Rotation)
 
 %% Parameter zur Arbeitsraum Berechnung
 f_min = 5;
@@ -59,6 +59,7 @@ workspace_logical = ~ones(length(coordinate.x), length(coordinate.y), length(coo
 
 total_counter = 0;
 workspace_cell= cell(length(rotation_angles_3Daxis)*length(rotation_angles_z),1);
+
 %% Maincode
 for counter_3Daxis = 1 : length(rotation_angles_3Daxis) %C-Bogen 0:30°
     rot_angle = rotation_angles_3Daxis(counter_3Daxis); 
@@ -82,16 +83,12 @@ workspace_trans_mat = cat(1,workspace_cell{:}); %concatenate array into matrix
 [w_p] = ws_plot_khaw(workspace_trans_mat,a,b,w_p,noC, w_p_t);
 
 % plot the convexhull area and Volume of convex hull 
-% [convexhull_volume, workspace_trans_mat,indices] = convexhull_khaw(workspace_trans_mat);
+%  [convexhull_volume, ~,indices] = convexhull_khaw(workspace_trans_mat);
 
 toc
 
 
-
-
-
-
-
+% axis([-200 200 -200 200 -600 300]);
 
 
 

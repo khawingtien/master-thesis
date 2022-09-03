@@ -1,7 +1,6 @@
 %% Function berechnungSeilkraftverteilung 
 function [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, f_min, f_max, noC, b_rot_xy, wrench,  limit)
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
-
 % Basispunkte Roboter
 ws_position = repmat(ws_position, 1, noC); %ws_position for workspace position, in order to achieve the dimension (1,noC) 
 
@@ -21,7 +20,6 @@ u = zeros(3,noC);
 for i=1:noC
     u(:,i) = l(:,i) / norm(l(:,i)); %Equation 3.3 Pott's book 
 end
-
 
 b_cross_u = zeros(3,noC);
 for i=1:noC
@@ -124,7 +122,7 @@ end
 %Force
 sum_f = A_T(1:3,:)* f;
 sum_f = sum_f + wrench(1:3,:); %% f + [f_x f_y f_z]  Equation 3.5 Pott's book 
-sum_f = round(sum_f, 0); %round to 5 digits %%WARNING TODO
+sum_f = round(sum_f, 5); %round to 5 digits %%WARNING TODO
 % stop = 0; %static equilibrium fulfill
 
 if any(sum_f, 'all') %Determine if any array elements are nonzero, test over ALL elements of sum_f with the command 'all'
@@ -135,7 +133,7 @@ end
 %torque
 sum_torque = A_T(4:6,:) * f;
 sum_torque = sum_torque + wrench(4:6); 
-sum_torque = round(sum_torque, 0); %%WARNING TODO
+sum_torque = round(sum_torque, 5); %%WARNING TODO
 stop = 0; %static equilibrium fulfill, no violation of force distribution 
 
 if any(sum_torque, 'all') %Determine if any array elements are nonzero, test over ALL elements of sum_torque with the command 'all'
