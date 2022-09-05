@@ -50,7 +50,7 @@ zc = box(:,3);
 patch(xc(idx), yc(idx), zc(idx), 'w', 'facealpha', 0.1); 
 
 %% Plot WORKSPACE_TRANSLATION
-plot3(workspace_trans_mat_total(:,1),workspace_trans_mat_total(:,2),workspace_trans_mat_total(:,3),'.g')
+plot3(workspace_trans_mat_total(:,1),workspace_trans_mat_total(:,2),workspace_trans_mat_total(:,3),'.r')
 daspect([1,1,1]) %For equal data unit lengths in all directions
 grid minor 
 

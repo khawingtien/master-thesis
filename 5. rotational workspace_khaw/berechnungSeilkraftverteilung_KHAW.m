@@ -33,10 +33,11 @@ A_T = [u; b_cross_u]; %Jacobian matrix
 rank_A_T = size(orth(A_T.').', 1); %Orthonormal basis for range of matrix (Pott page 93)
     %nonsingular posn
 if rank_A_T == size(A_T, 1) %%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!1
-    %disp('non singular posn')
+%     disp('non singular posn')
 else
     %sigular posn
     %disp('singular posn')
+%     disp('rank problem')
     stop = 1; %violation exist 
     return
 end
@@ -55,38 +56,39 @@ elseif norm_f_V > limit.upper
     % if it below the lower limit, the force distribution is feasible
 %      stop = 1;
 %      return 
-            Kappa = zeros(1,3);
-            k = null(A_T); %nullspace of A_T (one-Dimensional Kernel) so that A_T*k = 0 (Pott pg167) eq 5.7
-            
-            for i = 1:size(k,2)
-                k_col=k(:,i);
-                if  min(k_col) > 0 %eq 5.8
-                    Kappa(i) = min(k_col)/max(k_col); 
-                    
-                elseif max(k_col) < 0
-                    Kappa(i) = max(k_col)/min(k_col);
-                    
-                else
-                    Kappa(i) = 0;
-                end 
+        %% wrench-closure workspace
+        Kappa = zeros(1,3);
+        k = null(A_T); %nullspace of A_T (one-Dimensional Kernel) so that A_T*k = 0 (Pott pg167) eq 5.7
+        
+        for i = 1:size(k,2)
+            k_col=k(:,i);
+            if  min(k_col) > 0 %eq 5.8
+                Kappa(i) = min(k_col)/max(k_col); 
+                
+            elseif max(k_col) < 0
+                Kappa(i) = max(k_col)/min(k_col);
+                
+            else
+                Kappa(i) = 0;
+            end 
+        end
+        
+            if any(Kappa)
+                stop = 0;
+            else
+                stop = 1;
             end
-            
-                if any(Kappa)
-                    stop = 0;
-                else
-                    stop = 1;
-                end
     return
 end
 
 f = f_M + f_V; %Eq 3.53 Pott Book (feasible force + arbitrary force vector)
 
-%Improved closed-form solution (update on 24.08.2022)
+%Improved closed-form solution (update on 04.09.2022)
 % Pruefen, ob eine Kraft die Kraftgrenzen verletzt und die Kraft mit der
 % groessten Differenz wählen
-DOF = 3; %2R1T
+DOF = 2; %2R
 r = noC - DOF; %r = m-n
-log_array = ~zeros(1,8);
+log_array = ~zeros(1,length(noC));
 
 %Compute the solution by recursively reducing the order until the
 %degree-of-redundancy become r= 0 (Pott book pg 95)
@@ -122,7 +124,7 @@ end
 %Force
 sum_f = A_T(1:3,:)* f;
 sum_f = sum_f + wrench(1:3,:); %% f + [f_x f_y f_z]  Equation 3.5 Pott's book 
-sum_f = round(sum_f, 5); %round to 5 digits %%WARNING TODO
+sum_f = round(sum_f, 0); %round to 5 digits %%WARNING TODO
 % stop = 0; %static equilibrium fulfill
 
 if any(sum_f, 'all') %Determine if any array elements are nonzero, test over ALL elements of sum_f with the command 'all'
@@ -133,7 +135,7 @@ end
 %torque
 sum_torque = A_T(4:6,:) * f;
 sum_torque = sum_torque + wrench(4:6); 
-sum_torque = round(sum_torque, 5); %%WARNING TODO
+sum_torque = round(sum_torque, 10); %%WARNING TODO
 stop = 0; %static equilibrium fulfill, no violation of force distribution 
 
 if any(sum_torque, 'all') %Determine if any array elements are nonzero, test over ALL elements of sum_torque with the command 'all'

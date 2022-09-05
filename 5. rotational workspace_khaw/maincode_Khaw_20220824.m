@@ -1,5 +1,5 @@
 % close all
-clear 
+clear
 clc
 tic %start Stopwatch timer
 figure 
@@ -13,7 +13,8 @@ az = 0.05; %in m
 %% Standardparameter
 noC = length(a);
     
-%Define max and min of grid in z-direction
+% Define max and min of grid in z-direction
+% grid.z_max = 50;
 grid.z_max = 50;
 grid.z_min = -650;
 
@@ -28,7 +29,7 @@ b = b_cell{1, 1};
 %% Definition of rotation axis 
 % Define rotation value 
 rotation_angles_z = 0:10:350; %rotation pro quadrant  (0:90)
-rotation_angles_3Daxis = 1:5:90; %positive %C-bogen 
+rotation_angles_3Daxis = 0:5:30; %positive %C-bogen 
 
 % Preallocationg for speed 
 rotation_array_xy = zeros(length(rotation_angles_z),4); 
@@ -55,21 +56,27 @@ coordinate.x = 0; %step size in x-direction
 coordinate.y = 0; %step size in y-direction
 coordinate.z = (grid.z_min : grid_delta: grid.z_max)'; %step size in z-direction
 
-workspace_logical = ~ones(length(coordinate.x), length(coordinate.y), length(coordinate.z)); %preallocating the variable for speed (logical)
+% workspace_logical = ~ones(length(coordinate.x), length(coordinate.y), length(coordinate.z)); %preallocating the variable for speed (logical)
+workspace_logical = ~ones(1,length(coordinate.z)); %preallocating the variable for speed (logical)
 
 total_counter = 0;
 workspace_cell= cell(length(rotation_angles_3Daxis)*length(rotation_angles_z),1);
+ws_logical_cell = cell (length(rotation_angles_z),length(rotation_angles_3Daxis));
 
 %% Maincode
-for counter_3Daxis = 1 : length(rotation_angles_3Daxis) %C-Bogen 0:30°
-    rot_angle = rotation_angles_3Daxis(counter_3Daxis); 
-
-    for counter_angles_z = 1: length(rotation_angles_z) %0:360° rotate at xy-axis (4 Quadrant) 
+for counter_angles_z = 1: length(rotation_angles_z) %0:360° rotate at xy-axis (4 Quadrant) 
         rotation_axis = rot_axis(counter_angles_z,:); %rotation axis for each rotation at xy-axis 
         
+    
+    for counter_3Daxis = 1 : length(rotation_angles_3Daxis) %C-Bogen 0:30°
+        rot_angle = rotation_angles_3Daxis(counter_3Daxis); 
+
+
         %calculate the points that are within the workspace 
         [workspace_logical,  b_rot_xz, POI_rot] = Arbeitsraum_khaw(a, b, f_min, f_max, noC,  rotation_axis, rot_angle, w_p, w_p_t, workspace_logical, coordinate, limit);
-
+        ws_log.POI=POI_rot;
+        ws_log.logical=workspace_logical;
+        ws_logical_cell{counter_angles_z, counter_3Daxis}=ws_log;
         %convert the workspace point to the POI (at the end of endeffector)
         [workspace_pointwise_trans] = ws_translation_khaw(workspace_logical,coordinate,POI_rot);
         total_counter = total_counter+1;
@@ -77,19 +84,16 @@ for counter_3Daxis = 1 : length(rotation_angles_3Daxis) %C-Bogen 0:30°
     end
 end
 
+
 workspace_trans_mat = cat(1,workspace_cell{:}); %concatenate array into matrix 
 
 % plot the workspace 
 [w_p] = ws_plot_khaw(workspace_trans_mat,a,b,w_p,noC, w_p_t);
 
 % plot the convexhull area and Volume of convex hull 
-%  [convexhull_volume, ~,indices] = convexhull_khaw(workspace_trans_mat);
+[convexhull_volume, ~,indices] = convexhull_khaw(workspace_trans_mat);
 
 toc
-
-
-% axis([-200 200 -200 200 -600 300]);
-
 
 
 

@@ -4,7 +4,7 @@ function [convexhull_volume, workspace_trans_mat_total, indices] = convexhull_kh
 %% Change the values of NaN to 0 (so that convhull function is applicable) 
 indices = isnan(workspace_trans_mat_total(:,1));
 indices = find(indices ==1);
-workspace_trans_mat_total(indices,:) = []; 
+workspace_trans_mat_total(indices,:) = []; %remove the line vector thats contain NaN
 
 [k, convexhull_volume] = convhull(workspace_trans_mat_total,'Simplify',true);
 
