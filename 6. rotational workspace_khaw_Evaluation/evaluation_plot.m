@@ -1,4 +1,4 @@
-function  evaluation_plot(I_vv_mat,rod_length)
+function  evaluation_plot(I_vv_mat,rod_length, x_label)
 %UNTITLED4 Summary of this function goes here
 
 %   Detailed explanation goes here
@@ -12,7 +12,7 @@ function  evaluation_plot(I_vv_mat,rod_length)
 
 figure
 plot(rod_length,I_vv_mat,'k-o','LineWidth',3)
-xlabel('ax length [mm]')
+% xlabel(x_label,' [mm]')
 ylabel('Ivv')
 title('linear progression of Ivv')
 grid on 

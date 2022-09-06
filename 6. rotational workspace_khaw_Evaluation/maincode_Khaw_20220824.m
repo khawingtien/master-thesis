@@ -1,19 +1,23 @@
 % close all
-clear
-clc
-tic %start Stopwatch timer
-figure 
+% clear
+
+% clc
+maincode_timer = tic; %start Stopwatch timer
+ 
 
 %% Frame parameter 
 % ax = 0.230; %in m 
 % ay = 0.230; %in m 
 % az = 0.06; %in m 
 
-[a_cell] = SetupParameter();
+% [a_cell] = SetupParameter();
 % a = a_cell{1,1};
+%  [a_cell] = SetupParameter(0.23);
+%  a = a_cell{1,1};
+%  b_cell = endeffektor2(0.2:0.3:2.6);
 
 %% Endeffector parameter 
-b_cell = endeffektor2();
+% b_cell = endeffektor2();
 
 %% Standardparameter
 noC = 8;
@@ -66,21 +70,21 @@ cable_length_mat_cell = cell(length(rotation_angles_3Daxis)*length(rotation_angl
 % ws_logical_cell = cell (length(rotation_angles_z),length(rotation_angles_3Daxis));
 
 %% Definition for Index evaluation
-I_vv_cell = cell(length(b_cell),1);
-I_vv_cell_ax = cell(length(a_cell),1);
-rod_length = zeros(length(b_cell),1);
-ax_length = zeros(length(a_cell),1);
+% I_vv_cell = cell(length(b_cell),1);
+% I_vv_cell_ax = cell(length(a_cell),1);
+% rod_length = zeros(length(b_cell),1);
+% ax_length = zeros(length(a_cell),1);
 
 %% Maincode
-for counter_ax = 1 : length(a_cell)
-        a = cell2mat(a_cell(counter_ax,1));
-        ax_length(counter_ax,1) = a(1,1)*2; %
-%         total_counter = 0;
-
-    for counter_b = 1 : length(b_cell)
-        b = cell2mat(b_cell(counter_b,1));
-        rod_length(counter_b,1) = b(3,1)*2; %rod length is the b_z parameter multiply by TWO
-        total_counter = 0; 
+% for counter_ax = 1 : length(a_cell)
+%         a = cell2mat(a_cell(counter_ax,1));
+%         ax_length(counter_ax,1) = a(1,1)*2; %
+% %         total_counter = 0;
+% 
+%     for counter_b = 1 : length(b_cell)
+%         b = cell2mat(b_cell(counter_b,1));
+%         rod_length(counter_b,1) = b(3,1)*2; %rod length is the b_z parameter multiply by TWO
+%         total_counter = 0; 
 
         for counter_angles_z = 1: length(rotation_angles_z) %0:360° rotate at xy-axis (4 Quadrant) 
                 rotation_axis = rot_axis(counter_angles_z,:); %rotation axis for each rotation at xy-axis 
@@ -107,30 +111,31 @@ for counter_ax = 1 : length(a_cell)
     
         
         % plot the workspace 
+       
         [w_p] = ws_plot_khaw(workspace_trans_mat,a,b,w_p,noC, w_p_t);
         
-        % plot the convexhull area and Volume of convex hull 
+%         plot the convexhull area and Volume of convex hull 
         [convexhull_volume, ~,indices] = convexhull_khaw(workspace_trans_mat);
         
-        %Evaluation of Index of Volume
-        [I_vv] = evaluation_volume(workspace_trans_mat,grid_delta); 
+%         Evaluation of Index of Volume
+%         [I_vv] = evaluation_volume(workspace_trans_mat,grid_delta); 
 %         I_vv_cell{counter_b} = I_vv;
-          I_vv_cell{counter_ax} = I_vv;
-    end
-     
-end
-       
+%           I_vv_cell{counter_ax} = I_vv;
+%     end
+%      
+% end
+%        
 
-I_vv_mat = cat(1,I_vv_cell{:});
-% I_vv_mat_ax = cat(1,I_vv_cell_ax{:});
-
-% %function to plot the evaluation of Index 
+% I_vv_mat = cat(1,I_vv_cell{:});
+% % I_vv_mat_ax = cat(1,I_vv_cell_ax{:});
+% 
+% % %function to plot the evaluation of Index 
 % evaluation_plot(I_vv_mat,rod_length); %Case 1 
- evaluation_plot(I_vv_mat, ax_length); %Case 2 
+%  evaluation_plot(I_vv_mat, ax_length); %Case 2 
 
 
 
-toc
+toc(maincode_timer)
 
 
 
