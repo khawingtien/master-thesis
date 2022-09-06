@@ -13,7 +13,7 @@ b_rot_xy = R *b; %Rotation of endeffector
 POI_rot = R *POI_offset; %Rotation of point of interest (the end of endeffector) 
 
 %call the function which calculate the wrench direction coordinate 
-wrench_mat = wrench_multiplication2 (w_p, w_p_t, lever_arm); %dimension 6x26
+wrench_mat = wrench_multiplication2 (w_p, w_p_t, lever_arm);
 counter = 0; 
 
 cable_length_cell = cell(1,length(coordinate.z));
