@@ -1,5 +1,5 @@
 %% Function berechnungSeilkraftverteilung 
-function [stop] = berechnungSeilkraftverteilung_KHAW(ws_position, a, f_min, f_max, noC, b_rot_xy, wrench,  limit)
+function [stop, cable_length] = berechnungSeilkraftverteilung_KHAW(ws_position, a, f_min, f_max, noC, b_rot_xy, wrench,  limit)
 % Berechnung der improved closed-form Lösung aus "Cable-driven parallel robots, Pott"
 % Basispunkte Roboter
 ws_position = repmat(ws_position, 1, noC); %ws_position for workspace position, in order to achieve the dimension (1,noC) 
@@ -16,9 +16,11 @@ for check_l = 1 : noC
 end
 
 %Define Einheitsvektoren (Unit vector) 
+cable_length = zeros(1,8); 
 u = zeros(3,noC);
 for i=1:noC
     u(:,i) = l(:,i) / norm(l(:,i)); %Equation 3.3 Pott's book 
+    cable_length(1,i) = norm(l(:,i));
 end
 
 b_cross_u = zeros(3,noC);
