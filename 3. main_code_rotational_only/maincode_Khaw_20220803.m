@@ -147,8 +147,8 @@ for i = 1 : size(rotation_array_values, 1)
 end
 
 %% Definiere zu untersuchende Lasten in bestimmte Raumrichtungen definiert durch rotation_w_p
-w_p_x = 0; %dieser Wert wird in berechnungSeilkraftverteilung in den wrench Vektor als x-Koordinate eingesetzt, y=0, T=0 (Feedback Kraft in alle Richtung, Translation) 
-w_p_t = 0; %Torque (Feedback Kraft in Rotation)%wrench in torque
+w_p_x = 5; %dieser Wert wird in berechnungSeilkraftverteilung in den wrench Vektor als x-Koordinate eingesetzt, y=0, T=0 (Feedback Kraft in alle Richtung, Translation) 
+w_p_t = 5; %Torque (Feedback Kraft in Rotation)%wrench in torque
 grid_deg = 8; % rotatorische Auflösung %for 8 only, because 360° is the same as 0°
 discrete_rot_angle_w_p = linspace(0, 2*pi*(1-1/grid_deg), grid_deg)'; %(x1, 1/8 from the complete 360°, n) n Punkte zwischen x1 und x2 
 rotation_w_array = zeros(size(discrete_rot_angle_w_p, 1), 4);%predefine for speed
