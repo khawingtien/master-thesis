@@ -1,8 +1,8 @@
 function [b_cell] = endeffektor2(bz)
 
 %% standard parameter 
-bx = 0.017; %in m
-by = 0.017; %in m
+bx = 0.005; %in m
+by = 0.005; %in m
 
 %% DEFINE Rod length parameter here
 % bz = 0.6; %in m standard rod length 

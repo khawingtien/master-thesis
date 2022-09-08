@@ -1,20 +1,13 @@
-function  evaluation_plot(I_vv_mat,rod_length, x_label)
-%UNTITLED4 Summary of this function goes here
+function  evaluation_plot(plot_x_axis,I_vv_mat, x_label,txt)
+%input of plot_x_axis is different based on case.  
 
-%   Detailed explanation goes here
-% figure
-% plot(rod_length,I_vv_mat,'k-o','LineWidth',3)
-% xlabel('Rod Length [mm]')
-% ylabel('Ivv')
-% title('linear progression of Ivv')
-% grid on 
-
-
+%plot the figure 
 figure
-plot(rod_length,I_vv_mat,'k-o','LineWidth',3)
-% xlabel(x_label,' [mm]')
+plot(plot_x_axis,I_vv_mat,'k-o','LineWidth',3)
+xlabel(x_label)
 ylabel('Ivv')
 title('linear progression of Ivv')
+subtitle(txt)
 grid on 
 
 end
