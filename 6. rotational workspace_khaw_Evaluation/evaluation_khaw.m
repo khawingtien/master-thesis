@@ -1,11 +1,11 @@
 clear
 clc
-
+close all
 evaluation_timer=tic;
 
 %% Definition for n
 ax_range = 0.3:0.05:0.6; %in m
-az_range = 0.01:0.05:0.3; %in m
+az_range = 0.0:0.02:0.3; %in m
 b_range = 0.3:0.05:0.6; %in m
 
 ax_standard = 0.46; %in m (INPUT: total of ax) (predefined: always ax = ay) 
@@ -13,10 +13,11 @@ ay_standard = 0.46; %in m (INPUT: total of ay)
 az_standard = 0.02; %in m (INPUT: total of az)
  b_standard = 0.60; %in m (INPUT: total rod lenght)
  
-Parameter = "az";
+Parameter = "az"; 
 
 switch Parameter
    case "standard"
+        group = 0;
         [a_cell] = SetupParameter(ax_standard,az_standard);
         b_cell = endeffektor2(b_standard);
         x_label = sprintf("standard [mm]");
@@ -24,18 +25,21 @@ switch Parameter
         zeros(length(b_cell),1);
 
     case "ax"
+        group = 1;
         [a_cell] = SetupParameter(ax_range, az_standard);%variety
         b_cell = endeffektor2(b_standard);
         x_label = sprintf("ax length [mm]");
         loop_length = length(a_cell);
 
     case "az" %extra 
+        group = 4;
         [a_cell] = SetupParameter(ax_standard, az_range);%variety
         b_cell = endeffektor2(b_standard);
         x_label = sprintf("az length [mm]");
         loop_length = length(a_cell);
         
     case "b"
+        group = 3;
         [a_cell] = SetupParameter(ax_standard,az_standard);
         b_cell = endeffektor2(b_range); %variety
         x_label = sprintf("rod length [mm]");
@@ -49,6 +53,7 @@ a = cell2mat(a_cell(1,1)); %standard parameter (it would be overwriten if its no
 I_vv_cell = cell(max(length(a_cell), length(b_cell)),1); %predefine for speed 
 Volume_ws_cell = cell(max(length(a_cell), length(b_cell)),1); %predefine for speed 
 Volume_frame_cell = cell(max(length(a_cell), length(b_cell)),1); %predefine for speed 
+Percentage_cell = cell(max(length(a_cell), length(b_cell)),1); %predefine for speed 
 plot_x_axis = zeros(max(length(a_cell), length(b_cell)), 1); %predefine for speed 
 
 for counter = 1 : loop_length
@@ -87,26 +92,38 @@ for counter = 1 : loop_length
         maincode_Khaw_20220824 %call the file 
 
         [I_vv,Volume_ws,Volume_frame] = evaluation_volume(vol_results_remove_OutL,ax_value,ay_value,b_value);
+        Percentage = Percentage_within_ROI(workspace_trans_remove_OutL);
+
         I_vv_cell{counter} = I_vv; 
         Volume_ws_cell{counter} = Volume_ws;
         Volume_frame_cell{counter} = Volume_frame;
+        Percentage_cell{counter} = Percentage;  
+
+
+%save figure automatically
+path = 'D:\Masterarbeit\11_MATLAB_GIT\6. rotational workspace_khaw_Evaluation\figure\20220909';
+filename = "rotational_workspace_%d_%d_%d_%d_%d";
+filename_total = sprintf(filename,group, round(ax_value,0) ,round(ay_value,0), round(az_value,0), round(b_value,0));
+saveas(gcf,fullfile(path,filename_total),'fig');
+close(gcf)
+
 end
 
 I_vv_mat = cat(1,I_vv_cell{:});
 Volume_ws_mat = cat(1,Volume_ws_cell{:});
 Volume_frame_mat = cat(1,Volume_frame_cell{:});
+Percentage_mat = cat(1, Percentage_cell{:});
 
 
-evaluation_plot(plot_x_axis,I_vv_mat,Volume_ws_mat,Volume_frame_mat,x_label,txt);
+evaluation_plot(plot_x_axis,I_vv_mat,Volume_ws_mat,Volume_frame_mat,Percentage_mat,x_label,txt);
 
+%save figure automatically
+path = 'D:\Masterarbeit\11_MATLAB_GIT\6. rotational workspace_khaw_Evaluation\figure\20220909';
+filename = "rotational_workspace_%d_%s";
+filename_total = sprintf(filename,group,x_label);
+saveas(gcf,fullfile(path,filename_total),'fig');
+close(gcf)
 
 
 
 disp(strcat("Total execution time: ", num2str(toc(evaluation_timer)), "s"))
-
-
-
-
-
-
-

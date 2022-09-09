@@ -1,5 +1,5 @@
 %figures to keep
-figs2keep = [8, 9];
+figs2keep = [11, 13];
 
 % Uncomment the following to 
 % include ALL windows, including those with hidden handles (e.g. GUIs)

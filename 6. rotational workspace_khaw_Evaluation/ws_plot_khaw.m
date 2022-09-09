@@ -58,6 +58,7 @@ grid minor
 [k,vol_results] = boundary(results, 1); %in mm3
 trisurf(k,results(:,1),results(:,2),results(:,3),'FaceColor','yellow','FaceAlpha',0.1)
 vol_results_m3 = vol_results*1e-9; %in m3
+
 %% Title of plot
 length_frame = max(a(1,:))-min(a(1,:)); %x-axis
 width_frame = max(a(2,:))-min(a(2,:)); %y-axis
