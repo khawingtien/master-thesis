@@ -1,4 +1,4 @@
-function [w_p] = ws_plot_khaw(workspace_trans_mat_total,a,b,w_p, noC,w_p_t)
+function [vol_results] = ws_plot_khaw(results,a,b,~, noC,~) %wp,wpt temporary ommitted
 %plot workspace (rotation x-y axis and translation in z-axis) 
 
 figure 
@@ -14,13 +14,13 @@ plot3(Rod(1,:), Rod(2,:), Rod(3,:),'b','LineWidth',2)
 hold on 
 
 %% Plot Region of Interest (ROI)
-r = 150; %radius in mm 
-[X,Y,Z] = cylinder(r);
-X = X-0;
-Y = Y-0;
-h = 200; %height in mm
-Z = (Z*h)-400; %minus 100 so that its from -100 to 100 in Z-axis
-surf(X,Y,Z,'FaceColor','w','FaceAlpha','0.3')
+% r = 150; %radius in mm 
+% [X,Y,Z] = cylinder(r);
+% X = X-0;
+% Y = Y-0;
+% h = 200; %height in mm
+% Z = (Z*h)-400; %minus 100 so that its from -100 to 100 in Z-axis
+% surf(X,Y,Z,'FaceColor','w','FaceAlpha','0.3')
 
 %% Plot Seile 
 a_figure = [a(:,1:4) a(:,8) a(:,5:8) a(:,5)]; %focus column 5 and column 10 
@@ -50,20 +50,27 @@ zc = box(:,3);
 patch(xc(idx), yc(idx), zc(idx), 'w', 'facealpha', 0.1); 
 
 %% Plot WORKSPACE_TRANSLATION
-plot3(workspace_trans_mat_total(:,1),workspace_trans_mat_total(:,2),workspace_trans_mat_total(:,3),'.r')
+plot3(results(:,1),results(:,2),results(:,3),'.r')
 daspect([1,1,1]) %For equal data unit lengths in all directions
 grid minor 
 
+%% Plot Boundary in 3D
+[k,vol_results] = boundary(results, 1); %in mm3
+trisurf(k,results(:,1),results(:,2),results(:,3),'FaceColor','yellow','FaceAlpha',0.1)
+vol_results_m3 = vol_results*1e-9; %in m3
 %% Title of plot
 length_frame = max(a(1,:))-min(a(1,:)); %x-axis
 width_frame = max(a(2,:))-min(a(2,:)); %y-axis
 height_frame = max(a(3,:))-min(a(3,:)); %z-axis 
 height_rod = max(b(3,:))-min(b(3,:));
 
-title('Rotational workspace in Cable-Driven Haptic Device')
-txt = ['L= ' int2str(length_frame) ' W= ' int2str(width_frame) ' H= ' int2str(height_frame) ' Rod= ' int2str(height_rod) ' [mm] wp= ' int2str(w_p) ' wpt = ' int2str(w_p_t)  ' [N]'];
-subtitle(txt)
+title('Rotational Workspace in Cable-Driven Haptic Device')
+% txt_1 = ['L= ' int2str(length_frame) ' W= ' int2str(width_frame) ' H= ' int2str(height_frame) ' Rod= ' int2str(height_rod) ' [mm] wp= ' int2str(w_p) ' wpt = ' int2str(w_p_t)  ' [N]'];
+txt_1 = ['L = ' int2str(length_frame) ' W = ' int2str(width_frame) ' H = ' int2str(height_frame) ' Rod = ' int2str(height_rod) ' [mm]'];
+txt_2 = ['Volume = ' num2str(vol_results_m3) ' [m^3]'];
+subtitle({txt_1,txt_2})
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
+
 end

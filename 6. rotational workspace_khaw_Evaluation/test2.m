@@ -1,0 +1,1 @@
+ptCloud = pcread('teapot.ply');

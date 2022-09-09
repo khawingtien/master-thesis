@@ -1,7 +1,7 @@
 % close all
 % clear
-
 % clc
+
 maincode_timer = tic; %start Stopwatch timer
  
 %% Standardparameter
@@ -84,12 +84,18 @@ end
         workspace_trans_mat = cat(1,workspace_cell{:}); %concatenate array into matrix 
         cable_length_mat_cell_mat = cat(1,cable_length_mat_cell{:});
     
-        
-        % plot the workspace 
-        [w_p] = ws_plot_khaw(workspace_trans_mat,a,b,w_p,noC, w_p_t);
+        %Remove Outliers in plot 
+        workspace_trans_remove_OutL = remove_outliers(workspace_trans_mat);
+    
+
+        % plot the workspace WITH Outliers (for comparison purpose only) 
+%         [vol_results] = ws_plot_khaw(workspace_trans_mat,a,b,w_p,noC, w_p_t);
+
+        % plot the workspace WITHOUT Outliers
+        [vol_results_remove_OutL] = ws_plot_khaw(workspace_trans_remove_OutL,a,b,w_p,noC, w_p_t); 
         
         %plot the convexhull area and Volume of convex hull 
-        [convexhull_volume, ~,indices] = convexhull_khaw(workspace_trans_mat);
+%         [convexhull_volume, ~,indices] = convexhull_khaw(workspace_trans_mat);
 
 
 
