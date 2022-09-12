@@ -5,12 +5,12 @@ dist_mat = zeros(length(workspace_trans_mat),1);
 P = workspace_trans_mat;
 
     for i= 1:length(workspace_trans_mat)
-    PQ=P(i,:); %Query point (point to be checked) 
+    PQ=P(i,:); %PQ = Query point (point to be checked) 
     [k,dist] = dsearchn(P(1:end ~=i,:),PQ); %search the neighbout without itself
     dist_mat(i,1) = dist; 
     end
 
-%TODO:If Bedingung (query point will be removed)
+%query point will be removed
 [row] = find(dist_mat >18); 
 workspace_trans_remove_OutL(row,:) = []; %indexing using outliers and setting them to NULL
 end

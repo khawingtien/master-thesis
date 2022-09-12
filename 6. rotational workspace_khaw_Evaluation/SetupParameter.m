@@ -1,4 +1,4 @@
-function [a_cell] = SetupParameter(ax, az) 
+function [a_cell] = SetupParameter(ax,ay, az) 
 %%Setup of Dimension of Cable Driven Robot 
 
 %% Define parameter here 
@@ -8,7 +8,7 @@ function [a_cell] = SetupParameter(ax, az)
 
 %% Standard parameter 
 % ay = ax;
-ay = 0.460; %in [m] Aufbau max(0.56m)
+% ay = 0.60; %in [m] Aufbau max(0.56m)
 % az = 0.06; %in [m] Aufbau max (0.26m) 
 
 a_cell = cell(max(length(ax), length(az)),1); %choose the longer parameter, while the other would be only one 

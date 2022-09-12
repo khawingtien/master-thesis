@@ -1,4 +1,4 @@
-function Percentage = Percentage_within_ROI(workspace_trans_remove_OutL)
+function [Percentage,Vol_point_in_ROI] = Percentage_within_ROI(workspace_trans_remove_OutL,b_value)
 
 %Calculate the Volume of ROI (Cylinder)
 r = 150; %in mm 
@@ -9,9 +9,12 @@ Vol_Cyl = pi*r^2*h; %in mm3
 x_coord =  workspace_trans_remove_OutL(:,1);
 y_coord =  workspace_trans_remove_OutL(:,2);
 z_coord =  workspace_trans_remove_OutL(:,3);
+POI = -(b_value/2); 
+height_upper = POI + h/2; %endeffector point +100mm above 
+height_lower = POI - h/2; %endeffector point +100mm above 
 
 cylinder_logical_xy = (x_coord).^2 + (y_coord).^2 <= r^2; %x2 +y2 = r2 cylinder formula
-cylinder_logical_z = -400 <= z_coord & z_coord <= -200; %z-coordinate within the heigh of cylinder
+cylinder_logical_z = height_lower <= z_coord & z_coord <= height_upper; %z-coordinate within the heigh of cylinder
 cylinder_logical_xyz = cylinder_logical_xy & cylinder_logical_z; %points logical that fulfil all conditions
 
 ptCloud_within_ROI = workspace_trans_remove_OutL(cylinder_logical_xyz,:); 
@@ -21,7 +24,7 @@ ptCloud_within_ROI = workspace_trans_remove_OutL(cylinder_logical_xyz,:);
 %Calculate the Volume of pointcloud in ROI 
 %% Plot Boundary in 3D
 results = ptCloud_within_ROI;
-[k,Vol_point_in_ROI] = boundary(results, 0); %in mm3 shrink factor = 0 =convexhull,cause no more outliers exist.
+[k,Vol_point_in_ROI] = boundary(results, 0.2); %in mm3 shrink factor = 0 =convexhull,cause no more outliers exist. 
 trisurf(k,results(:,1),results(:,2),results(:,3),'FaceColor','blue','FaceAlpha',0.1)
 
 %Percentage 
