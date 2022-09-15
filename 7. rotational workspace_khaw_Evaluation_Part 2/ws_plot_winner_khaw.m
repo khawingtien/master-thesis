@@ -1,4 +1,4 @@
-function [vol_results] = ws_plot_khaw(results,a,b,noC) %wp,wpt temporary ommitted
+function [vol_results] = ws_plot_winner_khaw(results,a,b,noC,I_vv_value,Volume_ws_value,Volume_frame_value,Percentage_value) %wp,wpt temporary ommitted
 %plot workspace (rotation x-y axis and translation in z-axis) 
 
 figure 
@@ -14,13 +14,14 @@ plot3(Rod(1,:), Rod(2,:), Rod(3,:),'b','LineWidth',2)
 hold on 
 
 %% Plot Region of Interest (ROI)
-% r = 150; %radius in mm 
-% [X,Y,Z] = cylinder(r);
-% X = X-0;
-% Y = Y-0;
-% h = 200; %height in mm
-% Z = (Z*h)-400; %minus 100 so that its from -100 to 100 in Z-axis
-% surf(X,Y,Z,'FaceColor','r','FaceAlpha','0.3')
+r = 150; %radius in mm 
+[X,Y,Z] = cylinder(r);
+X = X-0;
+Y = Y-0;
+h = 200; %height in mm
+height_lower = b(3,5) - h/2; %endeffector point +100mm above 
+Z = (Z*h) + height_lower; %minus 100 so that its from -100 to 100 in Z-axis
+surf(X,Y,Z,'FaceColor','b','FaceAlpha','0.3')
 
 %% Plot Seile 
 a_figure = [a(:,1:4) a(:,8) a(:,5:8) a(:,5)]; %focus column 5 and column 10 
@@ -70,20 +71,18 @@ title('Rotational Workspace in Cable-Driven Haptic Device')
 txt_1 = ['L = ' int2str(length_frame) ' W = ' int2str(width_frame) ' H = ' int2str(height_frame) ' Rod = ' int2str(height_rod) ' [mm]'];
 txt_2 = ['Volume = ' num2str(vol_results_m3) ' [m^3]'];
 subtitle({txt_1,txt_2})
-
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
 zlabel('z in mm') %text in z-coordinate
 
 
-% %% Legend of plot with 4 Spec 
-% dim = [.8 .6 .6 .3];
-% output1 = ['Ivv = ',num2str(round(I_vv_value,2))];
-% output2 = ['Volume ws = ',num2str(round(Volume_ws_value,3)),' [m^3]'];
-% output3 = ['Volume frame = ',num2str(round(Volume_frame_value,3)),' [m^3]'];
-% output4 = ['Percentage = ',num2str(round(Percentage_value,2)),' [%]'];
-% mytext = {output1,output2,output3,output4};
-% annotation('textbox',dim,'String',mytext,'FitBoxToText','on')
-% 
+%% Legend of plot with 4 Spec 
+dim = [.8 .6 .6 .3];
+output1 = ['Ivv = ',num2str(round(I_vv_value,3))];
+output2 = ['Volume ws = ',num2str(round(Volume_ws_value,3)),' [m^3]'];
+output3 = ['Volume frame = ',num2str(round(Volume_frame_value,3)),' [m^3]'];
+output4 = ['Percentage = ',num2str(round(Percentage_value,2)),' [%]'];
+mytext = {output1,output2,output3,output4};
+annotation('textbox',dim,'String',mytext,'FitBoxToText','on')
 
 end

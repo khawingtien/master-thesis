@@ -1,15 +1,12 @@
-function [workspace_trans_remove_OutL,vol_results_remove_OutL] = maincode_khaw(a,b)
+function [workspace_trans_remove_OutL,vol_results_remove_OutL,cable_length_mat_cell_mat] = maincode_khaw(a,b,noC)
 
 % close all
 % clear
 % clc
 
-
 maincode_timer = tic; %start Stopwatch timer
  
-%% Standardparameter
-noC = 8;
-    
+
 % Define max and min of grid in z-direction
 grid.z_max = 50;
 grid.z_min = -650;
@@ -22,11 +19,10 @@ grid_delta = (grid.z_max - grid.z_min) / grid_n;  %discretization steps in x-dir
 
 %% Definition of rotation axis 
 % Define rotation value 
-rotation_angles_z = 0:15:360; %rotation pro quadrant  (0:90)
+rotation_angles_z = 0:10:350; %rotation pro quadrant  (0:90)
 rotation_angles_3Daxis = 0:5:80; %positive %C-bogen 
 
 % Preallocationg for speed 
-rotation_array_xy = zeros(length(rotation_angles_z),4); 
 rot_axis = zeros(length(rotation_angles_z),3);
 
 %Define rotation axis matrix 
@@ -71,7 +67,7 @@ for counter_angles_z = 1: length(rotation_angles_z) %0:360° rotate at xy-axis (
         rot_angle = rotation_angles_3Daxis(counter_3Daxis); 
 
         %calculate the points that are within the workspace 
-        [workspace_logical,  b_rot_xz, POI_rot, cable_length_mat] = Arbeitsraum_khaw(a, b, f_min, f_max, noC,  rotation_axis, rot_angle, w_p, w_p_t, workspace_logical, coordinate, limit);
+        [workspace_logical,  ~, POI_rot, cable_length_mat] = Arbeitsraum_khaw(a, b, f_min, f_max, noC,  rotation_axis, rot_angle, w_p, w_p_t, workspace_logical, coordinate, limit);
 %             ws_log.POI=POI_rot;
 %             ws_log.logical=workspace_logical;
 %             ws_logical_cell{counter_angles_z, counter_3Daxis}=ws_log;
@@ -95,7 +91,7 @@ end
 %         [vol_results] = ws_plot_khaw(workspace_trans_mat,a,b,w_p,noC, w_p_t);
 
         % plot the workspace WITHOUT Outliers & calculation
-%         [vol_results_remove_OutL] = ws_plot_khaw(workspace_trans_remove_OutL,a,b,w_p,noC, w_p_t); 
+%         [vol_results_remove_OutL] = ws_plot_khaw(workspace_trans_remove_OutL,a,b,noC); 
 
         [~,vol_results_remove_OutL] = boundary(workspace_trans_remove_OutL, 1); %in mm3 %only calculation, without plot. 
         

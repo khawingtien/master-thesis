@@ -1,6 +1,3 @@
-BW = cat(3, [1 1 0; 0 0 0; 1 0 0],...
-            [0 1 0; 0 0 0; 0 1 0],...
-            [0 1 1; 0 0 0; 0 0 1]);
-
-CC = bwconncomp(BW);
-S = regionprops(CC,'Centroid');
+dim = [.8 .7 .2 .2];
+mytext = ['Ivv = ' num2str(ivv); 'Ivv = ' num2str(ivv); 'Ivv = ' num2str(ivv); 'Ivv = ' num2str(ivv)];
+annotation('textbox',dim,'String',mytext,'FitBoxToText','on');
