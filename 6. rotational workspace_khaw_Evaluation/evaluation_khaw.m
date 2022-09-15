@@ -12,10 +12,10 @@ b_range = 0.3:0.05:0.6; %in m
 %the rest of the parameter will be fixed 
 ax_standard = 0.5; %in m (INPUT: total of ax) (predefined: always ax = ay) 
 ay_standard = 0.5; %in m (INPUT: total of ay) 
-az_standard = 0.02; %in m (INPUT: total of az)
- b_standard = 0.4; %in m (INPUT: total rod lenght)
+az_standard = 0; %in m (INPUT: total of az)
+ b_standard = 0.3; %in m (INPUT: total rod lenght)
  
-Parameter = "az"; %Define changing parameter here 
+Parameter = "standard"; %Define changing parameter here 
 
 switch Parameter
    case "standard"
@@ -116,7 +116,7 @@ path = 'D:\Masterarbeit\11_MATLAB_GIT\6. rotational workspace_khaw_Evaluation\fi
 filename = "rotational_workspace_%d_%d_%d_%d_%d";
 filename_total = sprintf(filename,group, round(ax_value,0) ,round(ay_value,0), round(az_value,0), round(b_value,0));
 saveas(gcf,fullfile(path,filename_total),'fig');
-close(gcf)
+% close(gcf)
 
 end
 
