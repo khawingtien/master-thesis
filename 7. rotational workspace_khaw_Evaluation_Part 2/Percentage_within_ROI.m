@@ -28,11 +28,11 @@ results = ptCloud_within_ROI;
 % trisurf(k,results(:,1),results(:,2),results(:,3),'FaceColor','blue','FaceAlpha',0.3)
 
 %% Plot Region of Interest (ROI)
-[X,Y,Z] = cylinder(r);
-X = X-0;
-Y = Y-0;
-Z = (Z*h) + height_lower; %minus 100 so that its from -100 to 100 in Z-axis
-surf(X,Y,Z,'FaceColor','b','FaceAlpha','0.3')
+% [X,Y,Z] = cylinder(r);
+% X = X-0;
+% Y = Y-0;
+% Z = (Z*h) + height_lower; %minus 100 so that its from -100 to 100 in Z-axis
+% surf(X,Y,Z,'FaceColor','b','FaceAlpha','0.3')
 
 %Percentage 
 Percentage =  (Vol_point_in_ROI/Vol_Cyl) *100;

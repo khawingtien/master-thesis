@@ -28,20 +28,23 @@ for i=1:noC
     b_cross_u(:,i) = cross(b_rot_xy(:,i),u(:,i)); %%b_rot_xy
 end
 
+DoF = 5; %2R3T 
 % Strukturmatrix
 A_T = [u; b_cross_u]; %Jacobian matrix
-                           
+A_T = A_T (1:DoF,:); %only 5DoF  
+wrench = wrench(1:DoF,:);
 % 2.Check if robot is in a nonsingular posn --> A_T full row rank
+
 % rank_A_T = size(orth(A_T.').', 1); %Orthonormal basis for range of matrix (Pott page 93)
 rank_A_T = rank(A_T);
 
-    %nonsingular posn
-if rank_A_T >= 5 %2R3T size(A_T, 1)-1 %%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!1
+
+if rank_A_T >= DoF %2R3T size(A_T, 1)-1 %%For 8-wires_robot.py with 0° Rotation (need to MINUS 1) dunno why!1
 %     disp('non singular posn')
 else
     %sigular posn
+%     rank_A_T < DoF 
     %disp('singular posn')
-%     disp('rank problem')
     stop = 1; %violation exist 
     return
 end
@@ -114,7 +117,7 @@ while r ~= 0 %calculate redundancy
         r = length(f(log_array)) - DOF; %r = m-n
 
 %Update the new values
-    A_T (:,f_id) = zeros(6,1); %false situation, subsitute with zeros
+    A_T (:,f_id) = zeros(6-1,1); %false situation, subsitute with zeros
 
     if fail_diff <0
         f(f_id) = f_min; 
@@ -137,8 +140,8 @@ if any(sum_f, 'all') %Determine if any array elements are nonzero, test over ALL
 end
 
 %torque
-sum_torque = A_T(4:6,:) * f;
-sum_torque = sum_torque + wrench(4:6); 
+sum_torque = A_T(4:5,:) * f;
+sum_torque = sum_torque + wrench(4:5); 
 sum_torque = round(sum_torque, 10); %%WARNING TODO
 stop = 0; %static equilibrium fulfill, no violation of force distribution 
 

@@ -2,18 +2,19 @@ clear
 clc
 % close all
 evaluation_timer=tic;
+noC = 8;
 
 %% Definition for frame & rod length 
 %choose one to set a changing variable
-ax_range = 0.3:0.05:0.6; %in m
-az_range = 0.0:0.05:0.3; %in m
-b_range = 0.3:0.05:0.6; %in m
+ax_range = 300:50:600; %in m
+az_range = 0:50:300; %in m
+b_range = 300:50:600; %in m
 
 %the rest of the parameter will be fixed 
-ax_standard = 0.6; %in m (INPUT: total of ax) (predefined: always ax = ay) 
-ay_standard = 0.6; %in m (INPUT: total of ay) 
-az_standard = 0.025; %in m (INPUT: total of az)
- b_standard = 0.6; %in m (INPUT: total rod lenght)
+ax_standard = 510; %in m (INPUT: total of ax) (predefined: always ax = ay) 
+ay_standard = 510; %in m (INPUT: total of ay) 
+az_standard = 0; %in m (INPUT: total of az)
+ b_standard = 600; %in m (INPUT: total rod lenght)
  
 Parameter = "standard"; %Define changing parameter here 
 
@@ -33,7 +34,7 @@ switch Parameter
         x_label = sprintf("ax length [mm]");
         loop_length = length(a_cell);
 
-    case "az" %extra 
+    case "az" 
         group = 2;
         [a_cell] = SetupParameter(ax_standard,ay_standard,az_range);%variety
         b_cell = endeffektor2(b_standard);
@@ -93,16 +94,17 @@ for counter = 1 : loop_length
             ay_value = a(2,1)*2; %same as ax_standard
             az_value = a(3,1)*2; %same as ax_standard
             b = cell2mat(b_cell(counter,1)); %variety of parameter
-            b_value = b(3,1)*2;
-            plot_x_axis(counter,1) = b_value; %times two bcz only half of the length
+            b_value = b(3,1)*2; %times two bcz only half of the length
+            plot_x_axis(counter,1) = b_value; 
             txt = ['ax = ' int2str(ax_value) ' ay = ' int2str(ay_value), ' az = ' int2str(az_value) ' [mm]']; 
 
     end
 
         total_counter = 0; %reset counter 
 %         maincode_Khaw_20220824 %call the file 
-        [workspace_trans_remove_OutL,vol_results_remove_OutL] = maincode_khaw(a,b);
-
+        [workspace_trans_remove_OutL,vol_results_remove_OutL,cable_length_mat_cell_mat,w_p] = maincode_khaw(a,b,noC);
+        
+        % 4 specs analysis
         [I_vv,Volume_ws,Volume_frame] = evaluation_volume(vol_results_remove_OutL,ax_value,ay_value,b_value);
         [Percentage,Vol_point_in_ROI]  = Percentage_within_ROI(workspace_trans_remove_OutL,b_value);
 
@@ -110,6 +112,9 @@ for counter = 1 : loop_length
         Volume_ws_cell{counter} = Volume_ws;
         Volume_frame_cell{counter} = Volume_frame;
         Percentage_cell{counter} = Percentage;  
+
+
+[vol_results] = ws_plot_winner_khaw(workspace_trans_remove_OutL,a,b,noC,I_vv,Volume_ws*1e-9,Volume_frame*1e-9,Percentage,w_p);
 
 % 
 % %save figure automatically
@@ -127,7 +132,7 @@ Volume_frame_mat = cat(1,Volume_frame_cell{:});
 Percentage_mat = cat(1, Percentage_cell{:});
 
 
-%  evaluation_plot(plot_x_axis,I_vv_mat,Volume_ws_mat,Volume_frame_mat,Percentage_mat,x_label,txt);
+evaluation_plot(plot_x_axis,I_vv_mat,Volume_ws_mat,Volume_frame_mat,Percentage_mat,x_label,txt);
 
 %save figure automatically
 % path = 'D:\Masterarbeit\11_MATLAB_GIT\6. rotational workspace_khaw_Evaluation\figure\20220912';

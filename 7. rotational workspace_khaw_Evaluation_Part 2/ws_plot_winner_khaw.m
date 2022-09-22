@@ -1,4 +1,4 @@
-function [vol_results] = ws_plot_winner_khaw(results,a,b,noC,I_vv_value,Volume_ws_value,Volume_frame_value,Percentage_value) %wp,wpt temporary ommitted
+function [vol_results] = ws_plot_winner_khaw(results,a,b,noC,I_vv_value,Volume_ws_value,Volume_frame_value,Percentage_value,w_p) %wp,wpt temporary ommitted
 %plot workspace (rotation x-y axis and translation in z-axis) 
 
 figure 
@@ -67,9 +67,9 @@ height_frame = max(a(3,:))-min(a(3,:)); %z-axis
 height_rod = max(b(3,:))-min(b(3,:));
 
 title('Rotational Workspace in Cable-Driven Haptic Device')
-% txt_1 = ['L= ' int2str(length_frame) ' W= ' int2str(width_frame) ' H= ' int2str(height_frame) ' Rod= ' int2str(height_rod) ' [mm] wp= ' int2str(w_p) ' wpt = ' int2str(w_p_t)  ' [N]'];
 txt_1 = ['L = ' int2str(length_frame) ' W = ' int2str(width_frame) ' H = ' int2str(height_frame) ' Rod = ' int2str(height_rod) ' [mm]'];
-txt_2 = ['Volume = ' num2str(vol_results_m3) ' [m^3]'];
+% txt_2 = ['Volume = ' num2str(Volume_ws_value) ' [m^3]'];
+txt_2 = ['wrench = ' num2str(w_p) ' N'];
 subtitle({txt_1,txt_2})
 xlabel('x in mm') %text in x-coordinate
 ylabel('y in mm') %text in y-coordinate
@@ -77,10 +77,10 @@ zlabel('z in mm') %text in z-coordinate
 
 
 %% Legend of plot with 4 Spec 
-dim = [.8 .6 .6 .3];
+dim = [.8 .6 .7 .3];
 output1 = ['Ivv = ',num2str(round(I_vv_value,3))];
-output2 = ['Volume ws = ',num2str(round(Volume_ws_value,3)),' [m^3]'];
-output3 = ['Volume frame = ',num2str(round(Volume_frame_value,3)),' [m^3]'];
+output2 = ['Volume ws = ',num2str(round(Volume_ws_value,3)),' [m3]'];
+output3 = ['Volume frame = ',num2str(round(Volume_frame_value,3)),' [m3]'];
 output4 = ['Percentage = ',num2str(round(Percentage_value,2)),' [%]'];
 mytext = {output1,output2,output3,output4};
 annotation('textbox',dim,'String',mytext,'FitBoxToText','on')

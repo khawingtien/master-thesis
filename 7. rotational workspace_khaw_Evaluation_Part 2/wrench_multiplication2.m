@@ -4,12 +4,12 @@ function [wrench] = wrench_multiplication2 (w_p, w_p_t, lever_arm)
 % w_p_t=5;
 % lever_arm= 0.3;
 
-unit_vec = [0 0 1]';
+unit_vec = [0 0 1]'; %starting point for wrench 
 
 %define rotation step size here 
-% wp_angles_z = 0:90:270; %rotation axis for wp in step size 45° until 135° at z-axis
 wp_angles_z = 0:45:315;
-wp_rot_angles_3Daxis = 45:45:135; %positive C-Bogen only from 45° to 135° 
+wp_rot_angles_3Daxis = 45:45:135; %positive C-Bogen only from 45° to 135° (only 45 to 135° because 0° and 180° has the same repeated point for 8times)
+                                  %only from 0 to 180° because the rotation axis already cover the 180° to 360°(opposite of it, so just need to do one of it) 
 
 wp_rot_axis = zeros(length(wp_angles_z),3); %preallocating for speed
 sphere_mat = zeros(3,length(wp_angles_z)*length(wp_rot_angles_3Daxis)+2); %total of 24loops only, but add 0° ad 180° manually at first and last vector.

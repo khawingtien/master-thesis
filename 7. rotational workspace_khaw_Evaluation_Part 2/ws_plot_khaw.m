@@ -1,7 +1,7 @@
 function [vol_results] = ws_plot_khaw(results,a,b,noC) %wp,wpt temporary ommitted
 %plot workspace (rotation x-y axis and translation in z-axis) 
 
-figure 
+% figure 
 %% Plot Trocar point at Origin
 plot3(0,0,0,'bo','LineWidth',5)
 hold on 

@@ -1,4 +1,4 @@
-function [workspace_trans_remove_OutL,vol_results_remove_OutL,cable_length_mat_cell_mat] = maincode_khaw(a,b,noC)
+function [workspace_trans_remove_OutL,vol_results_remove_OutL,cable_length_mat_cell_mat,w_p] = maincode_khaw(a,b,noC)
 
 % close all
 % clear
@@ -19,7 +19,7 @@ grid_delta = (grid.z_max - grid.z_min) / grid_n;  %discretization steps in x-dir
 
 %% Definition of rotation axis 
 % Define rotation value 
-rotation_angles_z = 0:10:350; %rotation pro quadrant  (0:90)
+rotation_angles_z = 0:5:355; %rotation pro quadrant  (0:90)
 rotation_angles_3Daxis = 0:5:80; %positive %C-bogen 
 
 % Preallocationg for speed 
@@ -37,8 +37,10 @@ w_p = 5; %N wrench in x-y-z direction
 w_p_t = 5; %N wrench in Torque in x-y-z direction (Feedback Kraft in Rotation)
 
 %% Parameter zur Arbeitsraum Berechnung
+Mn = 183; %Nenndrehmoment in unit mNm for Motor 
+L_winde = 4.5; %mm %Stand:21.09.2022
 f_min = 5;
-f_max = 36; % fmax berechnet: 2* 183 / 10 = 36, 6 %Motor 
+f_max = Mn/L_winde; 
 limit.lower = (1/2 * (f_max - f_min)) ; %upper limit for improve closed-form solution (eq. 3.6 Pott book)
 limit.upper = (1/2 * sqrt(noC) * (f_max - f_min)); %lower limit for improved closed form (eq. 3.6 Pott book)
 
@@ -92,7 +94,6 @@ end
 
         % plot the workspace WITHOUT Outliers & calculation
 %         [vol_results_remove_OutL] = ws_plot_khaw(workspace_trans_remove_OutL,a,b,noC); 
-
         [~,vol_results_remove_OutL] = boundary(workspace_trans_remove_OutL, 1); %in mm3 %only calculation, without plot. 
         
         %plot the convexhull area and Volume of convex hull 

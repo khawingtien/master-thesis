@@ -9,9 +9,9 @@ noC = 8;
     
 total_time = tic;
 
-range_ax = 300:300:600; %in mm 
-range_az = 0:300:300; %in mm 
-rod_length = 300:300:600; %in mm 
+range_ax = 300:300:500; %in mm 
+range_az = 0:100:100; %in mm 
+rod_length = 300:300:500; %in mm 
 
 cell_length = length(range_ax)*length(range_az)*length(rod_length);
 workspace_trans_remove_OutL_cell = cell(cell_length,1);

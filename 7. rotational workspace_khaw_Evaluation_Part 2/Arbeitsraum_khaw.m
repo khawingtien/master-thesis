@@ -3,10 +3,10 @@ function [workspace_logical,  b_rot_xy, POI_rot, cable_length_mat] = Arbeitsraum
 
 %Define Point of Interest (POI) 
 POI_offset = [0 0 b(3,5)]'; %first value of endeffector in z-axis (offset to half the rod length)
-lever_arm = POI_offset(3);
+lever_arm = POI_offset(3); %only half of rod length 
 
 %Define rotation axis 
-R = axang2rotm([rotation_axis, deg2rad(rot_angle)]); 
+R = axang2rotm([rotation_axis, deg2rad(rot_angle)]);  %TODO: write to matrix (save time) 
 
 b_rot_xy = R *b; %Rotation of endeffector 
 
@@ -27,11 +27,10 @@ cable_length_cell = cell(1,length(coordinate.z));
                 [stop] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, f_min, f_max,noC,b_rot_xy, wrench, limit);
                 workspace_logical(k) = ~stop; %write the logical for 1 if stop = 0 (no violation exist)
             else
-%                  check_wp_log = zeros(1,26);
+
                 for index_wp = 1:size(wrench_mat,2)
                     wrench = wrench_mat(:,index_wp); 
                    [stop,cable_length] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, f_min, f_max,noC, b_rot_xy, wrench, limit); 
-%                    check_wp_log(index_wp) = stop; %as soon as a point does not fulfill the wrench, stop the process
                    if stop == 1
                        break
                    end
