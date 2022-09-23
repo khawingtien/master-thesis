@@ -40,7 +40,6 @@ plot3(b_figure_end(1, 1:5), b_figure_end(2, 1:5),b_figure_end(3, 1:5), 'x-k','Li
 plot3(b_figure_end(1, 6:10), b_figure_end(2, 6:10),b_figure_end(3, 6:10), 'x-k','LineWidth',2); %plot the frame of end-effector only bottom
 
 %% Plot Frame
-%Plot Rahmen (KHAW) 
 box = a';
 idx = [4 8 5 1 4; 1 5 6 2 1; 2 6 7 3 2; 3 7 8 4 3; 5 8 7 6 5; 1 4 3 2 1]'; %the ascending index of the box that will be plotted one after another 
 xc = box(:,1);
@@ -48,7 +47,7 @@ yc = box(:,2);
 zc = box(:,3);
 
 %Plot one or more filled polygonal regions with facealpha = semitransparent polygons 
-patch(xc(idx), yc(idx), zc(idx), 'w', 'facealpha', 0.1); 
+patch(xc(idx), yc(idx), zc(idx), 'r', 'facealpha', 0.2); 
 
 %% Plot WORKSPACE_TRANSLATION
 plot3(results(:,1),results(:,2),results(:,3),'.r')
@@ -56,9 +55,8 @@ daspect([1,1,1]) %For equal data unit lengths in all directions
 grid minor 
 
 %% Plot Boundary in 3D
-[k,vol_results] = boundary(results, 1); %in mm3
+[k,vol_results] = boundary(results, 1); %in mm3 with shrink factor = 1 (maximum shrink) 
 trisurf(k,results(:,1),results(:,2),results(:,3),'FaceColor','yellow','FaceAlpha',0.1)
-vol_results_m3 = vol_results*1e-9; %in m3
 
 %% Title of plot
 length_frame = max(a(1,:))-min(a(1,:)); %x-axis
@@ -66,7 +64,7 @@ width_frame = max(a(2,:))-min(a(2,:)); %y-axis
 height_frame = max(a(3,:))-min(a(3,:)); %z-axis 
 height_rod = max(b(3,:))-min(b(3,:));
 
-title('Rotational Workspace in Cable-Driven Haptic Device')
+title('Falcon Design in Cable-Driven Haptic Device')
 txt_1 = ['L = ' int2str(length_frame) ' W = ' int2str(width_frame) ' H = ' int2str(height_frame) ' Rod = ' int2str(height_rod) ' [mm]'];
 % txt_2 = ['Volume = ' num2str(Volume_ws_value) ' [m^3]'];
 txt_2 = ['wrench = ' num2str(w_p) ' N'];
