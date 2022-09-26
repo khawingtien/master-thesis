@@ -15,7 +15,7 @@ cable_length_cell = cell(1,length(coordinate.z)); %preallocating for speed
 
                 for index_wp = 1:size(wrench_mat,2)
                     wrench = wrench_mat(:,index_wp); 
-                   [stop,cable_length] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, f_min, f_max,noC, b_rot_xy, wrench, limit,f_M); 
+                    [stop,cable_length] = berechnungSeilkraftverteilung_KHAW(workspace_position, a, f_min, f_max,noC, b_rot_xy, wrench, limit,f_M); 
                    if stop == 1
                        break
                    end
