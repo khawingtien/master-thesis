@@ -151,12 +151,12 @@ end
 
 %% display info 
 if find(f > f_max)
-      disp("Achtung! Seilkraft ueberschreitet den Maximalwert");
+%       disp("Achtung! Seilkraft ueberschreitet den Maximalwert");
     stop = 1;
     return
 
 elseif find(f < f_min)
-     disp("Achtung! Seilkraft unterschreitet den Minimalwert")
+%      disp("Achtung! Seilkraft unterschreitet den Minimalwert")
   stop = 1;
 
 end

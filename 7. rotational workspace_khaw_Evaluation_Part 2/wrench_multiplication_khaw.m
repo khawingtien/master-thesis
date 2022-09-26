@@ -43,11 +43,13 @@ wrench = [wrench_f;wrench_t];
 wrench= round(wrench, 14); %for better overview with zero.  
 
 %% for visualisation 
-% figure %BECAREFUL when turn on this !!!
+figure %BECAREFUL when turn on this !!!
+grid on 
+title('Examination points for wrench in all direction')
 % plot3([sphere_mat(1,:)],[sphere_mat(2,:)],[sphere_mat(3,:)],'.g')
-% hold on
-% plot3([wrench_f(1,:)],[wrench_f(2,:)],[wrench_f(3,:)],'.b') 
-% plot3([wrench_t(1,:)],[wrench_t(2,:)],[wrench_t(3,:)],'.r')  
-% daspect([1 1 1])
+plot3([wrench_f(1,:)],[wrench_f(2,:)],[wrench_f(3,:)],'.b') 
+hold on
+plot3([wrench_t(1,:)],[wrench_t(2,:)],[wrench_t(3,:)],'.r')  
+daspect([1 1 1])
 
 end
