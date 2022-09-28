@@ -12,7 +12,7 @@ grid.z_max = 50;
 grid.z_min = -600;
 
 %Define Grid    
-grid_n = 50;  %stepsize in x- and y-direction 
+grid_n = 40;  %stepsize in x- and y-direction 
 grid_delta = (grid.z_max - grid.z_min) / grid_n;  %discretization steps in x-direction in mm %Gitterabstand von X-Richtung (Y- & Z-Richtung auch in diesem Abstand)
 
 coordinate.x = 0; %step size in x-direction

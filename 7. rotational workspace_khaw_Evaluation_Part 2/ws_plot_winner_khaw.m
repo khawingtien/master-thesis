@@ -1,4 +1,5 @@
 function [vol_results] = ws_plot_winner_khaw(results,a,b,noC,I_vv_value,Volume_ws_value,Volume_frame_value,Percentage_value,w_p) %wp,wpt temporary ommitted
+% (workspace_trans_remove_OutL, workspace_pointwise_trans_upper,a,b,noC,I_vv,Volume_ws*1e-9,Volume_frame*1e-9,Percentage,w_p);
 %plot workspace (rotation x-y axis and translation in z-axis) 
 
 figure 
@@ -14,14 +15,14 @@ plot3(Rod(1,:), Rod(2,:), Rod(3,:),'b','LineWidth',2)
 hold on 
 
 %% Plot Region of Interest (ROI)
-% r = 150; %radius in mm 
-% [X,Y,Z] = cylinder(r);
-% X = X-0;
-% Y = Y-0;
-% h = 200; %height in mm
-% height_lower = b(3,5) - h/2; %endeffector point +100mm above 
-% Z = (Z*h) + height_lower; %minus 100 so that its from -100 to 100 in Z-axis
-% surf(X,Y,Z,'FaceColor','b','FaceAlpha','0.3')
+r = 150; %radius in mm 
+[X,Y,Z] = cylinder(r);
+X = X-0;
+Y = Y-0;
+h = 200; %height in mm
+height_lower = b(3,5) - h/2; %endeffector point +100mm above 
+Z = (Z*h) + height_lower; %minus 100 so that its from -100 to 100 in Z-axis
+surf(X,Y,Z,'FaceColor','b','FaceAlpha','0.3')
 
 %% Plot Seile 
 a_figure = [a(:,1:4) a(:,8) a(:,5:8) a(:,5)]; %focus column 5 and column 10 
@@ -47,16 +48,19 @@ yc = box(:,2);
 zc = box(:,3);
 
 %Plot one or more filled polygonal regions with facealpha = semitransparent polygons 
-patch(xc(idx), yc(idx), zc(idx), 'r', 'facealpha', 0.2); 
+patch(xc(idx), yc(idx), zc(idx), 'w', 'facealpha', 0.2); 
 
 %% Plot WORKSPACE_TRANSLATION
 plot3(results(:,1),results(:,2),results(:,3),'.g')
 daspect([1,1,1]) %For equal data unit lengths in all directions
 grid minor 
 
+plot3(workspace_pointwise_trans_upper(:,1),workspace_pointwise_trans_upper(:,2),workspace_pointwise_trans_upper(:,3),'.r')
+
+
 %% Plot Boundary in 3D
 [k,vol_results] = boundary(results, 1); %in mm3 with shrink factor = 1 (maximum shrink) 
-% trisurf(k,results(:,1),results(:,2),results(:,3),'FaceColor','yellow','FaceAlpha',0.1)
+trisurf(k,results(:,1),results(:,2),results(:,3),'FaceColor','yellow','FaceAlpha',0.1)
 
 %% Title of plot
 length_frame = max(a(1,:))-min(a(1,:)); %x-axis
